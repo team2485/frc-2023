@@ -25,8 +25,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final WL_CommandXboxController m_driver = new WL_CommandXboxController(OIConstants.kDriverPort);
 
-  private final WL_CommandXboxController m_operator  =
-      new WL_CommandXboxController(OIConstants.kOperatorPort);
+  private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
 
   public final Drivetrain m_drivetrain = new Drivetrain();
 
