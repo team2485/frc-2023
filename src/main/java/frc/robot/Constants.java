@@ -178,14 +178,14 @@ public final class Constants {
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
     
-        public static final double kPAutoXController = 5;
+        public static final double kPAutoXController = 1;
         public static final double kIAutoXController = 0.05;
         public static final double kDAutoXController = 0.2;
-        public static final double kPAutoYController = 5;
+        public static final double kPAutoYController = 1;
         public static final double kIAutoYController = 0.05;
         public static final double kDAutoYController = 0.2;
 
-        public static final double kPAutoThetaController = 10;
+        public static final double kPAutoThetaController = 1;
         public static final double kIAutoThetaController = 0.1;
         public static final double kDAutoThetaController = 0.1;
     

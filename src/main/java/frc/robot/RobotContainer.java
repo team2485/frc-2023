@@ -7,7 +7,10 @@ package frc.robot;
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.drive.Drivetrain;
+import io.github.oblarg.oblog.annotations.Log;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -29,14 +32,19 @@ public class RobotContainer {
 
   public final Drivetrain m_drivetrain = new Drivetrain();
 
+  @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
+  private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     m_drivetrain.zeroGyro();
     configureBindings();
+
+    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
 
-  /**
+  /** 
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
    * predicate, or via the named factories in {@link
@@ -74,6 +82,6 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return m_autoChooser.getSelected();
   }
 }
