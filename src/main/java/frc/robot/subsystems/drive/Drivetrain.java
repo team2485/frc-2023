@@ -1,6 +1,8 @@
 package frc.robot.subsystems.drive;
 
 import frc.robot.subsystems.drive.SwerveModule;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 import frc.robot.Constants;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,13 +21,15 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase implements Loggable{
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public WPI_Pigeon2 gyro;
+    public WPI_Pigeon2 gyro = new WPI_Pigeon2(Constants.Swerve.pigeonID);
+
+    @Log(name="yaw")
+    double yaw = gyro.getYaw();
 
     public Drivetrain() {
-        gyro = new WPI_Pigeon2(Constants.Swerve.pigeonID);
         gyro.configFactoryDefault();
         this.zeroGyro();
 
@@ -38,6 +42,7 @@ public class Drivetrain extends SubsystemBase {
 
         swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions());
     }
+
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         SwerveModuleState[] swerveModuleStates =
@@ -69,8 +74,22 @@ public class Drivetrain extends SubsystemBase {
         }
     }    
 
+
     public Pose2d getPose() {
         return swerveOdometry.getPoseMeters();
+    }
+
+    public double getPoseX() {
+        return swerveOdometry.getPoseMeters().getX();
+    }
+
+    public double getPoseY() {
+        return swerveOdometry.getPoseMeters().getY();
+    }
+
+    @Log(name="rotation")
+    public double getPoseRotation() {
+        return swerveOdometry.getPoseMeters().getRotation().getDegrees();
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -97,6 +116,11 @@ public class Drivetrain extends SubsystemBase {
         gyro.setYaw(0);
     }
 
+    public void autoGyro(){
+        gyro.setYaw(180);
+    }
+
+    
     public Rotation2d getYaw() {
         return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getYaw()) : Rotation2d.fromDegrees(gyro.getYaw());
     }

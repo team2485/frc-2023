@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.Swerve;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.WarlordsLib.sendableRichness.SR_PIDController;
@@ -29,30 +31,33 @@ public class PathCommandBuilder {
     // create controller for robot angle
 
     // create command to follow path
+    var thetaController = new SR_ProfiledPIDController(1, 0, 0, kThetaControllerConstraints);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
     WL_SwerveControllerCommand pathCommand =
         new WL_SwerveControllerCommand(
             path,
             drivetrain::getPose,
             swerveKinematics,
-            new SR_PIDController(kPAutoXController, kIAutoXController, kDAutoXController),
-            new SR_PIDController(kPAutoYController, kIAutoYController, kDAutoYController),
-            new SR_ProfiledPIDController(kPAutoThetaController, kIAutoThetaController, kDAutoThetaController, kThetaControllerConstraints),
+            new SR_PIDController(kPAutoXController, 0, 0),
+            new SR_PIDController(kPAutoYController, 0, 0),
+            thetaController,
             drivetrain::setModuleStates,
             drivetrain);
 
-    return pathCommand;
-  }
+      return pathCommand; 
+          }
 
   public static InstantCommand getResetOdometryCommand(
-      Drivetrain drivetrain, WL_SwerveControllerCommand pathCommand) {
-    return new InstantCommand(
-        () ->
-            drivetrain.resetOdometry(
-                new Pose2d(
-                    pathCommand.m_trajectory.getInitialState().poseMeters.getTranslation(),
-                    pathCommand.m_trajectory.getInitialState().holonomicRotation)),
-        drivetrain);
-  }
+            Drivetrain drivetrain, WL_SwerveControllerCommand pathCommand) {
+          return new InstantCommand(
+              () ->
+                  drivetrain.resetOdometry(
+                      new Pose2d(
+                          pathCommand.m_trajectory.getInitialState().poseMeters.getTranslation(),
+                          pathCommand.m_trajectory.getInitialState().holonomicRotation)),
+              drivetrain);
+            }
 
   public static InstantCommand getStopPathCommand(Drivetrain drivetrain) {
     return new InstantCommand(() -> drivetrain.drive(new Translation2d(0,0), 0, false, false));
