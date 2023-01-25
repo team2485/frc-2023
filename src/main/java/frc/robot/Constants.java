@@ -54,6 +54,14 @@ public final class Constants {
   }
 
   public static final double stickDeadband = 0.1;
+public static final String TelescopeConstants = null;
+public static final int kTelescopePort = 0;
+public static final double kSTelescopeVolts = 0;
+public static final double kGTelescopeVolts = 0;
+public static final double kVTelescopeVoltSecondsPerMeter = 0;
+public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
+
+
 
     public static final class Swerve {
         public static final int pigeonID = 9;
@@ -188,6 +196,15 @@ public final class Constants {
         public static final double kPAutoThetaController = 1;
         public static final double kIAutoThetaController = 0.1;
         public static final double kDAutoThetaController = 0.1;
+
+    public static final class TelescopeConstants {
+        
+        public static final int kTelescopePort = 0;              //(fill in later)
+        public static final double kSTelescopeVolts = 0; 
+        public static final double kVTelescopeVoltSecondsPerMeter = 0;
+        public static final double kATelescopeVoltSecondsSquaredPerMeter = 0;
+
+    }
     
         /* Constraint for the motion profilied robot angle controller */
         public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints =

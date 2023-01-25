@@ -9,7 +9,8 @@
       }
     },
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/RobotContainer/Auto Chooser": "String Chooser"
     }
   },
   "NetworkTables Settings": {
