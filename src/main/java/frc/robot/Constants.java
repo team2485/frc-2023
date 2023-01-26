@@ -13,6 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.util.COTSFalconSwerveConstants;
 import frc.util.SwerveModuleConstants;
+import edu.wpi.first.math.controller.ArmFeedforward;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -195,4 +196,45 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static final class WristConstants {
+        public static final int kWristSparkPort = 23;
+        
+        public static final double kWristGearRatio = 225; // motor turns : output/full hood turns
+        public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kWristGearRatio;
+    
+        public static final double kWristBottomPositionRadians = 0; // from horizontal
+        public static final double kWristTopPositionRadians = 0.2872;
+    
+        public static final int kWristSmartCurrentLimitAmps = 10;
+        public static final int kWristImmediateCurrentLimitAmps = 10;
+    
+        // Wrist characterization constants
+        public static final double kSWristVolts = 0.1;
+        public static final double kGWristVolts = 0.25;
+        public static final double kVWristVoltSecondsPerRadian = 1;
+        public static final double kAWristVoltSecondsSquaredPerRadian = 0.12369;
+    
+        public static final double kWristMaxSpeedRadiansPerSecond = 2 * Math.PI;
+        
+        public static final double kWristMaxAccelerationRadiansPerSecondSquared =
+             new ArmFeedforward(
+                    kSWristVolts,
+                    kGWristVolts,
+                    kVWristVoltSecondsPerRadian,
+                    kAWristVoltSecondsSquaredPerRadian)
+                .maxAchievableAcceleration(
+                    kNominalVoltage, kWristBottomPositionRadians, kWristBottomPositionRadians);
+    
+        public static final SR_TrapezoidProfile.Constraints kWristMotionProfileConstraints =
+            new SR_TrapezoidProfile.Constraints(
+                kWristMaxSpeedRadiansPerSecond, kWristMaxAccelerationRadiansPerSecondSquared);
+        // Wrist PID constants
+        public static final double kPWrist = 50;
+        public static final double kIWrist = 3;
+        public static final double kDWrist = 0;
+        public static final double kWristControllerPositionTolerance = 0.005;
+        
+    }
+    
 }
