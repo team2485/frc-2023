@@ -195,4 +195,39 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static final class MagazineConstants{
+        public static final double kIntakeTopWheelDiameterMeters = 0.1016;
+        public static final int kMagazineTalonPort = 18;
+        public static final double kMagazineLoopTimeSeconds = 0.02;
+        public static final int kMagazineSmartCurrentLimitAmps = 25;
+        public static final int kMagazineImmediateCurrentLimitAmps = 30;
+    
+        public static final double kMagazineSupplyCurrentLimitAmps = 25;
+        public static final double kMagazineSupplyCurrentThresholdAmps = 30;
+        public static final double kMagazineSupplyCurrentThresholdTimeSecs = 0.1;
+        public static final double kMagazineStatorCurrentLimitAmps = 40;
+        public static final double kMagazineStatorCurrentThresholdAmps = 45;
+        public static final double kMagazineStatorCurrentThresholdTimeSecs = 0.05;
+    
+        public static final double kMagazineGearRatio = 4; // motor turns : output/full hood turns
+    
+        public static final double kMagazineFreeSpeedRotationsPerSecond =
+            kNeoFreeSpeedRotationsPerSecond / kMagazineGearRatio;
+    
+        public static final double kMagazineEntryWheelDiameterMeters = 0.0508; // 2 inches
+    
+        public static final double kMagazineIntakeSpeedRatio =
+            kIntakeTopWheelDiameterMeters / kMagazineEntryWheelDiameterMeters;
+    
+        public static final double kMagazineDefaultSpeedRotationsPerSecond =
+            kMagazineFreeSpeedRotationsPerSecond * 0.9;
+    
+        public static final double kSMagazineVolts = 0.69534;
+        public static final double kVMagazineVoltSecondsPerMeter = 0.5;
+        public static final double kAMagazineVoltSecondsSquaredPerMeter = 0.0015969;
+    
+        public static final double kMagazineVelocityToleranceRotationsPerSecond = 1;
+        
+    }
 }
