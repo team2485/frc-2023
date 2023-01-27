@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drive;
 
+import static frc.robot.Constants.*;
+import static frc.robot.Constants.WristConstants.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -13,20 +15,20 @@ import io.github.oblarg.oblog.annotations.*;
 
 
 public class Wrist extends SubsystemBase implements Loggable{
-    private final WL_SparkMax m_spark = new WL_SparkMax(Constants.WristConstants.kWristSparkPort);
+    private final WL_SparkMax m_spark = new WL_SparkMax(kWristSparkPort);
     
     private final SR_ProfiledPIDController m_controller =
-    new SR_ProfiledPIDController(Constants.WristConstants.kPWrist, Constants.WristConstants.kIWrist, Constants.WristConstants.kDWrist, Constants.WristConstants.kWristMotionProfileConstraints);
+    new SR_ProfiledPIDController(kPWrist, kIWrist, kDWrist, kWristMotionProfileConstraints);
 
 
     @Log(name = "Wrist Feedforward")
     private final SR_ArmFeedforward m_feedforward =
         new SR_ArmFeedforward(
-            Constants.WristConstants.kSWristVolts, Constants.WristConstants.kGWristVolts, Constants.WristConstants.kVWristVoltSecondsPerRadian, Constants.WristConstants.kAWristVoltSecondsSquaredPerRadian);
+            kSWristVolts, kGWristVolts, kVWristVoltSecondsPerRadian, kAWristVoltSecondsSquaredPerRadian);
   
 
     @Log(name = "angle setpoint radians")
-    private double m_angleSetpointRadiansCurrent = Constants.WristConstants.kWristBottomPositionRadians;
+    private double m_angleSetpointRadiansCurrent = kWristBottomPositionRadians;
   
     private double m_angleSetpointRadiansFinal = m_angleSetpointRadiansCurrent;
   
@@ -36,17 +38,17 @@ public class Wrist extends SubsystemBase implements Loggable{
 
 
     public Wrist() {
-        m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
-        m_spark.setSmartCurrentLimit(Constants.WristConstants.kWristSmartCurrentLimitAmps);
-        m_spark.setSecondaryCurrentLimit(Constants.WristConstants.kWristImmediateCurrentLimitAmps);
+        m_spark.enableVoltageCompensation(kNominalVoltage);
+        m_spark.setSmartCurrentLimit(kWristSmartCurrentLimitAmps);
+        m_spark.setSecondaryCurrentLimit(kWristImmediateCurrentLimitAmps);
     
         m_spark.setInverted(false);
     
         m_spark.setIdleMode(IdleMode.kBrake);
     
-        m_controller.setTolerance(Constants.WristConstants.kWristControllerPositionTolerance);
+        m_controller.setTolerance(kWristControllerPositionTolerance);
     
-        this.resetAngleRadians(Constants.WristConstants.kWristBottomPositionRadians);
+        this.resetAngleRadians(kWristBottomPositionRadians);
     
         Shuffleboard.getTab("Wrist").add("Wrist controller", m_controller);
       }
@@ -54,17 +56,17 @@ public class Wrist extends SubsystemBase implements Loggable{
 
     @Log(name = "Current angle (radians)")
     public double getAngleRadians() {
-        return m_spark.getEncoder().getPosition() * Constants.WristConstants.kWristRadiansPerMotorRev;
+        return m_spark.getEncoder().getPosition() * kWristRadiansPerMotorRev;
     }
 
-    @Config(name = "Set angle (radians)", defaultValueNumeric = Constants.WristConstants.kWristBottomPositionRadians)
+    @Config(name = "Set angle (radians)", defaultValueNumeric = kWristBottomPositionRadians)
     public void setAngleRadians(double angle) {
         m_angleSetpointRadiansCurrent =
-            MathUtil.clamp(angle, Constants.WristConstants.kWristBottomPositionRadians, Constants.WristConstants.kWristTopPositionRadians);
+            MathUtil.clamp(angle, kWristBottomPositionRadians, kWristTopPositionRadians);
     }
 
     public void resetAngleRadians(double angle) {
-        m_spark.getEncoder().setPosition(angle / Constants.WristConstants.kWristRadiansPerMotorRev);
+        m_spark.getEncoder().setPosition(angle / kWristRadiansPerMotorRev);
     }
 
 
@@ -79,10 +81,10 @@ public class Wrist extends SubsystemBase implements Loggable{
               m_angleSetpointRadiansCurrent,
               m_previousVelocitySetpoint,
               m_controller.getSetpoint().velocity,
-              Constants.kTimestepSeconds);
+              kTimestepSeconds);
   
       m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
   
-      m_spark.set((controllerVoltage + feedforwardVoltage) / Constants.kNominalVoltage);
+      m_spark.set((controllerVoltage + feedforwardVoltage) / kNominalVoltage);
     }
 }
