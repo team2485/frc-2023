@@ -31,7 +31,7 @@ public class PathCommandBuilder {
     // create controller for robot angle
 
     // create command to follow path
-    var thetaController = new SR_ProfiledPIDController(1, 0, 0, kThetaControllerConstraints);
+    var thetaController = new SR_ProfiledPIDController(kPAutoThetaController, 0, 0, kThetaControllerConstraints);
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     WL_SwerveControllerCommand pathCommand =
