@@ -3,6 +3,12 @@ package frc.robot.subsystems.drive;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.WristConstants.*;
 import com.revrobotics.CANSparkMax.IdleMode;
+//import com.ctre.phoenix.motorcontrol.NeutralMode;
+//import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+//import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+//import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+//import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +21,7 @@ import io.github.oblarg.oblog.annotations.*;
 
 
 public class Wrist extends SubsystemBase implements Loggable{
+    //private WPI_TalonFX m_talon = new WPI_TalonFX(kWristSparkPort);
     private final WL_SparkMax m_spark = new WL_SparkMax(kWristSparkPort);
     
     private final SR_ProfiledPIDController m_controller =
@@ -28,7 +35,7 @@ public class Wrist extends SubsystemBase implements Loggable{
   
 
     @Log(name = "angle setpoint radians")
-    private double m_angleSetpointRadiansCurrent = kWristBottomPositionRadians;
+    private double m_angleSetpointRadiansCurrent = (kWristBottomPositionRadians+kWristTopPositionRadians)/2;
   
     private double m_angleSetpointRadiansFinal = m_angleSetpointRadiansCurrent;
   
