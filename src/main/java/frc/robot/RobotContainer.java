@@ -6,10 +6,16 @@ package frc.robot;
 
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.Vision;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
+import frc.robot.commands.vision.AlignToTag;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.util.vision.PoseEstimation;
 import io.github.oblarg.oblog.annotations.Log;
+
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -31,6 +37,10 @@ public class RobotContainer {
   private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
 
   public final Drivetrain m_drivetrain = new Drivetrain();
+
+  private final PhotonCamera m_camera = new PhotonCamera(Vision.kCameraName);
+  private final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
+  private final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -78,6 +88,8 @@ public class RobotContainer {
     );
 
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
+
+    m_driver.a().toggleOnTrue(m_alignToTag);
   }
 
   public Command getAutonomousCommand() {

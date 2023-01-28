@@ -220,7 +220,7 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(8, 8);
 
     // TODO: ensure validity of measurements
-    public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(-0.42, 0, -0.97),
+    public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175,-.1635125, .47625),
         new Rotation3d());
 
     public static final int kTagOfInterest = 1;

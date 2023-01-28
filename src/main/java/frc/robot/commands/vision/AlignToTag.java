@@ -24,9 +24,9 @@ public class AlignToTag extends CommandBase {
   private final Drivetrain m_drivetrain;
   private final Supplier<Pose2d> m_poseProvider;
 
-  private final ProfiledPIDController m_XController = new ProfiledPIDController(.55, 0, 0,
+  private final ProfiledPIDController m_XController = new ProfiledPIDController(.2, 0, 0,
       Vision.kXConstraints);
-  private final ProfiledPIDController m_YController = new ProfiledPIDController(.55, 0, 0,
+  private final ProfiledPIDController m_YController = new ProfiledPIDController(.2, 0, 0,
       Vision.kYConstraints);
   private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(.5, 0, 0,
       Vision.kOmegaConstraints);
@@ -116,7 +116,9 @@ public class AlignToTag extends CommandBase {
 
     xSpeed = MathUtil.applyDeadband(xSpeed, 0.2);
     ySpeed = MathUtil.applyDeadband(ySpeed, 0.2);
+    xSpeed = MathUtil.clamp(xSpeed, -3.0, 3.0);
+    ySpeed = MathUtil.clamp(ySpeed, -3.0, 3.0);
     omegaSpeed = MathUtil.applyDeadband(omegaSpeed, 0.2);
-    m_drivetrain.drive(new Translation2d(-xSpeed, -ySpeed), omegaSpeed, true, true);
+    m_drivetrain.drive(new Translation2d(xSpeed, -ySpeed), omegaSpeed, true, true);
   }
 }
