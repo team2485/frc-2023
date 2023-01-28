@@ -200,6 +200,9 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
     public static final class TelescopeConstants {
         
         public static final int kTelescopePort = 0;              //(fill in later)
+        public static final int kTelescopeSparkPort = 0;
+        public static final double kTelescopeSmartCurrentLimitAmps = 0.0;
+        public static final double kTelescopeImmediateCurrentLimitAmps = 0.0;
         public static final double kSTelescopeVolts = 0; 
         public static final double kVTelescopeVoltSecondsPerMeter = 0;
         public static final double kATelescopeVoltSecondsSquaredPerMeter = 0;
