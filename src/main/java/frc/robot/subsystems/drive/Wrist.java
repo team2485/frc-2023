@@ -2,18 +2,16 @@ package frc.robot.subsystems.drive;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.WristConstants.*;
-import com.revrobotics.CANSparkMax.IdleMode;
-//import com.ctre.phoenix.motorcontrol.NeutralMode;
-//import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
-//import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-//import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-//import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-//import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.WarlordsLib.motorcontrol.WL_SparkMax;
 import frc.WarlordsLib.sendableRichness.SR_ArmFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import io.github.oblarg.oblog.Loggable;
@@ -21,8 +19,8 @@ import io.github.oblarg.oblog.annotations.*;
 
 
 public class Wrist extends SubsystemBase implements Loggable{
-    //private WPI_TalonFX m_talon = new WPI_TalonFX(kWristSparkPort);
-    private final WL_SparkMax m_spark = new WL_SparkMax(kWristSparkPort);
+    private WPI_TalonFX m_talon = new WPI_TalonFX(kWristSparkPort);
+    // private final WL_SparkMax m_spark = new WL_SparkMax(kWristSparkPort);
     
     private final SR_ProfiledPIDController m_controller =
     new SR_ProfiledPIDController(kPWrist, kIWrist, kDWrist, kWristMotionProfileConstraints);
@@ -35,6 +33,7 @@ public class Wrist extends SubsystemBase implements Loggable{
   
 
     @Log(name = "angle setpoint radians")
+    //sets starting angle as midpoint of wrist range
     private double m_angleSetpointRadiansCurrent = (kWristBottomPositionRadians+kWristTopPositionRadians)/2;
   
     private double m_angleSetpointRadiansFinal = m_angleSetpointRadiansCurrent;
@@ -45,13 +44,30 @@ public class Wrist extends SubsystemBase implements Loggable{
 
 
     public Wrist() {
-        m_spark.enableVoltageCompensation(kNominalVoltage);
-        m_spark.setSmartCurrentLimit(kWristSmartCurrentLimitAmps);
-        m_spark.setSecondaryCurrentLimit(kWristImmediateCurrentLimitAmps);
-    
-        m_spark.setInverted(false);
-    
-        m_spark.setIdleMode(IdleMode.kBrake);
+        TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
+        wristTalonConfig.voltageCompSaturation = kNominalVoltage;
+        wristTalonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_1Ms;
+        wristTalonConfig.velocityMeasurementWindow = 1;
+        
+        wristTalonConfig.supplyCurrLimit =
+        new SupplyCurrentLimitConfiguration(
+            true,
+            kIndexerSupplyCurrentLimitAmps,
+            kIndexerSupplyCurrentThresholdAmps,
+            kIndexerSupplyCurrentThresholdTimeSecs);
+
+            wristTalonConfig.statorCurrLimit =
+        new StatorCurrentLimitConfiguration(
+            true,
+            kIndexerStatorCurrentLimitAmps,
+            kIndexerStatorCurrentThresholdAmps,
+            kIndexerStatorCurrentThresholdTimeSecs);
+
+        m_talon.configAllSettings(wristTalonConfig);
+        m_talon.setNeutralMode(NeutralMode.Brake);
+        m_talon.setInverted(false);
+        m_talon.enableVoltageCompensation(true);
+        
     
         m_controller.setTolerance(kWristControllerPositionTolerance);
     
@@ -63,7 +79,7 @@ public class Wrist extends SubsystemBase implements Loggable{
 
     @Log(name = "Current angle (radians)")
     public double getAngleRadians() {
-        return m_spark.getEncoder().getPosition() * kWristRadiansPerMotorRev;
+        return m_talon.getSelectedSensorPosition() * kWristRadiansPerMotorRev;
     }
 
     @Config(name = "Set angle (radians)", defaultValueNumeric = kWristBottomPositionRadians)
@@ -73,7 +89,7 @@ public class Wrist extends SubsystemBase implements Loggable{
     }
 
     public void resetAngleRadians(double angle) {
-        m_spark.getEncoder().setPosition(angle / kWristRadiansPerMotorRev);
+        m_talon.setSelectedSensorPosition(angle / kWristRadiansPerMotorRev);
     }
 
 
@@ -92,6 +108,6 @@ public class Wrist extends SubsystemBase implements Loggable{
   
       m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
   
-      m_spark.set((controllerVoltage + feedforwardVoltage) / kNominalVoltage);
+      m_talon.set((controllerVoltage + feedforwardVoltage) / kNominalVoltage);
     }
 }

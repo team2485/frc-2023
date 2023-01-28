@@ -205,9 +205,15 @@ public final class Constants {
     
         public static final double kWristBottomPositionRadians = 0; // from horizontal
         public static final double kWristTopPositionRadians = 0.2872;
-    
-        public static final int kWristSmartCurrentLimitAmps = 10;
-        public static final int kWristImmediateCurrentLimitAmps = 10;
+       
+        public static final double kIndexerSupplyCurrentLimitAmps=25;
+        public static final double kIndexerSupplyCurrentThresholdAmps=30;
+        public static final double kIndexerSupplyCurrentThresholdTimeSecs=0.1;
+
+        public static final double kIndexerStatorCurrentLimitAmps=40;
+        public static final double kIndexerStatorCurrentThresholdAmps=45;
+        public static final double kIndexerStatorCurrentThresholdTimeSecs=0.05;
+
     
         // Wrist characterization constants
         public static final double kSWristVolts = 0.1;
