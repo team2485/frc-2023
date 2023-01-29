@@ -187,6 +187,7 @@ public final class Constants {
       public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID,
           canCoderID, angleOffset, true);
     }
+
   }
 
   public static final class AutoConstants { // TODO: The below constants are used in the example auto, and must be tuned
@@ -220,7 +221,7 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(8, 8);
 
     // TODO: ensure validity of measurements
-    public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175,-.1635125, .47625),
+    public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175,.1635125*.5, .47625),
         new Rotation3d());
 
     public static final int kTagOfInterest = 1;

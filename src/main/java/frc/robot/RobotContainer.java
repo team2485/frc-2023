@@ -90,10 +90,14 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
 
     m_driver.a().toggleOnTrue(m_alignToTag);
+
+    //m_alignToTag.updateShuffleBoard();
   }
 
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return m_autoChooser.getSelected();
   }
+
+
 }

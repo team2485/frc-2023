@@ -107,7 +107,7 @@ public class Drivetrain extends SubsystemBase implements Loggable{
     public SwerveModulePosition[] getModulePositions(){
         SwerveModulePosition[] positions = new SwerveModulePosition[4];
         for(SwerveModule mod : mSwerveMods){
-            positions[mod.moduleNumber] = mod.getPosition();
+            positions[mod.moduleNumber] = new SwerveModulePosition(-mod.getPosition().distanceMeters, mod.getPosition().angle);
         }
         return positions;
     }
@@ -134,6 +134,6 @@ public class Drivetrain extends SubsystemBase implements Loggable{
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         
+        }
     }
-}
 }

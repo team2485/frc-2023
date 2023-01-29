@@ -24,15 +24,19 @@ public class AlignToTag extends CommandBase {
   private final Drivetrain m_drivetrain;
   private final Supplier<Pose2d> m_poseProvider;
 
-  private final ProfiledPIDController m_XController = new ProfiledPIDController(.2, 0, 0,
+  private final ProfiledPIDController m_XController = new ProfiledPIDController(1, .1, 0,
       Vision.kXConstraints);
-  private final ProfiledPIDController m_YController = new ProfiledPIDController(.2, 0, 0,
+  private final ProfiledPIDController m_YController = new ProfiledPIDController(1.1, .1, 0,
       Vision.kYConstraints);
-  private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(.5, 0, 0,
+  private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(4.5, .3, .1,
       Vision.kOmegaConstraints);
 
   private Pose2d goalPose;
   private PhotonTrackedTarget lastTarget;
+
+  private boolean xAtGoalPos = false;
+  private boolean yAtGoalPos = false;
+  private boolean rotationAtGoalPos = false;
 
   ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -41,8 +45,8 @@ public class AlignToTag extends CommandBase {
     this.m_drivetrain = drivetrain;
     this.m_poseProvider = poseProvider;
 
-    m_XController.setTolerance(0.1);
-    m_YController.setTolerance(0.1);
+    m_XController.setTolerance(.1);
+    m_YController.setTolerance(.1);
     m_OmegaController.setTolerance(Units.degreesToRadians(3));
     m_OmegaController.enableContinuousInput(-1, 1);
 
@@ -71,14 +75,13 @@ public class AlignToTag extends CommandBase {
         var target = targetOpt.get();
         if (!target.equals(lastTarget)) {
           lastTarget = target;
-
           var camToTarget = target.getBestCameraToTarget();
           // TODO: check 90 degree offset
-          var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
-              camToTarget.getRotation().toRotation2d());
-          // var transform = new
-          // Transform2d(camToTarget.getTranslation().toTranslation2d(),
-          // camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(90)));
+          //var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
+          //   camToTarget.getRotation().toRotation2d());
+          var transform = new
+          Transform2d(camToTarget.getTranslation().toTranslation2d(),
+          camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
 
           var cameraPose = robotPose.transformBy(
               new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
@@ -97,28 +100,58 @@ public class AlignToTag extends CommandBase {
     }
 
     var xSpeed = m_XController.calculate(robotPose.getX());
-    if (m_XController.atGoal()) {
+    //if (m_XController.atGoal()) {
+    if (Math.abs(goalPose.getX() - robotPose.getX()) < .15) {
       xSpeed = 0;
-    }
+      xAtGoalPos = true;
+    } 
+    else {
+      if (rotationAtGoalPos)
+        xAtGoalPos = false;
+    } 
     SmartDashboard.putNumber("xSpeed", xSpeed);
+    SmartDashboard.putBoolean("at goal", m_YController.atGoal());
+    SmartDashboard.putNumber("goal pose", goalPose.getY());
+    SmartDashboard.putNumber("robot pose", robotPose.getY());
+    SmartDashboard.putBoolean("at Xgoal", xAtGoalPos);
+    SmartDashboard.putBoolean("at Ygoal", yAtGoalPos);
+    SmartDashboard.putBoolean("at Rptgoal", rotationAtGoalPos);
 
     var ySpeed = m_YController.calculate(robotPose.getY());
-    if (m_YController.atGoal()) {
+    //if (m_YController.atGoal()) {
+    if (Math.abs(goalPose.getY() - robotPose.getY()) < .25) {
       ySpeed = 0;
-    }
+      yAtGoalPos = true;
+    } 
+    else {
+      if (rotationAtGoalPos)
+        yAtGoalPos = false;
+    } 
     SmartDashboard.putNumber("ySpeed", ySpeed);
+    //SmartDashboard.putNumber("rotDiff", goalPose.getRotation().getDegrees() - robotPose.getRotation().getDegrees());
 
     var omegaSpeed = m_OmegaController.calculate(robotPose.getRotation().getRadians());
-    if (m_OmegaController.atGoal()) {
+    if (xAtGoalPos && yAtGoalPos) 
+    {
+      if (Math.abs(robotPose.getRotation().getDegrees() - goalPose.getRotation().getDegrees()) < 5)
       omegaSpeed = 0;
     }
+    else rotationAtGoalPos = false;
+
     SmartDashboard.putNumber("omegaSpeed", omegaSpeed);
 
-    xSpeed = MathUtil.applyDeadband(xSpeed, 0.2);
-    ySpeed = MathUtil.applyDeadband(ySpeed, 0.2);
+    //xSpeed = MathUtil.applyDeadband(xSpeed, 0.2);
+    //ySpeed = MathUtil.applyDeadband(ySpeed, 0.2);
     xSpeed = MathUtil.clamp(xSpeed, -3.0, 3.0);
     ySpeed = MathUtil.clamp(ySpeed, -3.0, 3.0);
-    omegaSpeed = MathUtil.applyDeadband(omegaSpeed, 0.2);
-    m_drivetrain.drive(new Translation2d(xSpeed, -ySpeed), omegaSpeed, true, true);
+    //omegaSpeed = MathUtil.applyDeadband(omegaSpeed, 0.05);
+    m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), -omegaSpeed, true, true);
+    //m_drivetrain.drive(new Translation2d(0, 0), 0, true, true);
+  }
+  
+  public void updateShuffleBoard()
+  {
+    var robotPose = m_poseProvider.get();
+    SmartDashboard.putNumber("omegaSpeed",  m_OmegaController.calculate(robotPose.getRotation().getRadians()));
   }
 }
