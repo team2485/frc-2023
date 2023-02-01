@@ -195,4 +195,18 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static final class ElevatorConstants {
+        public static final int kElevatorPortTop = 0;
+        public static final int kElevatorPortBottom = 0;
+        public static final double kSElevatorUnloadedVolts = 0;
+        public static final double kGElevatorUnloadedVolts = 0;
+        public static final double kSElevatorLoadedVolts = 0;
+        public static final double kGElevatorLoadedVolts = 0;
+        public static final double kVElevatorVoltsSecondsPerMeter = 0;
+        public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0;
+        public static final double kElevatorBottomStop = 0;
+        public static final double kElevatorTopStop = 0;
+        //public static final double kFeedForwardVoltage = 0;
+    }
 }
