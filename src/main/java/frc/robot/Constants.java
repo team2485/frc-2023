@@ -199,14 +199,25 @@ public final class Constants {
     public static final class ElevatorConstants {
         public static final int kElevatorPortTop = 0;
         public static final int kElevatorPortBottom = 0;
-        public static final double kSElevatorUnloadedVolts = 0;
-        public static final double kGElevatorUnloadedVolts = 0;
-        public static final double kSElevatorLoadedVolts = 0;
-        public static final double kGElevatorLoadedVolts = 0;
+
+        public static final double kSElevatorVolts = 0;
+        public static final double kGElevatorVolts = 0;
+
         public static final double kVElevatorVoltsSecondsPerMeter = 0;
         public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0;
+        
         public static final double kElevatorBottomStop = 0;
         public static final double kElevatorTopStop = 0;
+
+        public static final double kElevatorMaxSpeedMetersPerSecond = 0;
+        public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 0;
+
+        public static final double kPElevatorVoltsPerMeter = 0;
+        public static final double kDElevatorVoltSecondsPerMeter = 0;
+        public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
+            kElevatorMaxSpeedMetersPerSecond,
+            kElevatorMaxAccelerationMetersPerSecondSquared);
+        public static final double kElevatorControlLoopTimeSeconds = 0;
         //public static final double kFeedForwardVoltage = 0;
     }
 }
