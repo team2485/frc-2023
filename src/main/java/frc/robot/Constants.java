@@ -224,8 +224,8 @@ public final class Constants {
     public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175,.1635125*.5, .47625),
         new Rotation3d());
 
-    public static final int kTagOfInterest = 1;
-    public static final Transform2d kTagToGoal = new Transform2d(new Translation2d(1, 0),
-        Rotation2d.fromDegrees(180.0));
+    //public static final int kTagOfInterest = 1;
+    //public static final Transform2d kTagToGoal = new Transform2d(new Translation2d(1, 0),
+    //    Rotation2d.fromDegrees(180.0));
   }
 }

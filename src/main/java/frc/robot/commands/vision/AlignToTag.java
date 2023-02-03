@@ -40,7 +40,9 @@ public class AlignToTag extends CommandBase {
 
   ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-  public AlignToTag(PhotonCamera camera, Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
+  private int offset = 0;
+
+  public AlignToTag(PhotonCamera camera, Drivetrain drivetrain, Supplier<Pose2d> poseProvider, int offset) {
     this.m_camera = camera;
     this.m_drivetrain = drivetrain;
     this.m_poseProvider = poseProvider;
@@ -50,6 +52,8 @@ public class AlignToTag extends CommandBase {
     m_OmegaController.setTolerance(Units.degreesToRadians(3));
     m_OmegaController.enableContinuousInput(-1, 1);
 
+    this.offset = offset;
+
     addRequirements(drivetrain);
   }
 
@@ -57,7 +61,7 @@ public class AlignToTag extends CommandBase {
   public void initialize() {
     var robotPose = m_poseProvider.get();
 
-    goalPose = null;
+    goalPose = new Pose2d(0, 0, new Rotation2d(0));
     lastTarget = null;
 
     m_OmegaController.reset(robotPose.getRotation().getRadians());
@@ -71,29 +75,25 @@ public class AlignToTag extends CommandBase {
     var result = m_camera.getLatestResult();
     if (result.hasTargets()) {
       // find tag to chase
-      var targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == Vision.kTagOfInterest)
-          .findFirst();
-      if (targetOpt.isPresent()) {
-        var target = targetOpt.get();
-        if (!target.equals(lastTarget)) {
-          lastTarget = target;
-          var camToTarget = target.getBestCameraToTarget();
-          var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
-              camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
+      var target = result.getBestTarget();
+      if (!target.equals(lastTarget)) {
+        lastTarget = target;
+        var camToTarget = target.getBestCameraToTarget();
+        var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
+            camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
 
-          var cameraPose = robotPose.transformBy(
-              new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
-                  .inverse());
-          Pose2d targetPose = cameraPose.transformBy(transform);
+        var cameraPose = robotPose.transformBy(
+            new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
+                .inverse());
+        Pose2d targetPose = cameraPose.transformBy(transform);
 
-          goalPose = targetPose.transformBy(Vision.kTagToGoal);
-        }
+        goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1, offset), new Rotation2d()));
+      }
 
-        if (null != goalPose) {
-          m_XController.setGoal(goalPose.getX());
-          m_YController.setGoal(goalPose.getY());
-          m_OmegaController.setGoal(goalPose.getRotation().getRadians());
-        }
+      if (null != goalPose) {
+        m_XController.setGoal(goalPose.getX());
+        m_YController.setGoal(goalPose.getY());
+        m_OmegaController.setGoal(goalPose.getRotation().getRadians());
       }
     }
 
