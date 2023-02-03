@@ -1,11 +1,14 @@
 package frc.robot.subsystems.drive;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import static frc.robot.Constants.ElevatorConstants.*;
 import io.github.oblarg.oblog.Loggable;
 import edu.wpi.first.math.MathUtil;
 //import edu.wpi.first.math.controller.ElevatorFeedforward;
 import frc.WarlordsLib.sendableRichness.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.*;
 
 public class Elevator extends SubsystemBase implements Loggable{
     private double feedForwardVoltage = 0;
@@ -13,6 +16,12 @@ public class Elevator extends SubsystemBase implements Loggable{
     private double m_voltageSetpoint = 0;
     private boolean m_enables = false;
     private boolean m_voltageOverride = false;
+
+    private double m_lastVelocitySetpoint = 0;
+    private double outputPercentage; //reconsider naming, vaguely copied over
+
+    private double m_feedbackOutput = 0; //reconsider naming, vaguely copied over
+    private double m_feedforwardOutput = 0; //reconsider naming, vaguely copied over
 
     private final WPI_TalonFX m_talonTop = new WPI_TalonFX(kElevatorPortTop);
     private final WPI_TalonFX m_talonBottom = new WPI_TalonFX(kElevatorPortBottom);
@@ -70,56 +79,35 @@ public class Elevator extends SubsystemBase implements Loggable{
     }
 
     public void runControlLoop() {
-        /*if (m_enabled) {
-            if (m_voltageOverride) {
-                m_talon.set(ControlMode.PercentOutput, m_voltageSetpoint / Constants.kNominalVoltage);
-            } else {
-            double feedbackOutputVoltage = 0;
+        if (m_voltageOverride) {
+            m_talonTop.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
+            m_talonBottom.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
+        } 
+        else {
+
+        double feedbackOutputVoltage = 0;
+
+            feedbackOutputVoltage =
+                m_pidController.calculate(this.getPositionMeters(), m_positionSetpointMeters);
+
+        double feedforwardOutputVoltage = 0;
+
+            feedforwardOutputVoltage =
+                m_feedforward.calculate(
+                    m_lastVelocitySetpoint,
+                    m_pidController.getSetpoint().velocity,
+                    kElevatorControlLoopTimeSeconds);
+
+        outputPercentage =
+            (feedbackOutputVoltage + feedforwardOutputVoltage) / kNominalVoltage;
+
+        m_feedbackOutput = feedbackOutputVoltage;
+        m_feedforwardOutput = feedforwardOutputVoltage;
     
-            if (m_loaded) {
-              feedbackOutputVoltage =
-                  m_pidControllerLoaded.calculate(this.getPositionMeters(), m_positionSetpointMeters);
-            } else {
-              feedbackOutputVoltage =
-                  m_pidControllerUnloaded.calculate(this.getPositionMeters(), m_positionSetpointMeters);
-            }
-    
-            double feedforwardOutputVoltage = 0;
-            if (m_loaded) {
-              feedforwardOutputVoltage =
-                  m_feedforwardLoaded.calculate(
-                      m_lastVelocitySetpoint,
-                      m_pidControllerLoaded.getSetpoint().velocity,
-                      kElevatorControlLoopTimeSeconds);
-            } else {
-              feedforwardOutputVoltage =
-                  m_feedforwardUnloaded.calculate(
-                      m_lastVelocitySetpoint,
-                      m_pidControllerUnloaded.getSetpoint().velocity,
-                      kElevatorControlLoopTimeSeconds);
-            }
-    
-            outputPercentage =
-                (feedbackOutputVoltage + feedforwardOutputVoltage) / Constants.kNominalVoltage;
-    
-            if (!m_limitOverride) {
-              // outputPercentage = this.limitOnSlotSensors(outputPercentage);
-            }
-    
-            m_feedbackOutput = feedbackOutputVoltage;
-            m_feedforwardOutput = feedforwardOutputVoltage;
-            // m_talon.set(ControlMode.PercentOutput, limitOnSlotSensors(outputPercentage));
-    
-            m_talon.set(ControlMode.PercentOutput, outputPercentage);
-    
-            if (m_loaded) {
-              m_lastVelocitySetpoint = m_pidControllerLoaded.getSetpoint().velocity;
-            } else {
-              m_lastVelocitySetpoint = m_pidControllerUnloaded.getSetpoint().velocity;
-            }
-          }
-        } else {
-          m_talon.set(ControlMode.PercentOutput, 0);
-        }*/
-    }
+        m_talonTop.set(ControlMode.PercentOutput, outputPercentage);
+        m_talonBottom.set(ControlMode.PercentOutput, outputPercentage);
+
+          m_lastVelocitySetpoint = m_pidController.getSetpoint().velocity;
+        }
+    } 
 }
