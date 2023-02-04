@@ -1,6 +1,7 @@
 package frc.robot.commands.vision;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Constants.Vision;
 import frc.robot.subsystems.drive.Drivetrain;
 import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
@@ -22,11 +23,11 @@ public class VisionCommandBuilder {
     }
 
     public Command increaseOffset() {
-        return new InstantCommand(() -> offset++);
+        return new InstantCommand(() -> offset += Vision.kOffsetToNextScoringStation);
     }
 
     public Command decreaseOffset() {
-        return new InstantCommand(() -> offset--);
+        return new InstantCommand(() -> offset -= Vision.kOffsetToNextScoringStation);
     }
 
     public Command alignToTag() {

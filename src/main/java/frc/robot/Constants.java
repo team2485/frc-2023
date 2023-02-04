@@ -227,5 +227,7 @@ public final class Constants {
     //public static final int kTagOfInterest = 1;
     //public static final Transform2d kTagToGoal = new Transform2d(new Translation2d(1, 0),
     //    Rotation2d.fromDegrees(180.0));
+
+    public static final double kOffsetToNextScoringStation = 0.039158333333164;
   }
 }
