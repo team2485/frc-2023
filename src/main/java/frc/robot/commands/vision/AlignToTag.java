@@ -1,5 +1,6 @@
 package frc.robot.commands.vision;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import org.photonvision.PhotonCamera;
@@ -24,11 +25,13 @@ public class AlignToTag extends CommandBase {
   private final Drivetrain m_drivetrain;
   private final Supplier<Pose2d> m_poseProvider;
 
-  private final ProfiledPIDController m_XController = new ProfiledPIDController(1, .1, 0,
+  private final ProfiledPIDController m_XController = new ProfiledPIDController(0, 0, 0,
       Vision.kXConstraints);
-  private final ProfiledPIDController m_YController = new ProfiledPIDController(1.1, .1, 0,
+  private final ProfiledPIDController m_YController = new ProfiledPIDController((1.35/1.65)*((1 + (0.18*(.2))/(1-.2))), (2.5-2*.75)/(1-(.39*.2)), (.37 - (.37*.1))/(1-(.81*.2)),
       Vision.kYConstraints);
-  private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(4.5, .3, .1,
+  //private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(4.5, .3, .1,
+  //    Vision.kOmegaConstraints);
+  private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(0, 0, 0,
       Vision.kOmegaConstraints);
 
   private Pose2d goalPose;
@@ -40,6 +43,8 @@ public class AlignToTag extends CommandBase {
 
   ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
+  private double offset = 0;
+
   public AlignToTag(PhotonCamera camera, Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
     this.m_camera = camera;
     this.m_drivetrain = drivetrain;
@@ -49,7 +54,6 @@ public class AlignToTag extends CommandBase {
     m_YController.setTolerance(.1);
     m_OmegaController.setTolerance(Units.degreesToRadians(3));
     m_OmegaController.enableContinuousInput(-1, 1);
-
     addRequirements(drivetrain);
   }
 
@@ -71,7 +75,7 @@ public class AlignToTag extends CommandBase {
     var result = m_camera.getLatestResult();
     if (result.hasTargets()) {
       // find tag to chase
-      var targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == Vision.kTagOfInterest)
+      var targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
           .findFirst();
       if (targetOpt.isPresent()) {
         var target = targetOpt.get();
@@ -86,7 +90,8 @@ public class AlignToTag extends CommandBase {
                   .inverse());
           Pose2d targetPose = cameraPose.transformBy(transform);
 
-          goalPose = targetPose.transformBy(Vision.kTagToGoal);
+          goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1.5, offset),
+          Rotation2d.fromDegrees(180)));
         }
 
         if (null != goalPose) {
@@ -147,4 +152,7 @@ public class AlignToTag extends CommandBase {
     var robotPose = m_poseProvider.get();
     SmartDashboard.putNumber("omegaSpeed", m_OmegaController.calculate(robotPose.getRotation().getRadians()));
   }
+
+  public void addOffset(double newOffset) { offset += newOffset; }
+  public void zeroOffset() { offset = 0; }
 }

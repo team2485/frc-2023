@@ -217,7 +217,7 @@ public final class Constants {
     public static final String kCameraName = "photonvision";
 
     public static final TrapezoidProfile.Constraints kXConstraints = new TrapezoidProfile.Constraints(2, 2);
-    public static final TrapezoidProfile.Constraints kYConstraints = new TrapezoidProfile.Constraints(2, 2);
+    public static final TrapezoidProfile.Constraints kYConstraints = new TrapezoidProfile.Constraints(.5, 2);
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(8, 8);
 
     // TODO: ensure validity of measurements
@@ -225,7 +225,9 @@ public final class Constants {
         new Rotation3d());
 
     public static final int kTagOfInterest = 1;
-    public static final Transform2d kTagToGoal = new Transform2d(new Translation2d(1, 0),
-        Rotation2d.fromDegrees(180.0));
+    //public static final Transform2d kTagToGoal = new Transform2d(new Translation2d(1, 0),
+    //    Rotation2d.fromDegrees(180.0));
+    
+    public static final double kOffsetToNextScoringStation = 0.39158333333164;
   }
 }

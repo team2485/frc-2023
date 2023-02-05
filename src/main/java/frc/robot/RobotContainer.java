@@ -10,6 +10,7 @@ import frc.robot.Constants.Vision;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.commands.vision.AlignToTag;
+//import frc.robot.commands.vision.VisionCommandBuilder;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.util.vision.PoseEstimation;
 import io.github.oblarg.oblog.annotations.Log;
@@ -18,6 +19,7 @@ import org.photonvision.PhotonCamera;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -44,6 +46,7 @@ public class RobotContainer {
   private final PhotonCamera m_camera = new PhotonCamera(Vision.kCameraName);
   private final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
   private final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
+  //private final VisionCommandBuilder m_visionCommands = new VisionCommandBuilder(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -99,8 +102,11 @@ public class RobotContainer {
 
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
 
-    m_driver.a().toggleOnTrue(m_alignToTag);
+    m_driver.a().toggleOnTrue(m_alignToTag.alongWith(new InstantCommand(() -> m_alignToTag.zeroOffset())));
 
+    m_driver.leftPOV().onTrue(new InstantCommand(()-> m_alignToTag.addOffset(-Vision.kOffsetToNextScoringStation)));
+
+    m_driver.rightPOV().onTrue(new InstantCommand(()-> m_alignToTag.addOffset(Vision.kOffsetToNextScoringStation)));
     // m_alignToTag.updateShuffleBoard();
   }
 
