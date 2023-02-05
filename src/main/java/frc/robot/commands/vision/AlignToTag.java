@@ -1,5 +1,6 @@
 package frc.robot.commands.vision;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -61,7 +62,7 @@ public class AlignToTag extends CommandBase {
   public void initialize() {
     var robotPose = m_poseProvider.get();
 
-    goalPose = null;
+    goalPose = new Pose2d(0, 0, new Rotation2d(0));
     lastTarget = null;
 
     m_OmegaController.reset(robotPose.getRotation().getRadians());
@@ -71,28 +72,28 @@ public class AlignToTag extends CommandBase {
 
   @Override
   public void execute() {
-    var robotPose = m_poseProvider.get();
-    var result = m_camera.getLatestResult();
-    if (result.hasTargets()) {
-      // find tag to chase
-      var targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
-          .findFirst();
-      if (targetOpt.isPresent()) {
-        var target = targetOpt.get();
-        if (!target.equals(lastTarget)) {
-          lastTarget = target;
-          var camToTarget = target.getBestCameraToTarget();
-          var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
-              camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
+      var robotPose = m_poseProvider.get();
+      var result = m_camera.getLatestResult();
+      if (result.hasTargets()) {
+        // find tag to chase
+        var targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
+            .findFirst();
+        if (targetOpt.isPresent()) {
+          var target = targetOpt.get();
+          if (!target.equals(lastTarget)) {
+            lastTarget = target;
+            var camToTarget = target.getBestCameraToTarget();
+            var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
+                camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
 
           var cameraPose = robotPose.transformBy(
               new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
                   .inverse());
           Pose2d targetPose = cameraPose.transformBy(transform);
 
-          goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1.5, offset),
-          Rotation2d.fromDegrees(180)));
-        }
+            goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1.5, offset),
+            Rotation2d.fromDegrees(180)));
+          }
 
         if (null != goalPose) {
           m_XController.setGoal(goalPose.getX());
@@ -100,52 +101,52 @@ public class AlignToTag extends CommandBase {
           m_OmegaController.setGoal(goalPose.getRotation().getRadians());
         }
       }
+
+      var xSpeed = m_XController.calculate(robotPose.getX());
+
+      if (Math.abs(goalPose.getX() - robotPose.getX()) < .15) {
+        xSpeed = 0;
+        xAtGoalPos = true;
+      } else if (rotationAtGoalPos) {
+        xAtGoalPos = false;
+      }
+
+      SmartDashboard.putNumber("xSpeed", xSpeed);
+      SmartDashboard.putBoolean("at goal", m_YController.atGoal());
+      SmartDashboard.putNumber("goal pose", goalPose.getY());
+      SmartDashboard.putNumber("robot pose", robotPose.getY());
+      SmartDashboard.putBoolean("at Xgoal", xAtGoalPos);
+      SmartDashboard.putBoolean("at Ygoal", yAtGoalPos);
+      SmartDashboard.putBoolean("at Rptgoal", rotationAtGoalPos);
+
+      var ySpeed = m_YController.calculate(robotPose.getY());
+
+      if (Math.abs(goalPose.getY() - robotPose.getY()) < .25) {
+        ySpeed = 0;
+        yAtGoalPos = true;
+      } else if (rotationAtGoalPos) {
+        yAtGoalPos = false;
+      }
+
+      SmartDashboard.putNumber("ySpeed", ySpeed);
+      // SmartDashboard.putNumber("rotDiff", goalPose.getRotation().getDegrees() -
+      // robotPose.getRotation().getDegrees());
+
+      var omegaSpeed = m_OmegaController.calculate(robotPose.getRotation().getRadians());
+
+      if ((xAtGoalPos && yAtGoalPos)
+          && (Math.abs(robotPose.getRotation().getDegrees() - goalPose.getRotation().getDegrees()) < 5))
+        omegaSpeed = 0;
+      else
+        rotationAtGoalPos = false;
+
+      SmartDashboard.putNumber("omegaSpeed", omegaSpeed);
+
+      xSpeed = MathUtil.clamp(xSpeed, -3.0, 3.0);
+      ySpeed = MathUtil.clamp(ySpeed, -3.0, 3.0);
+      omegaSpeed = MathUtil.clamp(omegaSpeed, -3.0, 3.0);
+      m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), -omegaSpeed, true, true);
     }
-
-    var xSpeed = m_XController.calculate(robotPose.getX());
-
-    if (Math.abs(goalPose.getX() - robotPose.getX()) < .15) {
-      xSpeed = 0;
-      xAtGoalPos = true;
-    } else if (rotationAtGoalPos) {
-      xAtGoalPos = false;
-    }
-
-    SmartDashboard.putNumber("xSpeed", xSpeed);
-    SmartDashboard.putBoolean("at goal", m_YController.atGoal());
-    SmartDashboard.putNumber("goal pose", goalPose.getY());
-    SmartDashboard.putNumber("robot pose", robotPose.getY());
-    SmartDashboard.putBoolean("at Xgoal", xAtGoalPos);
-    SmartDashboard.putBoolean("at Ygoal", yAtGoalPos);
-    SmartDashboard.putBoolean("at Rptgoal", rotationAtGoalPos);
-
-    var ySpeed = m_YController.calculate(robotPose.getY());
-
-    if (Math.abs(goalPose.getY() - robotPose.getY()) < .25) {
-      ySpeed = 0;
-      yAtGoalPos = true;
-    } else if (rotationAtGoalPos) {
-      yAtGoalPos = false;
-    }
-
-    SmartDashboard.putNumber("ySpeed", ySpeed);
-    // SmartDashboard.putNumber("rotDiff", goalPose.getRotation().getDegrees() -
-    // robotPose.getRotation().getDegrees());
-
-    var omegaSpeed = m_OmegaController.calculate(robotPose.getRotation().getRadians());
-
-    if ((xAtGoalPos && yAtGoalPos)
-        && (Math.abs(robotPose.getRotation().getDegrees() - goalPose.getRotation().getDegrees()) < 5))
-      omegaSpeed = 0;
-    else
-      rotationAtGoalPos = false;
-
-    SmartDashboard.putNumber("omegaSpeed", omegaSpeed);
-
-    xSpeed = MathUtil.clamp(xSpeed, -3.0, 3.0);
-    ySpeed = MathUtil.clamp(ySpeed, -3.0, 3.0);
-    omegaSpeed = MathUtil.clamp(omegaSpeed, -3.0, 3.0);
-    m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), -omegaSpeed, true, true);
   }
 
   public void updateShuffleBoard() {
