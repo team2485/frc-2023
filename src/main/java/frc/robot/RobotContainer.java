@@ -103,7 +103,7 @@ public class RobotContainer {
 
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
 
-    m_driver.a().toggleOnTrue(m_alignToTag.alongWith(new InstantCommand(() -> m_alignToTag.zeroOffset())));
+    m_driver.a().toggleOnTrue(m_alignToTag);
 
     m_driver.leftPOV().onTrue(new InstantCommand(()-> m_alignToTag.addOffset(-Vision.kOffsetToNextScoringStation)));
 

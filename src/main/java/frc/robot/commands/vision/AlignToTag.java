@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,8 +28,6 @@ public class AlignToTag extends CommandBase {
       Vision.kXConstraints);
   private final ProfiledPIDController m_YController = new ProfiledPIDController((1.35/1.65)*((1 + (0.18*(.2))/(1-.2))), (2.5-2*.75)/(1-(.39*.2)), (.37 - (.37*.1))/(1-(.81*.2)),
       Vision.kYConstraints);
-  //private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(4.5, .3, .1,
-  //    Vision.kOmegaConstraints);
   private final ProfiledPIDController m_OmegaController = new ProfiledPIDController(6, .2, .3,
       Vision.kOmegaConstraints);
 
@@ -61,30 +58,56 @@ public class AlignToTag extends CommandBase {
 
   @Override
   public void initialize() {
+    offset = 0;
     var robotPose = m_poseProvider.get();
 
-    goalPose = new Pose2d(0, 0, new Rotation2d(0));
+    goalPose = new Pose2d(new Translation2d(0, 0), new Rotation2d());
     lastTarget = null;
 
     m_OmegaController.reset(robotPose.getRotation().getRadians());
     m_XController.reset(robotPose.getX());
     m_YController.reset(robotPose.getY());
-
-    //get the x, y, and rotation setpoints
-    defineTagSetpoint();
   }
 
   @Override
   public void execute() {
-    Pose2d robotPose = m_poseProvider.get();
-    
+    var robotPose = m_poseProvider.get();
+    var result = m_camera.getLatestResult();
+    if (result.hasTargets()) {
+      // find tag to chase
+      targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
+      .findFirst(); 
+      if (targetOpt.isPresent()) {
+        var target = targetOpt.get();
+        if (!target.equals(lastTarget)) {
+          lastTarget = target;
+          var camToTarget = target.getBestCameraToTarget();
+          var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
+              camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
+
+          var cameraPose = robotPose.transformBy(
+              new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
+                  .inverse());
+          Pose2d targetPose = cameraPose.transformBy(transform);
+
+            goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1, offset),
+            Rotation2d.fromDegrees(180)));
+        }
+
+        if (null != goalPose) {
+          m_XController.setGoal(goalPose.getX());
+          m_YController.setGoal(goalPose.getY());
+          m_OmegaController.setGoal(goalPose.getRotation().getRadians());
+        }
+      }
+    }
+
     // omega is the rotation relative to the April Tag
     var omegaSpeed = m_OmegaController.calculate(robotPose.getRotation().getRadians());
 
     // run rotation last so it doesn't mess up the translation
     if ((xAtGoalPos && yAtGoalPos)
         && (Math.abs(robotPose.getRotation().getDegrees() - goalPose.getRotation().getDegrees()) < 5)) {
-    // if (Math.abs(robotPose.getRotation().getDegrees() - goalPose.getRotation().getDegrees()) < 5) {
       omegaSpeed = 0;
       rotationAtGoalPos = true;
     }
@@ -117,12 +140,7 @@ public class AlignToTag extends CommandBase {
       yAtGoalPos = false;
     }
 
-    // are these necessary? the velocity caps in the pid constraints are lower than these except for omega 
-    xSpeed = MathUtil.clamp(xSpeed, -3.0, 3.0);
-    ySpeed = MathUtil.clamp(ySpeed, -3.0, 3.0);
-    // omegaSpeed = MathUtil.clamp(omegaSpeed, -.5, .5);
     m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), -omegaSpeed, true, true);
-
 
     SmartDashboard.putNumber("xSpeed", xSpeed);
     SmartDashboard.putBoolean("at goal", m_YController.atGoal());
@@ -147,43 +165,10 @@ public class AlignToTag extends CommandBase {
   @Override 
   public boolean isFinished()
   {
-    if (xAtGoalPos && yAtGoalPos && rotationAtGoalPos)
-      return true;
-    else return false;
-  }
-
-  private void defineTagSetpoint()
-  {
-    var robotPose = m_poseProvider.get();
-    var result = m_camera.getLatestResult();
-    if (result.hasTargets()) {
-      // find tag to chase
-      targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
-      .findFirst(); 
-      if (targetOpt.isPresent()) {
-        var target = targetOpt.get();
-        if (!target.equals(lastTarget)) {
-          lastTarget = target;
-          var camToTarget = target.getBestCameraToTarget();
-          var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
-              camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(15)));
-
-          var cameraPose = robotPose.transformBy(
-              new Transform2d(Vision.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
-                  .inverse());
-          Pose2d targetPose = cameraPose.transformBy(transform);
-
-            goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1, offset),
-            Rotation2d.fromDegrees(180)));
-        }
-
-        if (null != goalPose) {
-          m_XController.setGoal(goalPose.getX());
-          m_YController.setGoal(goalPose.getY());
-          m_OmegaController.setGoal(goalPose.getRotation().getRadians());
-        }
-      }
-    }
+    // if (xAtGoalPos && yAtGoalPos && rotationAtGoalPos)
+    //   return true;
+    // else return false;
+    return false;
   }
 
   public void addOffset(double newOffset) { offset += newOffset; }
