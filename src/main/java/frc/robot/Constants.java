@@ -216,9 +216,9 @@ public final class Constants {
   public static final class Vision {
     public static final String kCameraName = "photonvision";
 
-    public static final TrapezoidProfile.Constraints kXConstraints = new TrapezoidProfile.Constraints(2, 2);
+    public static final TrapezoidProfile.Constraints kXConstraints = new TrapezoidProfile.Constraints(1, 2);
     public static final TrapezoidProfile.Constraints kYConstraints = new TrapezoidProfile.Constraints(.5, 2);
-    public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(8, 8);
+    public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(3, 8);
 
     // TODO: ensure validity of measurements
     public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175,.1635125*.5, .47625),
