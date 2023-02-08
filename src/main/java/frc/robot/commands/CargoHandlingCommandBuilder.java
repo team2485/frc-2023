@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.drive.Magazine;
+import frc.robot.subsystems.drive.Wrist;
 import frc.robot.subsystems.drive.Drivetrain;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
