@@ -8,6 +8,9 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
+import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.GamePieceStateMachine.heightState;
+import frc.robot.subsystems.GamePieceStateMachine.pieceState;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -31,6 +34,8 @@ public class RobotContainer {
   private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
 
   public final Drivetrain m_drivetrain;
+
+  public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -81,6 +86,18 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
 
     m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
+
+    //hypothetical state machine formatting (delete later)
+    m_operator.x().and(()->m_stateMachine.getHeightState()==heightState.kLow).onTrue(new InstantCommand());
+    m_operator.y().onTrue(m_stateMachine.setHeightStateCommand(heightState.kMedium));
+
+    m_operator.x().and(
+      ()->m_stateMachine.getHeightState()==heightState.kMedium).and(
+      ()->m_stateMachine.getPieceState()==pieceState.kCone)
+      .onTrue(new InstantCommand(m_drivetrain::resetToAbsolute).andThen(
+        m_stateMachine.setHeightStateCommand(heightState.kHigh)
+      ));
+
   }
 
   public Command getAutonomousCommand() {
