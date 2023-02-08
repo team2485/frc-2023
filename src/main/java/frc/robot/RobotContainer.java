@@ -7,8 +7,10 @@ package frc.robot;
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
+import frc.robot.commands.GamePieceHandling;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.Intake;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +31,8 @@ public class RobotContainer {
   private final WL_CommandXboxController m_driver = new WL_CommandXboxController(OIConstants.kDriverPort);
 
   private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
+
+  private final Intake m_intake = new Intake();
 
   public final Drivetrain m_drivetrain;
 
@@ -87,4 +91,10 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return m_autoChooser.getSelected();
   }
+}
+
+
+private void configureGamePieceHandlingCommands(){
+  m_driver.rightTrigger().whileTrue(GamePieceHandling.getRunIntakeCommand(m_intake))
+                         .whileFalse(GamePieceHandling.getStopIntakeCommand(m_intake));
 }

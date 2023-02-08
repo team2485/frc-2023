@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.I2C;
+import frc.WarlordsLib.IDManager;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.util.COTSFalconSwerveConstants;
 import frc.util.SwerveModuleConstants;
@@ -195,4 +197,36 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+
+    public static final class IntakeConstants { //PLS TUNE ALL OF THESE PLS OTHERWISE EVERYTHING WILL BREAK AND STUFF
+        public static final int kIntakeSparkPort = 21;
+        public static final double kIntakeLoopTimeSeconds = 0.02;
+        public static final int kIntakeSmartCurrentLimitAmps = 20;
+        public static final int kIntakeImmediateCurrentLimitAmps = 25;
+    
+        public static final double kIntakeGearRatio = 4; // motor turns : output/full hood turns
+    
+        public static final double kIntakeFreeSpeedRotationsPerSecond =
+            kNeoFreeSpeedRotationsPerSecond / kIntakeGearRatio;
+    
+        public static final double kIntakeTopWheelDiameterMeters = 0.1016; // 4 in
+        public static final double kIntakeBottomWheelDiameterMeters = 0.1524; // 6 in
+        public static final double kIntakeBottomWheelCircumferenceMeters = 0.1524 * Math.PI;
+        public static final double kIntakeDefaultSpeedRotationsPerSecond =
+            kIntakeFreeSpeedRotationsPerSecond * 0.4;
+    
+        public static final double kSIntakeVolts = IDManager.getInstance().select(0.15, 0.0);
+        public static final double kVIntakeVoltSecondsPerMeter =
+            IDManager.getInstance().select(0.08, 0.1);
+        public static final double kAIntakeVoltSecondsSquaredPerMeter =
+            IDManager.getInstance().select(0.01, 0.01);
+    
+        public static final double kIntakeVelocityToleranceRotationsPerSecond = 1;
+    
+        public static final int kPhotoSensorPort = 5; // dio port
+    
+        public static final I2C.Port kI2CPort = I2C.Port.kOnboard;
+      }
 }
+
+
