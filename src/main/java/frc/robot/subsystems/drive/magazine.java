@@ -14,7 +14,7 @@ import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
-public class magazine extends SubsystemBase implements Loggable{
+public class Magazine extends SubsystemBase implements Loggable{
     
     private WPI_TalonFX m_talon = new WPI_TalonFX(kMagazineTalonPort);
 
