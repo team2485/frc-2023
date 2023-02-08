@@ -62,6 +62,7 @@ public class RobotContainer {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
     configureDrivetrainCommands();
+    configureGamePieceHandlingCommands();
 
     
   }
@@ -87,6 +88,11 @@ public class RobotContainer {
     m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
   }
 
+  private void configureGamePieceHandlingCommands(){
+    m_driver.rightTrigger().whileTrue(GamePieceHandling.getRunIntakeCommand(m_intake))
+                           .whileFalse(GamePieceHandling.getStopIntakeCommand(m_intake));
+  }
+
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return m_autoChooser.getSelected();
@@ -94,7 +100,3 @@ public class RobotContainer {
 }
 
 
-private void configureGamePieceHandlingCommands(){
-  m_driver.rightTrigger().whileTrue(GamePieceHandling.getRunIntakeCommand(m_intake))
-                         .whileFalse(GamePieceHandling.getStopIntakeCommand(m_intake));
-}
