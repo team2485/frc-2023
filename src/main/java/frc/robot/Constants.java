@@ -199,7 +199,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants { //PLS TUNE ALL OF THESE PLS OTHERWISE EVERYTHING WILL BREAK AND STUFF
-        public static final int kIntakeSparkPort = 21;
+        public static final int kIntakeTalonPort = 21;
         public static final double kIntakeLoopTimeSeconds = 0.02;
         public static final int kIntakeSmartCurrentLimitAmps = 20;
         public static final int kIntakeImmediateCurrentLimitAmps = 25;
