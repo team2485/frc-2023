@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -196,6 +197,7 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
         public static final double kPAutoThetaController = 1;
         public static final double kIAutoThetaController = 0.1;
         public static final double kDAutoThetaController = 0.1;
+    }
 
     public static final class TelescopeConstants {
         
@@ -207,11 +209,42 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
         public static final double kVTelescopeVoltSecondsPerMeter = 0;
         public static final double kATelescopeVoltSecondsSquaredPerMeter = 0;
 
+
+
+        public static final double kPTelescope = 0;
+        public static final double kITelescope = 0;
+        public static final double kDTelescope = 0;
+
+        public static final double kTelescopeStartPostion = 0;
+        public static final double kTelescopeLowerPosition = 1;
+        public static final double kTelescopeMiddlePosition = 2;
+        public static final double kTelescopeUpperPosition = 3;
+
+
+
+        // public static final double kTelescopeStartingPostion = 0;
+        // public static final double kTelescopeMaxAccelerationMetersPerSecondSquared = 0;
+        // public static final double kTelescopeMaxSpeedMetersPerSecond = 0;
+
+        // public static final double kTelescopeMaxSpeedRadiansPerSecond = 2 * Math.PI;
+        // public static final double kHoodMaxAccelerationRadiansPerSecondSquared = 
+        //     new ArmFeedforward(
+        //         kSTelescopeVolts,
+        //         kGTelescopeVolts,
+        //         kVTelescopeVoltSecondsPerMeter,
+        //         kATelescopeVoltSecondsSquaredPerMeter)
+        //     .maxAchievableAcceleration(
+        //         kNominalVoltage, kTelescopeStartingPostion, kTelescopeStartingPostion);
+
+
+        
+
+        // public static final SR_TrapezoidProfile.Constraints kHoodMotionProfileConstraints =
+        //     new SR_TrapezoidProfile.Constraints(
+        //         kTelescopeMaxSpeedMetersPerSecond, kTelescopeMaxAccelerationMetersPerSecondSquared);
+        
+
     }
     
-        /* Constraint for the motion profilied robot angle controller */
-        public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints =
-            new SR_TrapezoidProfile.Constraints(
-                kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
-    }
 }
+
