@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.Vision;
 import frc.robot.subsystems.drive.Drivetrain;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class AlignToTag extends CommandBase {
   private final PhotonCamera m_camera;
@@ -38,11 +40,16 @@ public class AlignToTag extends CommandBase {
   private boolean yAtGoalPos = false;
   private boolean rotationAtGoalPos = false;
 
+  Alliance alliance;
+
   ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
   private double offset = 0;
 
   private Optional<PhotonTrackedTarget> targetOpt;
+
+  int[] redOmittedTags = new int[] {5, 6, 7, 8};
+  int[] blueOmittedTags = new int[] {1, 2, 3, 4};
 
   public AlignToTag(PhotonCamera camera, Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
     this.m_camera = camera;
@@ -64,6 +71,8 @@ public class AlignToTag extends CommandBase {
     goalPose = new Pose2d(new Translation2d(0, 0), new Rotation2d());
     lastTarget = null;
 
+    alliance = DriverStation.getAlliance();
+
     m_OmegaController.reset(robotPose.getRotation().getRadians());
     m_XController.reset(robotPose.getX());
     m_YController.reset(robotPose.getY());
@@ -73,6 +82,11 @@ public class AlignToTag extends CommandBase {
   public void execute() {
     var robotPose = m_poseProvider.get();
     var result = m_camera.getLatestResult();
+
+    // make sure that we are not detecting tags on the other side of the field
+    if (alliance == Alliance.Blue && result.getBestTarget().getFiducialId() > 4
+     || alliance == Alliance.Red && result.getBestTarget().getFiducialId() < 5)
+      return;
     if (result.hasTargets()) {
       // find tag to chase
       targetOpt = result.getTargets().stream().filter(t -> t.getFiducialId() == result.getBestTarget().getFiducialId())
@@ -165,10 +179,10 @@ public class AlignToTag extends CommandBase {
   @Override 
   public boolean isFinished()
   {
-    // if (xAtGoalPos && yAtGoalPos && rotationAtGoalPos)
-    //   return true;
-    // else return false;
-    return false;
+    if (xAtGoalPos && yAtGoalPos && rotationAtGoalPos)
+      return true;
+    else return false;
+    // return false;
   }
 
   public void addOffset(double newOffset) { offset += newOffset; }
