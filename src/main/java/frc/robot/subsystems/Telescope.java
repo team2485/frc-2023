@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.TelescopeConstants.*;
 //import static frc.robot.Constants.IntakeConstants.*;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -69,9 +70,7 @@ public class Telescope extends SubsystemBase {
   public Telescope() {
 
 
-    public void setPWM(double pwm) {
-        m_TelescopeTalon.set(pwm);
-    }
+
     
     public double getDistance (){
 
@@ -117,13 +116,57 @@ public class Telescope extends SubsystemBase {
       return m_TelescopeTalon.getSelectedSensorPosition();
     }
 
+    public void resetPositionMeters (double position) {
+      m_TelescopeTalon.setSelectedSensorPosition(position);
+    }
+
+    public double getVelocityMetersPerSecond (){
+      return m_TelescopeTalon.getSelectedSensorVelocity();
+    }
+
+    public void setVoltage (double voltage){
+      m_voltageOverride = true;
+      m_voltageSetpoint = voltage;
+
+    }
+
+
     // yuvi's to do list for 2-11-23: resetPositionMeters, getVelocityMetersPerSecond, setVoltage, periodic
     
   
-
+  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    if (m_voltageOverride){
+      m_TelescopeTalon.set(ControlMode.PercentOutput, m_voltageSetpoint/12); //12 is kNominalVoltage but when I wrote kNominalVoltage it was being mad and bitchy so I just wrote 12, i'm too lazy to go into constants
+      
+
+    }
+    else {
+      double feedbackOutputVoltage = 0;
+
+
+        feedbackOutputVoltage = 
+          telescopeController.calculate(this.getPositionMeters(), m_positionSetpointMeters);
+      
+      double feedForwardOutputVoltage = 0;
+
+
+        feedForwardOutputVoltage = 
+          m_feedforward.calculate(m_lastVelocitySetpoint, telescopeController.getSetpoint().velocity, kTelescopeControlLoopTimeSeconds);
+
+      outputPercentage = 
+        (feedbackOutputVoltage + feedForwardOutputVoltage / 12); //same deal as above  
+
+      m_feedbackOutput = feedbackOutputVoltage;
+      m_feedforwardOutput = feedForwardOutputVoltage;
+
+      m_TelescopeTalon.set(ControlMode.PercentOutput, outputPercentage);
+
+      m_lastVelocitySetpoint = telescopeController.getSetpoint().velocity;
+    }
 
 
     

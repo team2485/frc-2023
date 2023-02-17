@@ -220,6 +220,8 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
         public static final double kTelescopeMiddlePosition = 2;
         public static final double kTelescopeUpperPosition = 3;
 
+        public static final double kTelescopeControlLoopTimeSeconds = 0;
+
 
 
         // public static final double kTelescopeStartingPostion = 0;
