@@ -96,9 +96,6 @@ public class Telescope extends SubsystemBase {
 
   }
 
-  // yuvi's to do list for 2-11-23: resetPositionMeters,
-  // getVelocityMetersPerSecond, setVoltage, periodic
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -124,6 +121,5 @@ public class Telescope extends SubsystemBase {
 
       m_lastVelocitySetpoint = telescopeController.getSetpoint().velocity;
     }
-
   }
 }

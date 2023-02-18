@@ -7,7 +7,6 @@ package frc.robot;
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
-import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,9 +16,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
@@ -35,22 +37,27 @@ public class RobotContainer {
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Configure the trigger bindings
     m_drivetrain.zeroGyro();
     configureBindings();
-
-    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
 
-  /** 
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+  /**
+   * Use this method to define your trigger->command mappings. Triggers can be
+   * created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+   * an arbitrary
    * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+   * {@link
+   * CommandXboxController
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
   private void configureBindings() {
@@ -58,7 +65,6 @@ public class RobotContainer {
 
     configureDrivetrainCommands();
 
-    
   }
 
   /**
@@ -67,17 +73,18 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
 
-  private void configureDrivetrainCommands(){
+  private void configureDrivetrainCommands() {
 
     m_drivetrain.setDefaultCommand(
-        new DriveWithController(m_drivetrain, 
-                                ()->m_driver.getLeftY(), 
-                                ()->m_driver.getLeftX(), 
-                                ()->m_driver.getRightX(), 
-                                ()->{return m_driver.rightBumper().getAsBoolean();})
-    );
+        new DriveWithController(m_drivetrain,
+            () -> m_driver.getLeftY(),
+            () -> m_driver.getLeftX(),
+            () -> m_driver.getRightX(),
+            () -> {
+              return m_driver.rightBumper().getAsBoolean();
+            }));
 
-    m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
+    m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
   }
 
   public Command getAutonomousCommand() {
