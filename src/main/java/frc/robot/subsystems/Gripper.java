@@ -1,13 +1,12 @@
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxLimitSwitch;
+
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import io.github.oblarg.oblog.Loggable;
@@ -40,7 +39,13 @@ public class Gripper extends SubsystemBase implements Loggable {
         this.m_velocityController = new PIDController(0, 0, 0);
         this.m_positionController = new PIDController(0, 0, 0); //TODO: Tune
         this.m_positionController.setTolerance(1);
+        
+        this.m_velocityBuffer = new BufferZone(Constants.GripperConstants.kGripperMinVelocity, Constants.GripperConstants.kGripperMaxVelocity, Constants.GripperConstants.kGripperOpen, Constants.GripperConstants.kGripperClosed,Constants.GripperConstants.kGripperBuffer);
+        
+        this.m_motor.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).enableLimitSwitch(true);
+        this.m_motor.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).enableLimitSwitch(true);
 
+   
     }
     //* get & at methods */
     public boolean atVelocitySetpoint() {
@@ -56,6 +61,13 @@ public class Gripper extends SubsystemBase implements Loggable {
     public double getEncoderPosition(){
 
         return m_motor.getEncoder().getPosition();
+    }
+    public boolean getReverseLimitSwitch() {
+        return m_motor.getReverseLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).isPressed();
+    }
+
+    public boolean getForwardLimitSwitch() {
+        return m_motor.getForwardLimitSwitch(SparkMaxLimitSwitch.Type.kNormallyClosed).isPressed();
     }
 
 
