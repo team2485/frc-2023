@@ -8,14 +8,20 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.GamePieceStateMachine;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -33,9 +39,11 @@ public class RobotContainer {
 
   private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
 
-  public final Drivetrain m_drivetrain;
+  public final Drivetrain m_drivetrain = new Drivetrain();
+  public final Elevator m_elevator = new Elevator();
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
+
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -43,9 +51,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    m_drivetrain = new Drivetrain();
-    m_drivetrain.zeroGyro();
     configureBindings();
+    m_drivetrain.zeroGyro();
 
     m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
@@ -62,8 +69,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    configureDrivetrainCommands();
-
+    this.configureDrivetrainCommands();
+    this.configureGamePieceCommands();
     
   }
 
@@ -84,19 +91,21 @@ public class RobotContainer {
     );
 
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
-
     m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
 
     //hypothetical state machine formatting (delete later)
-    m_operator.x().and(()->m_stateMachine.getHeightState()==heightState.kLow).onTrue(new InstantCommand());
-    m_operator.y().onTrue(m_stateMachine.setHeightStateCommand(heightState.kMedium));
+  
 
-    m_operator.x().and(
-      ()->m_stateMachine.getHeightState()==heightState.kMedium).and(
-      ()->m_stateMachine.getPieceState()==pieceState.kCone)
-      .onTrue(new InstantCommand(m_drivetrain::resetToAbsolute).andThen(
-        m_stateMachine.setHeightStateCommand(heightState.kHigh)
-      ));
+  }
+
+  private void configureGamePieceCommands(){
+
+    m_operator.x().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
+    m_operator.a().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
+
+    m_operator.y().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
+
+
 
   }
 

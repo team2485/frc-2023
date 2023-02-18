@@ -115,9 +115,8 @@ public final class Constants {
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
 
-        /* Drive Motor Characterization Values 
-         * Divide SYSID values by 12 to convert from volts to percent output for CTRE */
-        public static final double driveKS = (0.32 / 12); //TODO: This must be tuned to specific robot
+        /* Drive Motor Characterization Values */
+        public static final double driveKS = (0.32 / 12); 
         public static final double driveKV = (1.51 / 12);
         public static final double driveKA = (0.27 / 12);
 
@@ -195,4 +194,49 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
+ public static final class ElevatorConstants {
+        public static final int kElevatorPortLeft = 14;
+        public static final int kElevatorPortRight =  15;
+
+        public static final double kElevatorBottomStop = 0;
+        public static final double kElevatorTopStop = 0.8763;
+
+    
+        public static final double kElevatorSupplyCurrentLimitAmps = 35;
+        public static final double kElevatorSupplyCurrentThresholdAmps = 40;
+        public static final double kElevatorSupplyCurrentThresholdTimeSecs = 0.1;
+        public static final double kElevatorStatorCurrentLimitAmps = 50;
+        public static final double kElevatorStatorCurrentThresholdAmps = 55;
+        public static final double kElevatorStatorCurrentThresholdTimeSecs = 0.05;
+
+        public static final double kElevatorGearRatio = 3.86;
+        public static final double kSprocketCircumference = 0.032258 * Math.PI;
+
+        public static final double kDistancePerMotorRev = kSprocketCircumference/kElevatorGearRatio;
+        public static final double kDistancePerPulse = kDistancePerMotorRev/kFalconSensorUnitsPerRotation;
+
+        public static final double kElevatorFreeSpeedMetersPerSecond = kFalconFreeSpeedRotationsPerSecond / kElevatorGearRatio * kSprocketCircumference;
+        public static final double kElevatorMaxSpeedMetersPerSecond = kElevatorFreeSpeedMetersPerSecond * 0.9;
+        public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 1.5;
+
+        //velocity loop constants
+        public static final double kSElevatorVolts = 0.095783;
+        public static final double kGElevatorVolts = 0.2;
+        public static final double kVElevatorVoltsSecondsPerMeter = 2.5;
+        public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0.1854;
+        
+        //position loop constants
+        public static final double kPElevatorVoltsPerMeter = 80;
+        public static final double kIElevatorVoltsPerMeter = 0;
+        public static final double kDElevatorVoltSecondsPerMeter = 0;
+        public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
+            kElevatorMaxSpeedMetersPerSecond,
+            kElevatorMaxAccelerationMetersPerSecondSquared);
+        public static final double kElevatorControlLoopTimeSeconds = 0.01;
+
+ 
+
+        //public static final double kFeedForwardVoltage = 0;
+    }
 }
+
