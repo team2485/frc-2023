@@ -201,7 +201,7 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
 
     public static final class TelescopeConstants {
         
-        public static final int kTelescopePort = 0;              //(fill in later)
+        public static final int kTelescopePort = 90;              //(fill in later)
         public static final int kTelescopeSparkPort = 0;
         public static final double kTelescopeSmartCurrentLimitAmps = 0.0;
         public static final double kTelescopeImmediateCurrentLimitAmps = 0.0;
@@ -216,9 +216,9 @@ public static final String kATelescopeVoltSecondsSquaredPerMeter = null;
         public static final double kDTelescope = 0;
 
         public static final double kTelescopeStartPostion = 0;
-        public static final double kTelescopeLowerPosition = 1;
-        public static final double kTelescopeMiddlePosition = 2;
-        public static final double kTelescopeUpperPosition = 3;
+        public static final double kTelescopeLowerPosition = 0.3048;
+        public static final double kTelescopeMiddlePosition = 0.5969;
+        public static final double kTelescopeUpperPosition = 0.9398;
 
         public static final double kTelescopeControlLoopTimeSeconds = 0;
 

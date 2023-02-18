@@ -112,7 +112,7 @@ public class Telescope extends SubsystemBase {
       feedForwardOutputVoltage = m_feedforward.calculate(m_lastVelocitySetpoint,
           telescopeController.getSetpoint().velocity, kTelescopeControlLoopTimeSeconds);
 
-      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage / 12); // same deal as above
+      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage / Constants.kNominalVoltage); // same deal as above
 
       m_feedbackOutput = feedbackOutputVoltage;
       m_feedforwardOutput = feedForwardOutputVoltage;
