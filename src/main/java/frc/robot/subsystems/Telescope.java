@@ -71,70 +71,70 @@ public class Telescope extends SubsystemBase {
 
 
 
+  } 
+  public double getDistance (){
+
+    double distance = 1;
+
+     return distance;
+
+  }
+
+  public boolean isInverted (){
+    return m_TelescopeTalon.getInverted();
+  }
+
+  public void invertTalon(){
+    if (m_TelescopeTalon.getInverted()){
+      m_TelescopeTalon.setInverted(false);
+    }
+    else {
+      m_TelescopeTalon.setInverted(true);
+    }
+  }
+
+  public void setLowerNodePositionMeters(double position){
+    m_voltageOverride = false;
+    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeLowerPosition);
+  }
+
+  public void setMiddleNodePositionMeters(double position){
+    m_voltageOverride = false;
+    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeMiddlePosition);
+  }
+
+  public void setUpperNodePositionMeters(double position){
+    m_voltageOverride = false;
+    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeUpperPosition);
+  }
+
+  public double getError () {
+    return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
+  }
     
-    public double getDistance (){
+  public double getPositionMeters(){
+    return m_TelescopeTalon.getSelectedSensorPosition();
+  }
 
-        double distance = 1;
+  public void resetPositionMeters (double position) {
+    m_TelescopeTalon.setSelectedSensorPosition(position);
+  }
 
-        return distance;
+  public double getVelocityMetersPerSecond (){
+    return m_TelescopeTalon.getSelectedSensorVelocity();
+  }
 
-    }
+  public void setVoltage (double voltage){
+    m_voltageOverride = true;
+    m_voltageSetpoint = voltage;
 
-    public boolean isInverted (){
-      return m_TelescopeTalon.getInverted();
-    }
-
-    public void invertTalon(){
-      if (m_TelescopeTalon.getInverted()){
-        m_TelescopeTalon.setInverted(false);
-      }
-      else {
-        m_TelescopeTalon.setInverted(true);
-      }
-    }
-
-    public void setLowerNodePositionMeters(double position){
-      m_voltageOverride = false;
-      m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeLowerPosition);
-    }
-
-    public void setMiddleNodePositionMeters(double position){
-      m_voltageOverride = false;
-      m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeMiddlePosition);
-    }
-
-    public void setUpperNodePositionMeters(double position){
-      m_voltageOverride = false;
-      m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeUpperPosition);
-    }
-
-    public double getError () {
-      return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
-    }
-    
-    public double getPositionMeters(){
-      return m_TelescopeTalon.getSelectedSensorPosition();
-    }
-
-    public void resetPositionMeters (double position) {
-      m_TelescopeTalon.setSelectedSensorPosition(position);
-    }
-
-    public double getVelocityMetersPerSecond (){
-      return m_TelescopeTalon.getSelectedSensorVelocity();
-    }
-
-    public void setVoltage (double voltage){
-      m_voltageOverride = true;
-      m_voltageSetpoint = voltage;
-
-    }
+   }
 
 
     // yuvi's to do list for 2-11-23: resetPositionMeters, getVelocityMetersPerSecond, setVoltage, periodic
     
   
-  }
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
