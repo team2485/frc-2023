@@ -30,30 +30,34 @@ public class Wrist extends SubsystemBase implements Loggable {
   @Log(name = "angle setpoint radians")
   // sets starting angle as midpoint of wrist range
   private double m_angleSetpointRadiansCurrent = (kWristBottomPositionRadians + kWristTopPositionRadians) / 2;
-
   private double m_angleSetpointRadiansFinal = m_angleSetpointRadiansCurrent;
-
   private double m_previousVelocitySetpoint = 0;
-
   private boolean m_isZeroed = false;
 
+  private enum m_wristStates {
+    StateFault,
+    StateInit,
+    StateZero,
+    StateRun,
+    StateIdle
+  }
+
+  @Log(name = "current wrist state")
+  private static m_wristStates m_wristState;
+
   public Wrist() {
+    m_wristState = m_wristStates.StateInit;
+
     TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
     wristTalonConfig.voltageCompSaturation = kNominalVoltage;
     wristTalonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_1Ms;
     wristTalonConfig.velocityMeasurementWindow = 1;
 
-    wristTalonConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
-        true,
-        kIndexerSupplyCurrentLimitAmps,
-        kIndexerSupplyCurrentThresholdAmps,
-        kIndexerSupplyCurrentThresholdTimeSecs);
+    wristTalonConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, kIndexerSupplyCurrentLimitAmps,
+        kIndexerSupplyCurrentThresholdAmps, kIndexerSupplyCurrentThresholdTimeSecs);
 
-    wristTalonConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(
-        true,
-        kIndexerStatorCurrentLimitAmps,
-        kIndexerStatorCurrentThresholdAmps,
-        kIndexerStatorCurrentThresholdTimeSecs);
+    wristTalonConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(true, kIndexerStatorCurrentLimitAmps,
+        kIndexerStatorCurrentThresholdAmps, kIndexerStatorCurrentThresholdTimeSecs);
 
     m_talon.configAllSettings(wristTalonConfig);
     m_talon.setNeutralMode(NeutralMode.Brake);
@@ -83,16 +87,35 @@ public class Wrist extends SubsystemBase implements Loggable {
 
   @Override
   public void periodic() {
-    double controllerVoltage = m_controller.calculate(this.getAngleRadians(), m_angleSetpointRadiansCurrent);
+    switch (m_wristState) {
+      case StateFault:
+        break;
+      case StateInit:
+        m_wristState = m_wristStates.StateZero;
+        break;
+      case StateZero:
+        m_talon.set(-0.4);
+        if (m_talon.getSelectedSensorVelocity() < 0.01) { // TODO: update with actual velocity
+          this.resetAngleRadians(0);
+          m_talon.set(0);
+          m_wristState = m_wristStates.StateRun;
+        }
+        break;
+      case StateRun:
+        double controllerVoltage = m_controller.calculate(this.getAngleRadians(), m_angleSetpointRadiansCurrent);
 
-    double feedforwardVoltage = m_feedforward.calculate(
-        m_angleSetpointRadiansCurrent,
-        m_previousVelocitySetpoint,
-        m_controller.getSetpoint().velocity,
-        kTimestepSeconds);
+        double feedforwardVoltage = m_feedforward.calculate(
+            m_angleSetpointRadiansCurrent,
+            m_previousVelocitySetpoint,
+            m_controller.getSetpoint().velocity,
+            kTimestepSeconds);
 
-    m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
+        m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
 
-    m_talon.set((controllerVoltage + feedforwardVoltage) / kNominalVoltage);
+        m_talon.set((controllerVoltage + feedforwardVoltage) / kNominalVoltage);
+        break;
+      case StateIdle:
+        break;
+    }
   }
 }
