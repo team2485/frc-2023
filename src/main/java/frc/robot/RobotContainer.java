@@ -10,8 +10,10 @@ import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
+import frc.robot.subsystems.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -20,6 +22,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -41,6 +44,7 @@ public class RobotContainer {
 
   public final Drivetrain m_drivetrain = new Drivetrain();
   public final Elevator m_elevator = new Elevator();
+  public final Wrist m_wrist = new Wrist();
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -100,12 +104,14 @@ public class RobotContainer {
 
   private void configureGamePieceCommands(){
 
-    m_operator.x().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
-    m_operator.a().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
+    // m_operator.x().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
+    // m_operator.a().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
+    // m_operator.y().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
 
-    m_operator.y().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
-
-
+    m_operator.b().onTrue(new InstantCommand(()->m_wrist.resetAngleRadians(0)));
+    m_operator.x().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
+    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
 
   }
 

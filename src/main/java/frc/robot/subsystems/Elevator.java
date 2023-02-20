@@ -105,7 +105,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     }
 
     public double getVelocityMetersPerSecond() {
-        return m_talonLeft.getSelectedSensorVelocity() * kDistancePerPulse * 10;
+        return m_talonLeft.getSelectedSensorVelocity() * kDistancePerPulse;
     }
 
     @Log(name="output voltage")
