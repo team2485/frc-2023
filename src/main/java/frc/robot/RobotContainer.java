@@ -30,7 +30,7 @@ public class RobotContainer {
 
   private final WL_CommandXboxController m_operator = new WL_CommandXboxController(OIConstants.kOperatorPort);
 
-  public final Drivetrain m_drivetrain = new Drivetrain();
+  public final Drivetrain m_drivetrain;
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -38,6 +38,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    m_drivetrain = new Drivetrain();
     m_drivetrain.zeroGyro();
     configureBindings();
 
@@ -78,6 +79,8 @@ public class RobotContainer {
     );
 
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
+
+    m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
   }
 
   public Command getAutonomousCommand() {

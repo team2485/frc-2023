@@ -128,7 +128,7 @@ public final class Constants {
         public static final double maxAngularVelocity = 4; //TODO: This must be tuned to specific robot
 
         /* Neutral Modes */
-        public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
+        public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Module Specific Constants */
@@ -179,14 +179,14 @@ public final class Constants {
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
     
-        public static final double kPAutoXController = 1;
+        public static final double kPAutoXController = 4;
         public static final double kIAutoXController = 0.05;
         public static final double kDAutoXController = 0.2;
-        public static final double kPAutoYController = 1;
+        public static final double kPAutoYController = 4;
         public static final double kIAutoYController = 0.05;
         public static final double kDAutoYController = 0.2;
 
-        public static final double kPAutoThetaController = 1;
+        public static final double kPAutoThetaController = -7.5;
         public static final double kIAutoThetaController = 0.1;
         public static final double kDAutoThetaController = 0.1;
     
@@ -194,5 +194,30 @@ public final class Constants {
         public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints =
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+    }
+
+    public static final class ElevatorConstants {
+        public static final int kElevatorPortTop = 0;
+        public static final int kElevatorPortBottom = 0;
+
+        public static final double kSElevatorVolts = 0;
+        public static final double kGElevatorVolts = 0;
+
+        public static final double kVElevatorVoltsSecondsPerMeter = 0;
+        public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0;
+        
+        public static final double kElevatorBottomStop = 0;
+        public static final double kElevatorTopStop = 0;
+
+        public static final double kElevatorMaxSpeedMetersPerSecond = 0;
+        public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 0;
+
+        public static final double kPElevatorVoltsPerMeter = 0;
+        public static final double kDElevatorVoltSecondsPerMeter = 0;
+        public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
+            kElevatorMaxSpeedMetersPerSecond,
+            kElevatorMaxAccelerationMetersPerSecondSquared);
+        public static final double kElevatorControlLoopTimeSeconds = 0;
+        //public static final double kFeedForwardVoltage = 0;
     }
 }

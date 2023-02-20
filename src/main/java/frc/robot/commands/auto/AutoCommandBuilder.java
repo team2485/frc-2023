@@ -19,7 +19,7 @@ public class AutoCommandBuilder {
 
     WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Test");
 
-    return getResetOdometryCommand(drivetrain, path).andThen(path.withTimeout(3));
+    return new InstantCommand(drivetrain::zeroGyro).andThen(getResetOdometryCommand(drivetrain, path), path);
     }
 }
   
