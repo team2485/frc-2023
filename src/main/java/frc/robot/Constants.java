@@ -196,22 +196,15 @@ public final class Constants {
             new SR_TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
-    /* stuff that applies to gripper */
-    public static final class GripperConstants{
 
-        public static final MotorType kGripperMotorType = MotorType.kBrushless;
-
-        public static final int kCanCoderID=1000; //TODO: Find motor id :flushed:
-
-        public static final double kGripperGearRatio = 1.0/25; //TODO: not sure if this is right
-
-        public static final double kGripperClosed = 1; //TODO: Temp values
-        public static final double kGripperOpen= 0;
-
-        public static final double kGripperMinVelocity=0;
-        public static final double kGripperMaxVelocity=1;
-
-        public static final double kGripperBuffer=0;
+    public static final class GripperConstants {
+        public static final double kGripperPositionTolerance = 0;
+        public static final double kGripperOpenPositionSetpoint = 0;
+        public static final int kGripperMotorID = 0;
+        public static final int kGripperCurrentLimit = 0;
+        public static final double kGripperStoppedVelocityTolerance = 0;
+        public static final double kPieceDetectionTolerance = 0;
+        public static final double kCubeEncoderDistance = 0;
+        public static final double kGripperGearRatio = 0;
     }
-    
 }
