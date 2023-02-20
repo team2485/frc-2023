@@ -30,6 +30,7 @@ public class Gripper extends SubsystemBase {
     // some people were saying that this method was not properly implemented and does nothing
     // it probably works now as those complaints were from 2020 but check this if there are issues 
     gripperEncoder.setPositionConversionFactor(GripperConstants.kGripperGearRatio);
+    gripperEncoder.setVelocityConversionFactor(GripperConstants.kGripperGearRatio);
     gripperController.setTolerance(GripperConstants.kGripperPositionTolerance);
   }
 
