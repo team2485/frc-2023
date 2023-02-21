@@ -10,7 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import frc.util.COTSFalconSwerveConstants;
 import frc.util.SwerveModuleConstants;
 
@@ -191,14 +192,14 @@ public final class Constants {
         public static final double kDAutoThetaController = 0.1;
     
         /* Constraint for the motion profilied robot angle controller */
-        public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints =
-            new SR_TrapezoidProfile.Constraints(
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
+            new TrapezoidProfile.Constraints(
                 kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
     public static final class ElevatorConstants {
-        public static final int kElevatorPortTop = 0;
-        public static final int kElevatorPortBottom = 0;
+        public static final int kElevatorPortLeft = 14;
+        public static final int kElevatorPortRight = 15;
 
         public static final double kSElevatorVolts = 0;
         public static final double kGElevatorVolts = 0;
@@ -207,17 +208,35 @@ public final class Constants {
         public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0;
         
         public static final double kElevatorBottomStop = 0;
-        public static final double kElevatorTopStop = 0;
-
-        public static final double kElevatorMaxSpeedMetersPerSecond = 0;
-        public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 0;
+        public static final double kElevatorTopStop = Units.inchesToMeters(18);
 
         public static final double kPElevatorVoltsPerMeter = 0;
+        public static final double kIElevatorVoltsPerMeter = 0;
         public static final double kDElevatorVoltSecondsPerMeter = 0;
-        public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
+        public static final double kElevatorControlLoopTimeSeconds = 0.01;
+        //public static final double kFeedForwardVoltage = 0;
+        public static final double kElevatorPositionTolerance = 0;
+        public static final double kElevatorVelocityTolerance = 0;
+
+        public static final double kElevatorSupplyCurrentLimit = 35;
+        public static final double kElevatorSupplyThresholdCurrent = 40;
+        public static final double kElevatorSupplyThresholdTime = 0.1;
+        public static final double kElevatorStatorCurrentLimit = 55;
+        public static final double kElevatorStatorThresholdCurrent = 60;
+        public static final double kElevatorStatorThresholdTime = 0.1;
+
+        public static final double kSprocketCircumference = Math.PI * 0.081;
+        public static final double kElevatorGearRatio = 1.5; //somewhat suspicious of this gear ratio
+        public static final double kElevatorDistancePerMotorRevolution = kSprocketCircumference / kElevatorGearRatio;
+        public static final double kDistancePerPulse = kElevatorDistancePerMotorRevolution/kFalconSensorUnitsPerRotation;
+
+        public static final double kElevatorFreeSpeedMetersPerSecond = kFalconFreeSpeedRotationsPerSecond / kElevatorGearRatio * kSprocketCircumference; 
+        public static final double kElevatorMaxSpeedMetersPerSecond = kElevatorFreeSpeedMetersPerSecond * 0.95;
+        public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 1;
+        
+        //motion profile
+        public static final TrapezoidProfile.Constraints kElevatorControllerConstraints = new TrapezoidProfile.Constraints(
             kElevatorMaxSpeedMetersPerSecond,
             kElevatorMaxAccelerationMetersPerSecondSquared);
-        public static final double kElevatorControlLoopTimeSeconds = 0;
-        //public static final double kFeedForwardVoltage = 0;
     }
 }
