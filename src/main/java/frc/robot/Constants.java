@@ -32,6 +32,7 @@ public final class Constants {
 
   // motor constants
   public static final double kFalconSensorUnitsPerRotation = 2048; // pulses per rotation
+  public static final double kNeoSensorUnitsPerRotation = 42;
   public static final double kFalconWindingsResistanceOhms = 12.0 / 257;
   public static final double kFalconTorquePerAmp = 4.69 / 257;
   public static final double kFalconOutputUnitsFull = 1023;
@@ -288,7 +289,11 @@ public final class Constants {
         public static final double kGripperStoppedVelocityTolerance = 0;
         public static final double kPieceDetectionTolerance = 0;
         public static final double kCubeEncoderDistance = 0;
+
         public static final double kGripperGearRatio = 25;
+        public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
+        public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
+    
     }
 }
 

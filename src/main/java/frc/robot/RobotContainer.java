@@ -14,6 +14,7 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
+import frc.robot.subsystems.Gripper.m_gripperStates;
 import frc.robot.subsystems.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
@@ -112,6 +113,9 @@ public class RobotContainer {
     // m_operator.x().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
     // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
+
+    m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)));
+    m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
   }
 
   public Command getAutonomousCommand() {

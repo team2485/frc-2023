@@ -20,7 +20,6 @@ import static frc.robot.Constants.GripperConstants.*;
 
 public class Gripper extends SubsystemBase {
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
-  private final RelativeEncoder m_encoder;
   private final PIDController m_controller = new PIDController(1, 0, 0);
 
   private double m_posSetpointMetersCurrent = 0;
@@ -54,11 +53,9 @@ public class Gripper extends SubsystemBase {
     m_gripperState = m_gripperStates.StateInit;
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
-    m_encoder = m_spark.getEncoder();
     // some people were saying that this method was not properly implemented and does nothing
     // it probably works now as those complaints were from 2020 but check this if there are issues 
-    m_encoder.setPositionConversionFactor(kGripperGearRatio);
-    m_encoder.setVelocityConversionFactor(kGripperGearRatio);
+ 
     m_controller.setTolerance(kGripperControllerPositionTolerance);
 
     Shuffleboard.getTab("Gripper").add("curr pos", getGripperPosition());
@@ -86,6 +83,7 @@ public class Gripper extends SubsystemBase {
             if (stateTimer == 0) {
                 if (Math.abs(this.getEncoderVelocity()) < 0.01) {
                     this.resetEncoderPosition(0);
+                    this.setPositionSetpoint(0);
                     m_spark.setVoltage(0);
                     m_gripperState = m_gripperStates.StateIdle;
                 }
@@ -96,11 +94,11 @@ public class Gripper extends SubsystemBase {
         case StateGrip:
             m_spark.setVoltage(1);
             if (Math.abs(this.getEncoderVelocity()) < 0.01) {
-                this.setPositionSetpoint(m_encoder.getPosition());
+                this.setPositionSetpoint(this.getGripperPosition());
                 this.updateCurrentHeldPiece();
                 m_gripperState = m_gripperStates.StateIdle;
             }
-            break;
+            break;        
         case StateIdle:
             if (m_voltageOverride) {
                 m_spark.set(m_voltageSetpoint / kNominalVoltage);
@@ -115,6 +113,10 @@ public class Gripper extends SubsystemBase {
     }
   }
 
+  public void requestState(m_gripperStates state){
+    m_requestedState = state;
+  }
+
   private void updateCurrentHeldPiece() {
     //if are fully closed or open enough we don't have anything
     if (Math.abs(getGripperPosition()) < kPieceDetectionTolerance 
@@ -126,17 +128,17 @@ public class Gripper extends SubsystemBase {
   }
 
   public void resetEncoderPosition(double pos) {
-    m_encoder.setPosition(pos);
+    m_spark.getEncoder().setPosition(pos);
   }
 
   @Log(name = "current pos")
   public double getGripperPosition() {
-    return m_encoder.getPosition();
+    return m_spark.getEncoder().getPosition() * kWristRadiansPerPulse;
   }
 
   @Log(name = "current vel")
   public double getEncoderVelocity() {
-    return m_encoder.getVelocity();
+    return m_spark.getEncoder().getVelocity() * kWristRadiansPerPulse;
   }
 
   @Log(name = "pos setpoint")
