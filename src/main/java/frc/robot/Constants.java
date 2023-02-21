@@ -275,5 +275,20 @@ public final class Constants {
         public static final double kWristControllerPositionTolerance = 0;
     
       }
+
+      public static final class GripperConstants {
+        public static final int kGripperSparkPort = 17;
+
+        public static final double kGripperOpenPosMeters = 0;
+        public static final double kGripperClosedPosMeters = 3;
+
+        public static final double kGripperControllerPositionTolerance = 0;
+        public static final double kGripperOpenPositionSetpoint = 0;
+        public static final int kGripperCurrentLimit = 18;
+        public static final double kGripperStoppedVelocityTolerance = 0;
+        public static final double kPieceDetectionTolerance = 0;
+        public static final double kCubeEncoderDistance = 0;
+        public static final double kGripperGearRatio = 25;
+    }
 }
 

@@ -10,6 +10,7 @@ import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
@@ -45,9 +46,9 @@ public class RobotContainer {
   public final Drivetrain m_drivetrain = new Drivetrain();
   public final Elevator m_elevator = new Elevator();
   public final Wrist m_wrist = new Wrist();
+  public final Gripper m_gripper = new Gripper();
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
-
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -103,16 +104,14 @@ public class RobotContainer {
   }
 
   private void configureGamePieceCommands(){
-
     // m_operator.x().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
     // m_operator.a().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
     // m_operator.y().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
 
-    m_operator.b().onTrue(new InstantCommand(()->m_wrist.resetAngleRadians(0)));
-    m_operator.x().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
-    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
-    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
-
+    // m_operator.b().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateZero)));
+    // m_operator.x().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+    // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
+    // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
   }
 
   public Command getAutonomousCommand() {

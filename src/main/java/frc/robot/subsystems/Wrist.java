@@ -64,9 +64,6 @@ public class Wrist extends SubsystemBase implements Loggable {
   public static m_wristStates m_wristState;
   public static m_wristStates m_requestedState;
 
-  @Log(name="Current State")
-  String currentState;
-
   public Wrist() {
     m_wristState = m_wristStates.StateInit;
 
@@ -97,6 +94,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     this.resetAngleRadians(kWristBottomPositionRadians);
 
     Shuffleboard.getTab("Wrist").add("Wrist controller", m_controller);
+    Shuffleboard.getTab("Wrist").add("Current State", m_wristState.name());
   }
 
   public void requestState(m_wristStates state) {
@@ -154,19 +152,17 @@ public class Wrist extends SubsystemBase implements Loggable {
 
   @Override
   public void periodic() {
-    currentState = m_wristState.name();
-
     switch (m_wristState) {
       case StateFault:
         break;
       case StateInit:
-        stateTimer = 250;
+        stateTimer = 25;
         m_wristState = m_wristStates.StateZero;
         break;
       case StateZero:
         m_talon.setVoltage(-0.5);
         if(stateTimer==0){
-          if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) { // TODO: update with actual velocity
+          if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) {
             this.resetAngleRadians(0);
             m_talon.setVoltage(0);
             m_wristState = m_wristStates.StateIdle;
