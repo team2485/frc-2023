@@ -46,7 +46,7 @@ public class RobotContainer {
 
   public final Drivetrain m_drivetrain = new Drivetrain();
   public final Elevator m_elevator = new Elevator();
-  public final Wrist m_wrist = new Wrist();
+  public final Wrist m_wrist;
   public final Gripper m_gripper = new Gripper();
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
@@ -59,6 +59,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     m_drivetrain.zeroGyro();
+    m_wrist = new Wrist();
 
     m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
@@ -109,7 +110,7 @@ public class RobotContainer {
     m_operator.lowerPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
     m_operator.leftPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
 
-    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateZero)));
+    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
     // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));

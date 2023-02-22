@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,10 +50,12 @@ public class Wrist extends SubsystemBase implements Loggable {
 
   public double m_voltageSetpoint = 0;
 
+  @Log(name="timer")
   public double stateTimer = 0;
 
   public enum m_wristStates {
     StateFault,
+    StateWait,
     StateInit,
     StateZero,
     StateBottom,
@@ -65,7 +68,7 @@ public class Wrist extends SubsystemBase implements Loggable {
   public static m_wristStates m_requestedState;
 
   public Wrist() {
-    m_wristState = m_wristStates.StateInit;
+    m_wristState = m_wristStates.StateWait;
 
     TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
     wristTalonConfig.voltageCompSaturation = kNominalVoltage;
@@ -92,12 +95,19 @@ public class Wrist extends SubsystemBase implements Loggable {
 
     m_controller.setTolerance(0.0001);
 
+    this.resetAngleRadians(0);
+
     Shuffleboard.getTab("Wrist").add("Wrist controller", m_controller);
     Shuffleboard.getTab("Wrist").add("Current State", m_wristState.name());
   }
 
   public void requestState(m_wristStates state) {
     m_requestedState = state;
+  }
+
+  @Log(name = "enabled")
+  public boolean isEnabled(){
+    return RobotState.isEnabled();
   }
 
   @Log(name = "Current angle (radians)")
@@ -154,8 +164,13 @@ public class Wrist extends SubsystemBase implements Loggable {
     switch (m_wristState) {
       case StateFault:
         break;
+      case StateWait:
+        if(RobotState.isEnabled()){
+          m_wristState = m_wristStates.StateInit;
+        }
+        break;
       case StateInit:
-        stateTimer = 25;
+        stateTimer = 50;
         m_wristState = m_wristStates.StateZero;
         break;
       case StateZero:

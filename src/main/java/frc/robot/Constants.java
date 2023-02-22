@@ -263,9 +263,9 @@ public final class Constants {
         public static final double kVWristVoltSecondsPerRadian = 0.81827;
         public static final double kAWristVoltSecondsSquaredPerRadian = 0.029701;
     
-        public static final double kWristMaxSpeedRadiansPerSecond = Math.PI;
+        public static final double kWristMaxSpeedRadiansPerSecond = 2*Math.PI;
     
-        public static final double kWristMaxAccelerationRadiansPerSecondSquared = 0.5* Math.PI;
+        public static final double kWristMaxAccelerationRadiansPerSecondSquared = Math.PI;
     
         public static final SR_TrapezoidProfile.Constraints kWristMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(
             kWristMaxSpeedRadiansPerSecond, kWristMaxAccelerationRadiansPerSecondSquared);
@@ -291,8 +291,8 @@ public final class Constants {
         public static final double kCubeEncoderDistance = 0;
 
         public static final double kGripperGearRatio = 25;
-        public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
-        public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kNeoSensorUnitsPerRotation;
+        public static final double kGripperRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
+        public static final double kGripperRadiansPerPulse = kGripperRadiansPerMotorRev / kNeoSensorUnitsPerRotation;
     
     }
 }

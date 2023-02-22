@@ -10,19 +10,23 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
+import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.GripperConstants.*;
 
-public class Gripper extends SubsystemBase {
+public class Gripper extends SubsystemBase implements Loggable{
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
   private final PIDController m_controller = new PIDController(1, 0, 0);
 
+  @Log(name="setpoint")
   private double m_posSetpointMetersCurrent = 0;
+
   private double m_posSetpointMetersFinal = m_posSetpointMetersCurrent;
 
   private boolean m_voltageOverride = false;
@@ -38,6 +42,7 @@ public class Gripper extends SubsystemBase {
 
   public enum m_gripperStates {
     StateFault,
+    StateWait,
     StateInit,
     StateZero,
     StateGrip,
@@ -50,7 +55,7 @@ public class Gripper extends SubsystemBase {
   private double stateTimer = 0;
 
   public Gripper() {
-    m_gripperState = m_gripperStates.StateInit;
+    m_gripperState = m_gripperStates.StateWait;
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
     // some people were saying that this method was not properly implemented and does nothing
@@ -58,7 +63,16 @@ public class Gripper extends SubsystemBase {
  
     m_controller.setTolerance(kGripperControllerPositionTolerance);
 
-    Shuffleboard.getTab("Gripper").add("curr pos", getGripperPosition());
+  }
+
+  @Log(name = "current pos")
+  public double getGripperPosition() {
+    return m_spark.getEncoder().getPosition() * kGripperRadiansPerPulse;
+  }
+
+  @Log(name = "pulse")
+  public double getPulses(){
+    return m_spark.getEncoder().getPosition();
   }
 
   @Override
@@ -74,12 +88,17 @@ public class Gripper extends SubsystemBase {
     switch (m_gripperState) {
         case StateFault:
             break;
+        case StateWait:
+          if(RobotState.isEnabled()){
+            m_gripperState = m_gripperStates.StateInit;
+          }
+          break;
         case StateInit:
             stateTimer = 25;
             m_gripperState = m_gripperStates.StateZero;
             break;
         case StateZero:
-            m_spark.setVoltage(-0.25);
+            m_spark.setVoltage(-0.75);
             if (stateTimer == 0) {
                 if (Math.abs(this.getEncoderVelocity()) < 0.01) {
                     this.resetEncoderPosition(0);
@@ -92,12 +111,8 @@ public class Gripper extends SubsystemBase {
             }
             break;
         case StateGrip:
-            m_spark.setVoltage(0.25);
-            if (Math.abs(this.getEncoderVelocity()) < 0.01) {
-                this.setPositionSetpoint(this.getGripperPosition());
-                this.updateCurrentHeldPiece();
-                m_gripperState = m_gripperStates.StateIdle;
-            }
+              this.setPositionSetpoint(0.035);
+              m_gripperState = m_gripperStates.StateIdle;
             break;        
         case StateIdle:
             if (m_voltageOverride) {
@@ -131,14 +146,10 @@ public class Gripper extends SubsystemBase {
     m_spark.getEncoder().setPosition(pos);
   }
 
-  @Log(name = "current pos")
-  public double getGripperPosition() {
-    return m_spark.getEncoder().getPosition() * kWristRadiansPerPulse;
-  }
 
   @Log(name = "current vel")
   public double getEncoderVelocity() {
-    return m_spark.getEncoder().getVelocity() * kWristRadiansPerPulse;
+    return m_spark.getEncoder().getVelocity() * kGripperRadiansPerPulse;
   }
 
   @Log(name = "pos setpoint")
@@ -173,10 +184,9 @@ public class Gripper extends SubsystemBase {
     return Math.abs(getEncoderVelocity()) < kGripperStoppedVelocityTolerance;
   }
 
-  // This is from the current based approach
-  // public boolean isStalling() {
-  //   // I don't know if the getOutputCurrent is given before or after the currentlimit is applied
-  //   // Hopefully the >= works but if the gripper doesn't stop trying to close check here
-  //   return gripperMotor.getOutputCurrent() >= GripperConstants.kGripperCurrentLimit;
-  // }
+  public boolean isStalling() {
+    // I don't know if the getOutputCurrent is given before or after the currentlimit is applied
+    // Hopefully the >= works but if the gripper doesn't stop trying to close check here
+    return m_spark.getOutputCurrent() >= GripperConstants.kGripperCurrentLimit;
+  }
 }
