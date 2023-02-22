@@ -22,7 +22,7 @@ import static frc.robot.Constants.GripperConstants.*;
 
 public class Gripper extends SubsystemBase implements Loggable{
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
-  private final PIDController m_controller = new PIDController(1, 0, 0);
+  private final PIDController m_controller = new PIDController(3, 0.5, 0);
 
   @Log(name="setpoint")
   private double m_posSetpointMetersCurrent = 0;
@@ -31,6 +31,9 @@ public class Gripper extends SubsystemBase implements Loggable{
 
   private boolean m_voltageOverride = false;
   private double m_voltageSetpoint = 0;
+
+  @Log(name="piece")
+  private String pieceType = "None";
 
   public enum m_pieceType {
     Cone,
@@ -65,9 +68,14 @@ public class Gripper extends SubsystemBase implements Loggable{
 
   }
 
+  @Log(name = "output current")
+  public double getVoltage(){
+    return m_spark.getOutputCurrent();
+  }
+
   @Log(name = "current pos")
   public double getGripperPosition() {
-    return m_spark.getEncoder().getPosition() * kGripperRadiansPerPulse;
+    return m_spark.getEncoder().getPosition() * kGripperRadiansPerMotorRev;
   }
 
   @Log(name = "pulse")
@@ -111,7 +119,7 @@ public class Gripper extends SubsystemBase implements Loggable{
             }
             break;
         case StateGrip:
-              this.setPositionSetpoint(0.035);
+              this.setPositionSetpoint(1.45);
               m_gripperState = m_gripperStates.StateIdle;
             break;        
         case StateIdle:
@@ -120,6 +128,7 @@ public class Gripper extends SubsystemBase implements Loggable{
             } else {
                 double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
                 m_spark.set(controllerVoltage / kNominalVoltage);
+                this.updateCurrentHeldPiece();
             }
 
             if (m_requestedState != null) m_gripperState = m_requestedState;
@@ -134,12 +143,21 @@ public class Gripper extends SubsystemBase implements Loggable{
 
   private void updateCurrentHeldPiece() {
     //if are fully closed or open enough we don't have anything
-    if (Math.abs(getGripperPosition()) < kPieceDetectionTolerance 
-    || getGripperPosition() > kGripperOpenPositionSetpoint - kGripperControllerPositionTolerance)
-      setCurrentHeldPiece(m_pieceType.None);
-    else if (Math.abs(getGripperPosition() - kCubeEncoderDistance) < GripperConstants.kPieceDetectionTolerance)
+    // if (Math.abs(getGripperPosition()) < kPieceDetectionTolerance 
+    // || getGripperPosition() > kGripperOpenPositionSetpoint - kGripperControllerPositionTolerance)
+    //   setCurrentHeldPiece(m_pieceType.None);
+    // else if (Math.abs(getGripperPosition() - kCubeEncoderDistance) < GripperConstants.kPieceDetectionTolerance)
+    //   setCurrentHeldPiece(m_pieceType.Cube);
+    // else setCurrentHeldPiece(m_pieceType.Cone);
+
+    if(Math.abs(this.getGripperPosition()-kCubeEncoderDistance)<=kPieceDetectionTolerance){
       setCurrentHeldPiece(m_pieceType.Cube);
-    else setCurrentHeldPiece(m_pieceType.Cone);
+    }else if(this.getGripperPosition()>kConeEncoderThreshold){
+      setCurrentHeldPiece(m_pieceType.Cone);
+    }else{
+      setCurrentHeldPiece(m_pieceType.None);
+    }
+    pieceType = currentPieceType.name();
   }
 
   public void resetEncoderPosition(double pos) {
@@ -149,7 +167,7 @@ public class Gripper extends SubsystemBase implements Loggable{
 
   @Log(name = "current vel")
   public double getEncoderVelocity() {
-    return m_spark.getEncoder().getVelocity() * kGripperRadiansPerPulse;
+    return m_spark.getEncoder().getVelocity() * kGripperRadiansPerMotorRev;
   }
 
   @Log(name = "pos setpoint")

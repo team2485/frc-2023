@@ -5,6 +5,9 @@
         "Drivetrain": {
           "open": true
         },
+        "Gripper": {
+          "open": true
+        },
         "Wrist": {
           "open": true
         },
@@ -91,6 +94,24 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/Wrist/angle setpoint radians"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <2>": {
+      "plots": [
+        {
+          "height": 980,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/Gripper/output current"
             }
           ]
         }

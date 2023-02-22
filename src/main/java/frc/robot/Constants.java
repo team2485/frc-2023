@@ -285,10 +285,11 @@ public final class Constants {
 
         public static final double kGripperControllerPositionTolerance = 0;
         public static final double kGripperOpenPositionSetpoint = 0;
-        public static final int kGripperCurrentLimit = 18;
+        public static final int kGripperCurrentLimit = 20;
         public static final double kGripperStoppedVelocityTolerance = 0;
-        public static final double kPieceDetectionTolerance = 0;
-        public static final double kCubeEncoderDistance = 0;
+        public static final double kPieceDetectionTolerance = 0.12;
+        public static final double kCubeEncoderDistance = 1.18;
+        public static final double kConeEncoderThreshold = 1.3;
 
         public static final double kGripperGearRatio = 25;
         public static final double kGripperRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
