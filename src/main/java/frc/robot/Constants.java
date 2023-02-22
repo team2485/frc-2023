@@ -292,7 +292,7 @@ public final class Constants {
 
         public static final double kGripperGearRatio = 25;
         public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
-        public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
+        public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kNeoSensorUnitsPerRotation;
     
     }
 }

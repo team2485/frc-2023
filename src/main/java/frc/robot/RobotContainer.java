@@ -105,12 +105,12 @@ public class RobotContainer {
   }
 
   private void configureGamePieceCommands(){
-    // m_operator.x().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
-    // m_operator.a().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
-    // m_operator.y().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
+    m_operator.upperPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.5)));
+    m_operator.lowerPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
+    m_operator.leftPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
 
-    // m_operator.b().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateZero)));
-    // m_operator.x().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateZero)));
+    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
     // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
 

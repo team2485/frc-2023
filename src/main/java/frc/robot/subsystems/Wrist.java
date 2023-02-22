@@ -88,10 +88,9 @@ public class Wrist extends SubsystemBase implements Loggable {
     m_talon.setNeutralMode(NeutralMode.Brake);
     m_talon.setInverted(false);
     m_talon.enableVoltageCompensation(true);
+    m_talon.configNeutralDeadband(0.001);
 
     m_controller.setTolerance(0.0001);
-
-    this.resetAngleRadians(kWristBottomPositionRadians);
 
     Shuffleboard.getTab("Wrist").add("Wrist controller", m_controller);
     Shuffleboard.getTab("Wrist").add("Current State", m_wristState.name());
@@ -187,7 +186,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         this.runControlLoop();
         if (m_requestedState != null) m_wristState = m_requestedState;
         m_requestedState = null;
-        break;
-    }    
+        break; 
+    }   
 }
 }

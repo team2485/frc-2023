@@ -69,11 +69,14 @@ public class Elevator extends SubsystemBase implements Loggable{
       m_talonLeft.enableVoltageCompensation(true);
       m_talonLeft.setNeutralMode(NeutralMode.Brake);
       m_talonLeft.setInverted(true);
+      m_talonLeft.configNeutralDeadband(0.001);
+
 
       m_talonRight.enableVoltageCompensation(true);
       m_talonRight.setNeutralMode(NeutralMode.Brake);
       m_talonRight.setInverted(false);
-
+      m_talonRight.configNeutralDeadband(0.001);
+      
       m_pidController.setTolerance(0.05);
 
       this.resetPositionMeters(0);

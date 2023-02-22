@@ -79,7 +79,7 @@ public class Gripper extends SubsystemBase {
             m_gripperState = m_gripperStates.StateZero;
             break;
         case StateZero:
-            m_spark.setVoltage(-0.5);
+            m_spark.setVoltage(-0.25);
             if (stateTimer == 0) {
                 if (Math.abs(this.getEncoderVelocity()) < 0.01) {
                     this.resetEncoderPosition(0);
@@ -92,7 +92,7 @@ public class Gripper extends SubsystemBase {
             }
             break;
         case StateGrip:
-            m_spark.setVoltage(1);
+            m_spark.setVoltage(0.25);
             if (Math.abs(this.getEncoderVelocity()) < 0.01) {
                 this.setPositionSetpoint(this.getGripperPosition());
                 this.updateCurrentHeldPiece();
