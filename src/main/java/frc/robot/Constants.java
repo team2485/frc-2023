@@ -11,7 +11,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
+import frc.robot.subsystems.GamePieceStateMachine.pieceState;
 import frc.util.COTSFalconSwerveConstants;
 import frc.util.SwerveModuleConstants;
 
@@ -295,6 +297,15 @@ public final class Constants {
         public static final double kGripperRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
         public static final double kGripperRadiansPerPulse = kGripperRadiansPerMotorRev / kNeoSensorUnitsPerRotation;
     
+    }
+
+    public static final class IntakeArmConstants {
+
+        public static final int kIntakeArmPort=0; //t
+        public static final double kPIntakeArm=0;
+        public static final double kIIntakeArm=0;
+        public static final double kDIntakeArm=0;
+        public static final frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints(kFalconSensorUnitsPerRotation, kCANTimeoutMs);
     }
 }
 
