@@ -4,14 +4,11 @@
 
 package frc.robot.subsystems.GamePieceHandling;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import io.github.oblarg.oblog.Loggable;
@@ -20,11 +17,11 @@ import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.GripperConstants.*;
 
-public class Gripper extends SubsystemBase implements Loggable{
+public class Gripper extends SubsystemBase implements Loggable {
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
   private final PIDController m_controller = new PIDController(3, 0.5, 0);
 
-  @Log(name="setpoint")
+  @Log(name = "setpoint")
   private double m_posSetpointMetersCurrent = 0;
 
   private double m_posSetpointMetersFinal = m_posSetpointMetersCurrent;
@@ -32,7 +29,7 @@ public class Gripper extends SubsystemBase implements Loggable{
   private boolean m_voltageOverride = false;
   private double m_voltageSetpoint = 0;
 
-  @Log(name="piece")
+  @Log(name = "piece")
   private String pieceType = "None";
 
   public enum m_pieceType {
@@ -61,15 +58,17 @@ public class Gripper extends SubsystemBase implements Loggable{
     m_gripperState = m_gripperStates.StateWait;
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
-    // some people were saying that this method was not properly implemented and does nothing
-    // it probably works now as those complaints were from 2020 but check this if there are issues 
- 
+    // some people were saying that this method was not properly implemented and
+    // does nothing
+    // it probably works now as those complaints were from 2020 but check this if
+    // there are issues
+
     m_controller.setTolerance(kGripperControllerPositionTolerance);
 
   }
 
   @Log(name = "output current")
-  public double getVoltage(){
+  public double getVoltage() {
     return m_spark.getOutputCurrent();
   }
 
@@ -79,82 +78,86 @@ public class Gripper extends SubsystemBase implements Loggable{
   }
 
   @Log(name = "pulse")
-  public double getPulses(){
+  public double getPulses() {
     return m_spark.getEncoder().getPosition();
   }
 
   @Override
   public void periodic() {
-    // only update the piece type when it would realistically change to prevent erratically swtiching between states as the encoder passes through them
+    // only update the piece type when it would realistically change to prevent
+    // erratically swtiching between states as the encoder passes through them
     // This is from the current based approach
-    //if (!isStalling()) return;
+    // if (!isStalling()) return;
 
     // if (!isStopped()) return;
 
     // updateCurrentHeldPiece();
 
     switch (m_gripperState) {
-        case StateFault:
-            break;
-        case StateWait:
-          if(RobotState.isEnabled()){
-            m_gripperState = m_gripperStates.StateInit;
+      case StateFault:
+        break;
+      case StateWait:
+        if (RobotState.isEnabled()) {
+          m_gripperState = m_gripperStates.StateInit;
+        }
+        break;
+      case StateInit:
+        stateTimer = 25;
+        m_gripperState = m_gripperStates.StateZero;
+        break;
+      case StateZero:
+        m_spark.setVoltage(-0.75);
+        if (stateTimer == 0) {
+          if (Math.abs(this.getEncoderVelocity()) < 0.01) {
+            this.resetEncoderPosition(0);
+            this.setPositionSetpoint(0);
+            m_spark.setVoltage(0);
+            m_gripperState = m_gripperStates.StateIdle;
           }
-          break;
-        case StateInit:
-            stateTimer = 25;
-            m_gripperState = m_gripperStates.StateZero;
-            break;
-        case StateZero:
-            m_spark.setVoltage(-0.75);
-            if (stateTimer == 0) {
-                if (Math.abs(this.getEncoderVelocity()) < 0.01) {
-                    this.resetEncoderPosition(0);
-                    this.setPositionSetpoint(0);
-                    m_spark.setVoltage(0);
-                    m_gripperState = m_gripperStates.StateIdle;
-                }
-            } else {
-                stateTimer--;
-            }
-            break;
-        case StateGrip:
-              this.setPositionSetpoint(1.45);
-              m_gripperState = m_gripperStates.StateIdle;
-            break;        
-        case StateIdle:
-            if (m_voltageOverride) {
-                m_spark.set(m_voltageSetpoint / kNominalVoltage);
-            } else {
-                double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
-                m_spark.set(controllerVoltage / kNominalVoltage);
-                this.updateCurrentHeldPiece();
-            }
+        } else {
+          stateTimer--;
+        }
+        break;
+      case StateGrip:
+        this.setPositionSetpoint(1.45);
+        m_gripperState = m_gripperStates.StateIdle;
+        break;
+      case StateIdle:
+        if (m_voltageOverride) {
+          m_spark.set(m_voltageSetpoint / kNominalVoltage);
+        } else {
+          double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
+          m_spark.set(controllerVoltage / kNominalVoltage);
+          this.updateCurrentHeldPiece();
+        }
 
-            if (m_requestedState != null) m_gripperState = m_requestedState;
-            m_requestedState = null;
-            break;
+        if (m_requestedState != null)
+          m_gripperState = m_requestedState;
+        m_requestedState = null;
+        break;
     }
   }
 
-  public void requestState(m_gripperStates state){
+  public void requestState(m_gripperStates state) {
     m_requestedState = state;
   }
 
   private void updateCurrentHeldPiece() {
-    //if are fully closed or open enough we don't have anything
-    // if (Math.abs(getGripperPosition()) < kPieceDetectionTolerance 
-    // || getGripperPosition() > kGripperOpenPositionSetpoint - kGripperControllerPositionTolerance)
-    //   setCurrentHeldPiece(m_pieceType.None);
-    // else if (Math.abs(getGripperPosition() - kCubeEncoderDistance) < GripperConstants.kPieceDetectionTolerance)
-    //   setCurrentHeldPiece(m_pieceType.Cube);
+    // if are fully closed or open enough we don't have anything
+    // if (Math.abs(getGripperPosition()) < kPieceDetectionTolerance
+    // || getGripperPosition() > kGripperOpenPositionSetpoint -
+    // kGripperControllerPositionTolerance)
+    // setCurrentHeldPiece(m_pieceType.None);
+    // else if (Math.abs(getGripperPosition() - kCubeEncoderDistance) <
+    // GripperConstants.kPieceDetectionTolerance)
+    // setCurrentHeldPiece(m_pieceType.Cube);
     // else setCurrentHeldPiece(m_pieceType.Cone);
 
-    if(Math.abs(this.getGripperPosition()-kCubeEncoderDistance)<=kPieceDetectionTolerance){
+    if (Math.abs(this.getGripperPosition() - kCubeEncoderDistance) <= kPieceDetectionTolerance) {
       setCurrentHeldPiece(m_pieceType.Cube);
-    }else if(this.getGripperPosition()>kConeEncoderThreshold){
+    } else if (this.getGripperPosition() > kConeEncoderThreshold) {
       setCurrentHeldPiece(m_pieceType.Cone);
-    }else{
+    } else {
       setCurrentHeldPiece(m_pieceType.None);
     }
     pieceType = currentPieceType.name();
@@ -163,7 +166,6 @@ public class Gripper extends SubsystemBase implements Loggable{
   public void resetEncoderPosition(double pos) {
     m_spark.getEncoder().setPosition(pos);
   }
-
 
   @Log(name = "current vel")
   public double getEncoderVelocity() {
@@ -197,14 +199,15 @@ public class Gripper extends SubsystemBase implements Loggable{
     return currentPieceType;
   }
 
-  public boolean isStopped()
-  {
+  public boolean isStopped() {
     return Math.abs(getEncoderVelocity()) < kGripperStoppedVelocityTolerance;
   }
 
   public boolean isStalling() {
-    // I don't know if the getOutputCurrent is given before or after the currentlimit is applied
-    // Hopefully the >= works but if the gripper doesn't stop trying to close check here
+    // I don't know if the getOutputCurrent is given before or after the
+    // currentlimit is applied
+    // Hopefully the >= works but if the gripper doesn't stop trying to close check
+    // here
     return m_spark.getOutputCurrent() >= GripperConstants.kGripperCurrentLimit;
   }
 }
