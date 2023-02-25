@@ -203,6 +203,7 @@ public final class Constants {
         public static final double kElevatorBottomStop = 0;
         public static final double kElevatorTopStop = 0.8763;
 
+        public static final double kElevatorTolerance = 0.05;
     
         public static final double kElevatorSupplyCurrentLimitAmps = 35;
         public static final double kElevatorSupplyCurrentThresholdAmps = 40;
@@ -223,13 +224,13 @@ public final class Constants {
 
         //velocity loop constants
         public static final double kSElevatorVolts = 0.095783;
-        public static final double kGElevatorVolts = 0.2;
-        public static final double kVElevatorVoltsSecondsPerMeter = 2.5;
+        public static final double kGElevatorVolts = 0.8;
+        public static final double kVElevatorVoltsSecondsPerMeter = 4;
         public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0.1854;
         
         //position loop constants
         public static final double kPElevatorVoltsPerMeter = 80;
-        public static final double kIElevatorVoltsPerMeter = 0;
+        public static final double kIElevatorVoltsPerMeter = 15;
         public static final double kDElevatorVoltSecondsPerMeter = 0;
         public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
             kElevatorMaxSpeedMetersPerSecond,
@@ -257,6 +258,8 @@ public final class Constants {
         public static final double kIndexerStatorCurrentThresholdAmps = 45;
         public static final double kIndexerStatorCurrentThresholdTimeSecs = 0.05;
     
+        public static final double kWristTolerance = 0.1;
+
         // Wrist characterization constants
         public static final double kSWristVolts = 0.083516;
         public static final double kGWristVolts = 0.3281;
@@ -303,6 +306,8 @@ public final class Constants {
         public static final int kTelescopeSmartCurrentLimitAmps = 45;
         public static final int kTelescopeImmediateCurrentLimitAmps = 0;
         
+        public static final double kTelescopeTolerance = 0.05;
+
         public static final double kTelescopeMaxPosition = 0.9;
 
         public static final double kSTelescopeVolts = 0.01; 

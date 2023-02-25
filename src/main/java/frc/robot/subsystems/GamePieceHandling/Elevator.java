@@ -9,6 +9,7 @@ import static frc.robot.Constants.ElevatorConstants.*;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.math.controller.ElevatorFeedforward;
 import frc.WarlordsLib.sendableRichness.*;
@@ -20,7 +21,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     private double feedForwardVoltage = 0;
 
     @Log(name="setpoint")
-    private double m_positionSetpointMeters = 0;
+    private double m_positionSetpointMeters;
     
     private double m_voltageSetpoint = 0;
     private boolean m_enables = false;
@@ -35,6 +36,8 @@ public class Elevator extends SubsystemBase implements Loggable{
     private final WPI_TalonFX m_talonLeft = new WPI_TalonFX(kElevatorPortLeft);
     private final WPI_TalonFX m_talonRight = new WPI_TalonFX(kElevatorPortRight);
 
+    public boolean firstTime = true;
+
     private final SR_ElevatorFeedforward m_feedforward = new SR_ElevatorFeedforward( kSElevatorVolts,  kGElevatorVolts,  kVElevatorVoltsSecondsPerMeter,  kAElevatorVoltsSecondsSquaredPerMeter);
     
     private final SR_ProfiledPIDController m_pidController = 
@@ -45,9 +48,25 @@ public class Elevator extends SubsystemBase implements Loggable{
             kElevatorControllerConstraints, 
             kElevatorControlLoopTimeSeconds);
 
+            public enum m_elevatorStates {
+                StateFault,
+                StateWait,
+                StateInit,
+                StateZero,
+                StateBottom,
+                StateMiddle,
+                StateTop,
+                StateIdle
+              }
+            
+              public static m_elevatorStates m_elevatorState;
+              public static m_elevatorStates m_requestedState;
+            
+              private double stateTimer = 0;
 
     public Elevator(){
 
+    m_elevatorState = m_elevatorStates.StateMiddle;
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =
@@ -88,13 +107,14 @@ public class Elevator extends SubsystemBase implements Loggable{
         m_positionSetpointMeters = MathUtil.clamp(position,  kElevatorBottomStop,  kElevatorTopStop);
     }
     
+    @Log(name = "error")
     public double getError() {
         return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
     }
 
     @Log(name = "at setpoint")
     public boolean atSetpoint(){
-        return m_pidController.atSetpoint();
+        return this.getError() < kElevatorTolerance;
     }
 
     @Log(name="position")
@@ -122,6 +142,12 @@ public class Elevator extends SubsystemBase implements Loggable{
     }
 
     public void runControlLoop() {
+        if(RobotState.isEnabled()){
+            if(firstTime){
+                m_pidController.reset(0);
+                firstTime=false;
+            }
+
         if (m_voltageOverride) {
             m_talonLeft.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
             m_talonRight.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
@@ -152,11 +178,64 @@ public class Elevator extends SubsystemBase implements Loggable{
 
           m_lastVelocitySetpoint = m_pidController.getSetpoint().velocity;
         }
+    }
     } 
 
+    public void requestState(m_elevatorStates state) {
+        m_requestedState = state;
+      }
     @Override
     public void periodic(){
-      this.runControlLoop();
-    }
 
-}
+        switch (m_elevatorState) {
+            case StateFault:
+              break;
+            case StateWait:
+              if (RobotState.isEnabled())
+                m_elevatorState = m_elevatorStates.StateInit;
+              break;
+            case StateInit:
+              stateTimer = 25;
+              m_elevatorState = m_elevatorStates.StateZero;
+              break;
+            case StateZero:
+              m_talonLeft.setVoltage(-0.75);
+              m_talonRight.setVoltage(-0.75);
+              if (stateTimer == 0) {
+                if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
+                  this.resetPositionMeters(0);
+                  this.setPositionMeters(0);
+                  m_talonLeft.setVoltage(0);
+                  m_talonRight.setVoltage(0);
+                  m_elevatorState = m_elevatorStates.StateIdle;
+                }
+              } else {
+                stateTimer--;
+              }
+              break;
+            case StateBottom:
+              this.setPositionMeters(0);
+              m_elevatorState = m_elevatorStates.StateIdle;
+              break;
+            case StateMiddle:
+              this.setPositionMeters(0.3);
+              m_elevatorState = m_elevatorStates.StateIdle;
+              break;
+            case StateTop:
+              this.setPositionMeters(0.6);
+              m_elevatorState = m_elevatorStates.StateIdle;
+              break;
+            case StateIdle:
+              if (m_voltageOverride) {
+                m_talonLeft.set(m_voltageSetpoint / kNominalVoltage);
+              } else {
+                this.runControlLoop();
+              }
+      
+              if (m_requestedState != null)
+                m_elevatorState = m_requestedState;
+              m_requestedState = null;
+              break;
+          }
+        }
+    }

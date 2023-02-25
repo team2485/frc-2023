@@ -49,6 +49,10 @@ public class Wrist extends SubsystemBase implements Loggable {
   public double filteredAngle;
 
   public double m_voltageSetpoint = 0;
+  
+  public boolean firstTime2 = true;
+
+
 
   @Log(name="timer")
   public double stateTimer = 0;
@@ -68,7 +72,7 @@ public class Wrist extends SubsystemBase implements Loggable {
   public static m_wristStates m_requestedState;
 
   public Wrist() {
-    m_wristState = m_wristStates.StateWait;
+    m_wristState = m_wristStates.StateIdle;
 
     TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
     wristTalonConfig.voltageCompSaturation = kNominalVoltage;
@@ -108,6 +112,15 @@ public class Wrist extends SubsystemBase implements Loggable {
   @Log(name = "enabled")
   public boolean isEnabled(){
     return RobotState.isEnabled();
+  }
+
+  @Log(name = "error")
+  public double getError() {
+    return Math.abs(m_angleSetpointRadiansCurrent - this.getAngleRadians());
+  }
+
+  public boolean atSetpoint(){
+    return this.getError() < kWristTolerance;
   }
 
   @Log(name = "Current angle (radians)")
@@ -202,6 +215,13 @@ public class Wrist extends SubsystemBase implements Loggable {
         this.runControlLoop();
         if (m_requestedState != null) m_wristState = m_requestedState;
         m_requestedState = null;
+
+        if(firstTime2){
+          if(Telescope.m_telescopeState==Telescope.m_telescopeStates.StateIdle){
+            m_wristState = m_wristStates.StateInit;
+            firstTime2 = false;
+          }
+        }
         break; 
     }   
 }

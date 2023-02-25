@@ -119,7 +119,7 @@ public class Gripper extends SubsystemBase implements Loggable{
             }
             break;
         case StateGrip:
-              this.setPositionSetpoint(1.45);
+              this.setPositionSetpoint(1.55);
               m_gripperState = m_gripperStates.StateIdle;
             break;        
         case StateIdle:

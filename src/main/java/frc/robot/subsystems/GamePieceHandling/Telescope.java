@@ -48,7 +48,7 @@ public class Telescope extends SubsystemBase implements Loggable{
       kDTelescope,
       kMotionProfileConstraints);
 
-   public enum m_telescopeStates {
+   public static enum m_telescopeStates {
         StateFault,
         StateWait,
         StateInit,
@@ -96,8 +96,14 @@ public class Telescope extends SubsystemBase implements Loggable{
     m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeMaxPosition);
   }
 
+  @Log(name = "error")
   public double getError() {
     return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
+  }
+
+
+  public boolean atSetpoint(){
+    return this.getError() < kTelescopeTolerance;
   }
 
   @Log(name="position")
@@ -164,7 +170,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         if(stateTimer==0){
           if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
             this.resetPositionMeters(-0.05);
-            this.setPositionSetpointMeters(0.1);
+            this.setPositionSetpointMeters(0.15);
             m_spark.setVoltage(0);
             m_telescopeState = m_telescopeStates.StateIdle;
           }
@@ -173,7 +179,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         }
         break;
       case StateIn:
-        this.setPositionSetpointMeters(0);
+        this.setPositionSetpointMeters(0.05);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddle: 
