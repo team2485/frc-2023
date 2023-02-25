@@ -8,17 +8,25 @@ import static frc.robot.Constants.TelescopeConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.WL_TalonFX;
+import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
+import frc.WarlordsLib.sendableRichness.SR_ElevatorFeedforward;
+import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
+import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.robot.Constants;
 
 public class Telescope extends SubsystemBase {
-  private WPI_TalonFX m_telescope = new WL_TalonFX(kTelescopePort);
+  // private WPI_TalonFX m_spark = new WL_TalonFX(kTelescopePort);
+  private WPI_SparkMax m_spark = new WPI_SparkMax(kTelescopePort, MotorType.kBrushless);
 
   private static final double kTelescopeStartPosition = 0;
 
@@ -26,13 +34,13 @@ public class Telescope extends SubsystemBase {
   private double m_outputPercentage, m_feedbackOutput, m_feedforwardOutput;
   private boolean m_isEnabled, m_voltageOverride;
 
-  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(
-      kSTelescopeVolts, kVTelescopeVoltSecondsPerMeter, kATelescopeVoltSecondsSquaredPerMeter);
+  private final SR_ElevatorFeedforward m_feedforward = new SR_ElevatorFeedforward(
+      kSTelescopeVolts, kGTelescopeVolts, kVTelescopeVoltSecondsPerMeter, kATelescopeVoltSecondsSquaredPerMeter);
 
-  ProfiledPIDController telescopeController = new ProfiledPIDController(
+  SR_ProfiledPIDController telescopeController = new SR_ProfiledPIDController(
       kPTelescope,
       kITelescope,
-      kDTelescope, new TrapezoidProfile.Constraints(5, 10));
+      kDTelescope, new SR_TrapezoidProfile.Constraints(2, 1));
 
   public Telescope() {
     m_feedForwardVoltage = 0;
@@ -46,32 +54,21 @@ public class Telescope extends SubsystemBase {
 
     m_isEnabled = false;
     m_voltageOverride = false;
+
+    m_spark.setSmartCurrentLimit(kTelescopeSmartCurrentLimitAmps);
+    m_spark.setInverted(false);
+    m_spark.setIdleMode(IdleMode.kBrake);
+
+    m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
+
+    this.resetPositionMeters(0);
+
+    
   }
 
-  public boolean isInverted() {
-    return m_telescope.getInverted();
-  }
-
-  public void invertTalon() {
-    if (m_telescope.getInverted())
-      m_telescope.setInverted(false);
-    else
-      m_telescope.setInverted(true);
-  }
-
-  public void setLowerNodePositionMeters(double position) {
+  public void setPositionMeters(double position) {
     m_voltageOverride = false;
-    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeLowerPosition);
-  }
-
-  public void setMiddleNodePositionMeters(double position) {
-    m_voltageOverride = false;
-    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeMiddlePosition);
-  }
-
-  public void setUpperNodePositionMeters(double position) {
-    m_voltageOverride = false;
-    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeUpperPosition);
+    m_positionSetpointMeters = MathUtil.clamp(position, kTelescopeStartPosition, kTelescopeMaxPosition);
   }
 
   public double getError() {
@@ -79,15 +76,15 @@ public class Telescope extends SubsystemBase {
   }
 
   public double getPositionMeters() {
-    return m_telescope.getSelectedSensorPosition();
+    return m_spark.getEncoder().getPosition();
   }
 
   public void resetPositionMeters(double position) {
-    m_telescope.setSelectedSensorPosition(position);
+    m_spark.getEncoder().setPosition(position);
   }
 
   public double getVelocityMetersPerSecond() {
-    return m_telescope.getSelectedSensorVelocity();
+    return m_spark.getEncoder().getVelocity();
   }
 
   public void setVoltage(double voltage) {
@@ -96,12 +93,9 @@ public class Telescope extends SubsystemBase {
 
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-
+  public void runControlLoop(){
     if (m_voltageOverride) {
-      m_telescope.set(ControlMode.PercentOutput, m_voltageSetpoint / Constants.kNominalVoltage);
+      m_spark.set(m_voltageSetpoint / Constants.kNominalVoltage);
     } else {
       double feedbackOutputVoltage = 0;
 
@@ -112,14 +106,20 @@ public class Telescope extends SubsystemBase {
       feedForwardOutputVoltage = m_feedforward.calculate(m_lastVelocitySetpoint,
           telescopeController.getSetpoint().velocity, kTelescopeControlLoopTimeSeconds);
 
-      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage / Constants.kNominalVoltage); // same deal as above
+      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage) / Constants.kNominalVoltage; // same deal as above
 
       m_feedbackOutput = feedbackOutputVoltage;
       m_feedforwardOutput = feedForwardOutputVoltage;
 
-      m_telescope.set(ControlMode.PercentOutput, m_outputPercentage);
+      m_spark.set(m_outputPercentage);
 
       m_lastVelocitySetpoint = telescopeController.getSetpoint().velocity;
     }
+  }
+
+  @Override
+  public void periodic() {
+
+    
   }
 }
