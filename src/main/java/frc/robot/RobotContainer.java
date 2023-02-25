@@ -5,19 +5,24 @@
 package frc.robot;
 
 import frc.WarlordsLib.WL_CommandXboxController;
+import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.auto.AutoCommandBuilder;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.GamePieceStateMachine;
-import frc.robot.subsystems.Gripper;
-import frc.robot.subsystems.Wrist;
+import frc.robot.subsystems.GamePieceHandling.Elevator;
+import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Telescope;
+import frc.robot.subsystems.GamePieceHandling.Wrist;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
-import frc.robot.subsystems.Gripper.m_gripperStates;
-import frc.robot.subsystems.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -46,8 +51,10 @@ public class RobotContainer {
 
   public final Drivetrain m_drivetrain = new Drivetrain();
   public final Elevator m_elevator = new Elevator();
-  public final Wrist m_wrist;
+  // public final Wrist m_wrist = new Wrist();
   public final Gripper m_gripper = new Gripper();
+  public final Telescope m_telescope = new Telescope();
+
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -59,7 +66,6 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     m_drivetrain.zeroGyro();
-    m_wrist = new Wrist();
 
     m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
@@ -110,13 +116,18 @@ public class RobotContainer {
     m_operator.lowerPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0)));
     m_operator.leftPOV().onTrue(new InstantCommand(()->m_elevator.setPositionMeters(0.25)));
 
-    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
-    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+    // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
+    // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
     // m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     // m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateTop)));
 
     m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)));
     m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
+
+    m_operator.leftBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateIn)));
+    m_operator.rightBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateMiddle)));
+    m_operator.rightTrigger().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateOut)));
+
   }
 
   public Command getAutonomousCommand() {

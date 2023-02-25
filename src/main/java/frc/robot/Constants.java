@@ -296,5 +296,36 @@ public final class Constants {
         public static final double kGripperRadiansPerPulse = kGripperRadiansPerMotorRev / kNeoSensorUnitsPerRotation;
     
     }
+
+    public static final class TelescopeConstants {
+
+        public static final int kTelescopePort = 18;            
+        public static final int kTelescopeSmartCurrentLimitAmps = 45;
+        public static final int kTelescopeImmediateCurrentLimitAmps = 0;
+        
+        public static final double kTelescopeMaxPosition = 0.9;
+
+        public static final double kSTelescopeVolts = 0.01; 
+        public static final double kVTelescopeVoltSecondsPerMeter = 0.5;
+        public static final double kATelescopeVoltSecondsSquaredPerMeter = 0.02;
+
+        public static final double kMaxVelocity = 2.5;
+        public static final double kMaxAcceleration = 1.5;
+
+        public static final double kPTelescope = 25;
+        public static final double kITelescope = 8;
+        public static final double kDTelescope = 0;
+        public static final SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
+        public static final double kTelescopeControlLoopTimeSeconds = 0.01;
+
+        public static final double kTelescopeStartPostion = 0;
+
+        public static final double kTelescopeGearRatio = 5;
+        public static final double kPulleyCircumference = 0.0222 * Math.PI;
+        public static final double kDistancePerMotorRev = kPulleyCircumference / kTelescopeGearRatio;
+
+
+
+    }
 }
 

@@ -7,8 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.Gripper;
-import frc.robot.subsystems.Gripper.m_pieceType;
+import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_pieceType;
 
 import static frc.robot.Constants.GripperConstants;
 

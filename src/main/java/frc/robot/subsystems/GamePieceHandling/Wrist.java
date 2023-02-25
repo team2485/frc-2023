@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.GamePieceHandling;
 
 import static frc.robot.Constants.*;
 import static frc.robot.Constants.WristConstants.*;
@@ -178,6 +178,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         if(stateTimer==0){
           if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) {
             this.resetAngleRadians(0);
+            this.setAngleRadians(2);
             m_talon.setVoltage(0);
             m_wristState = m_wristStates.StateIdle;
           }
