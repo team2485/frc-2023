@@ -4,9 +4,12 @@
 
 package frc.robot.subsystems;
 import frc.robot.Constants.IntakeArmConstants;
+import frc.WarlordsLib.sendableRichness.SR_ArmFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeArmConstants.*;
+import io.github.oblarg.oblog.annotations.Log;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,9 +17,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeArm extends SubsystemBase {
   /** Creates a new IntakeArm. */
   private WPI_TalonFX m_talon = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPort);
-  private final SR_ProfiledPIDController m_controller = new SR_ProfiledPIDController(IntakeArmConstants.kPIntakeArm, IntakeArmConstants.kIIntakeArm, IntakeArmConstants.kDIntakeArm,
+  private final SR_ProfiledPIDController m_controller = 
+    new SR_ProfiledPIDController(
+      IntakeArmConstants.kPIntakeArm, 
+      IntakeArmConstants.kIIntakeArm, 
+      IntakeArmConstants.kDIntakeArm,
       IntakeArmConstants.kMotionProfileConstraints);
-
+  private final SR_ArmFeedforward m_feedforward =
+    new SR_ArmFeedforward(
+      IntakeArmConstants.kSIntakeArmVolts,
+      IntakeArmConstants.kGIntakeArmVolts,
+      IntakeArmConstants.kVIntakeArmVoltsSecondsPerRadian,
+      IntakeArmConstants.kAIntakeArmVoltsSecondsSquaredPerRadian);
+  
   public IntakeArm() {}
 
   @Override

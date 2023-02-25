@@ -306,6 +306,11 @@ public final class Constants {
         public static final double kIIntakeArm=0;
         public static final double kDIntakeArm=0;
         public static final frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints(kFalconSensorUnitsPerRotation, kCANTimeoutMs);
+        public static double kSIntakeArmVolts;
+        public static double kGIntakeArmVolts;
+        public static double kAIntakeArmVoltsSecondsSquaredPerRadian;
+        public static double kVIntakeArmVoltsSecondsPerRadian;
+        public static double kIntakeArmBottomPositionRadians;
     }
 }
 
