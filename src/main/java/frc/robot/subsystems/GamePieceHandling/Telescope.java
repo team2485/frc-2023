@@ -2,29 +2,20 @@ package frc.robot.subsystems.GamePieceHandling;
 
 import static frc.robot.Constants.TelescopeConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.WarlordsLib.motorcontrol.WL_TalonFX;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
-import frc.WarlordsLib.sendableRichness.SR_ElevatorFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
-import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.robot.Constants;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
-public class Telescope extends SubsystemBase implements Loggable{
+public class Telescope extends SubsystemBase implements Loggable {
   // private WPI_TalonFX m_spark = new WL_TalonFX(kTelescopePort);
   private WPI_SparkMax m_spark = new WPI_SparkMax(kTelescopePort, MotorType.kBrushless);
 
@@ -48,20 +39,19 @@ public class Telescope extends SubsystemBase implements Loggable{
       kDTelescope,
       kMotionProfileConstraints);
 
-   public enum m_telescopeStates {
-        StateFault,
-        StateWait,
-        StateInit,
-        StateZero,
-        StateIn,
-        StateMiddle,
-        StateOut,
-        StateIdle
-      }
-  
-    public static m_telescopeStates m_telescopeState;
-    public static m_telescopeStates m_requestedState = null;
+  public enum m_telescopeStates {
+    StateFault,
+    StateWait,
+    StateInit,
+    StateZero,
+    StateIn,
+    StateMiddle,
+    StateOut,
+    StateIdle
+  }
 
+  public static m_telescopeStates m_telescopeState;
+  public static m_telescopeStates m_requestedState = null;
 
   public Telescope() {
     m_telescopeState = m_telescopeStates.StateWait;
@@ -87,7 +77,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
   }
 
-  public void requestState(m_telescopeStates state){
+  public void requestState(m_telescopeStates state) {
     m_telescopeState = state;
   }
 
@@ -100,7 +90,7 @@ public class Telescope extends SubsystemBase implements Loggable{
     return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
   }
 
-  @Log(name="position")
+  @Log(name = "position")
   public double getPositionMeters() {
     return m_spark.getEncoder().getPosition() * kDistancePerMotorRev;
   }
@@ -109,7 +99,7 @@ public class Telescope extends SubsystemBase implements Loggable{
     m_spark.getEncoder().setPosition(position);
   }
 
-  @Log(name="velocity")
+  @Log(name = "velocity")
   public double getVelocityMetersPerSecond() {
     return m_spark.getEncoder().getVelocity() * kDistancePerMotorRev;
   }
@@ -120,7 +110,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
   }
 
-  public void runControlLoop(){
+  public void runControlLoop() {
     if (m_voltageOverride) {
       m_spark.set(m_voltageSetpoint / Constants.kNominalVoltage);
     } else {
@@ -133,7 +123,8 @@ public class Telescope extends SubsystemBase implements Loggable{
       feedForwardOutputVoltage = m_feedforward.calculate(m_lastVelocitySetpoint,
           telescopeController.getSetpoint().velocity, kTelescopeControlLoopTimeSeconds);
 
-      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage) / Constants.kNominalVoltage; // same deal as above
+      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage) / Constants.kNominalVoltage; // same deal
+                                                                                                           // as above
 
       m_feedbackOutput = feedbackOutputVoltage;
       m_feedforwardOutput = feedForwardOutputVoltage;
@@ -146,12 +137,12 @@ public class Telescope extends SubsystemBase implements Loggable{
 
   @Override
   public void periodic() {
-  
-    switch(m_telescopeState){
+
+    switch (m_telescopeState) {
       case StateFault:
         break;
       case StateWait:
-        if(RobotState.isEnabled()){
+        if (RobotState.isEnabled()) {
           m_telescopeState = m_telescopeStates.StateInit;
         }
         break;
@@ -161,14 +152,14 @@ public class Telescope extends SubsystemBase implements Loggable{
         break;
       case StateZero:
         m_spark.setVoltage(-0.75);
-        if(stateTimer==0){
+        if (stateTimer == 0) {
           if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
             this.resetPositionMeters(-0.05);
             this.setPositionSetpointMeters(0.1);
             m_spark.setVoltage(0);
             m_telescopeState = m_telescopeStates.StateIdle;
           }
-        }else{
+        } else {
           stateTimer--;
         }
         break;
@@ -176,7 +167,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         this.setPositionSetpointMeters(0);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
-      case StateMiddle: 
+      case StateMiddle:
         this.setPositionSetpointMeters(0.35);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
@@ -184,12 +175,13 @@ public class Telescope extends SubsystemBase implements Loggable{
         this.setPositionSetpointMeters(0.7);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
-      case StateIdle: 
+      case StateIdle:
         this.runControlLoop();
-        if(m_requestedState!=null) m_telescopeState = m_requestedState;
+        if (m_requestedState != null)
+          m_telescopeState = m_requestedState;
         m_requestedState = null;
         break;
     }
-    
+
   }
 }

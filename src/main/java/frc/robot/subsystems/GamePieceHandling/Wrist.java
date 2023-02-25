@@ -13,9 +13,7 @@ import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.WarlordsLib.sendableRichness.SR_ArmFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import io.github.oblarg.oblog.Loggable;
@@ -50,7 +48,7 @@ public class Wrist extends SubsystemBase implements Loggable {
 
   public double m_voltageSetpoint = 0;
 
-  @Log(name="timer")
+  @Log(name = "timer")
   public double stateTimer = 0;
 
   public enum m_wristStates {
@@ -106,7 +104,7 @@ public class Wrist extends SubsystemBase implements Loggable {
   }
 
   @Log(name = "enabled")
-  public boolean isEnabled(){
+  public boolean isEnabled() {
     return RobotState.isEnabled();
   }
 
@@ -121,42 +119,42 @@ public class Wrist extends SubsystemBase implements Loggable {
   }
 
   @Log(name = "velocity")
-  public double getVelocityRadiansPerSecond(){
-    return m_talon.getSelectedSensorVelocity()*kWristRadiansPerPulse;
+  public double getVelocityRadiansPerSecond() {
+    return m_talon.getSelectedSensorVelocity() * kWristRadiansPerPulse;
   }
 
   public void resetAngleRadians(double angle) {
     m_talon.setSelectedSensorPosition(angle / kWristRadiansPerPulse);
   }
 
-  public void setVoltage(double voltage){
+  public void setVoltage(double voltage) {
     m_voltageOverride = true;
     m_voltageSetpoint = voltage;
   }
 
-  public void runControlLoop(){
-    if(m_voltageOverride){
-      m_talon.set(ControlMode.PercentOutput, m_voltageSetpoint/kNominalVoltage);
-    }else{
+  public void runControlLoop() {
+    if (m_voltageOverride) {
+      m_talon.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
+    } else {
 
-    if(firstTime){
-      filteredAngle = this.getAngleRadians();
-      firstTime = false;
-    }else{
-      filteredAngle += ((this.getAngleRadians()-filteredAngle) * 0.5);
+      if (firstTime) {
+        filteredAngle = this.getAngleRadians();
+        firstTime = false;
+      } else {
+        filteredAngle += ((this.getAngleRadians() - filteredAngle) * 0.5);
+      }
+      double controllerVoltage = m_controller.calculate(filteredAngle, m_angleSetpointRadiansCurrent);
+
+      double feedforwardVoltage = m_feedforward.calculate(
+          m_angleSetpointRadiansCurrent,
+          m_previousVelocitySetpoint,
+          m_controller.getSetpoint().velocity,
+          kTimestepSeconds);
+
+      m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
+
+      m_talon.set(ControlMode.PercentOutput, (controllerVoltage + feedforwardVoltage) / kNominalVoltage);
     }
-    double controllerVoltage = m_controller.calculate(filteredAngle, m_angleSetpointRadiansCurrent);
-
-    double feedforwardVoltage = m_feedforward.calculate(
-        m_angleSetpointRadiansCurrent,
-        m_previousVelocitySetpoint,
-        m_controller.getSetpoint().velocity,
-        kTimestepSeconds);
-
-    m_previousVelocitySetpoint = m_controller.getSetpoint().velocity;
-
-    m_talon.set(ControlMode.PercentOutput, (controllerVoltage + feedforwardVoltage) / kNominalVoltage);
-  }
   }
 
   @Override
@@ -165,7 +163,7 @@ public class Wrist extends SubsystemBase implements Loggable {
       case StateFault:
         break;
       case StateWait:
-        if(RobotState.isEnabled()){
+        if (RobotState.isEnabled()) {
           m_wristState = m_wristStates.StateInit;
         }
         break;
@@ -175,14 +173,14 @@ public class Wrist extends SubsystemBase implements Loggable {
         break;
       case StateZero:
         m_talon.setVoltage(-0.5);
-        if(stateTimer==0){
+        if (stateTimer == 0) {
           if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) {
             this.resetAngleRadians(0);
             this.setAngleRadians(2);
             m_talon.setVoltage(0);
             m_wristState = m_wristStates.StateIdle;
           }
-        }else{
+        } else {
           stateTimer--;
         }
         break;
@@ -200,9 +198,10 @@ public class Wrist extends SubsystemBase implements Loggable {
         break;
       case StateIdle:
         this.runControlLoop();
-        if (m_requestedState != null) m_wristState = m_requestedState;
+        if (m_requestedState != null)
+          m_wristState = m_requestedState;
         m_requestedState = null;
-        break; 
-    }   
-}
+        break;
+    }
+  }
 }

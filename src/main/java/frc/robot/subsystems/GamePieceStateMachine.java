@@ -6,17 +6,16 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.Loggable;
 
 public class GamePieceStateMachine implements Loggable {
 
-  public enum pieceState{
+  public enum pieceState {
     kCone,
     kCube;
   }
 
-  public enum heightState{
+  public enum heightState {
     kHigh,
     kMedium,
     kLow;
@@ -32,29 +31,28 @@ public class GamePieceStateMachine implements Loggable {
     m_heightState = heightState.kLow;
   }
 
-  public void setPieceState(pieceState state){
+  public void setPieceState(pieceState state) {
     m_pieceState = state;
   }
 
-  public Command setPieceStateCommand(pieceState state){
-    return new InstantCommand(()->this.setPieceState(state));
+  public Command setPieceStateCommand(pieceState state) {
+    return new InstantCommand(() -> this.setPieceState(state));
   }
 
-  public pieceState getPieceState(){
+  public pieceState getPieceState() {
     return m_pieceState;
   }
 
-  public void setHeightState(heightState state){
+  public void setHeightState(heightState state) {
     m_heightState = state;
   }
 
-  public Command setHeightStateCommand(heightState state){
-    return new InstantCommand(()->this.setHeightState(state));
+  public Command setHeightStateCommand(heightState state) {
+    return new InstantCommand(() -> this.setHeightState(state));
   }
 
-  public heightState getHeightState(){
+  public heightState getHeightState() {
     return m_heightState;
   }
-
 
 }
