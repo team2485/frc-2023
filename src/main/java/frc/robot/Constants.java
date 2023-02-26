@@ -129,7 +129,7 @@ public final class Constants {
         public static final double maxAngularVelocity = 4; //TODO: This must be tuned to specific robot
 
         /* Neutral Modes */
-        public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
+        public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
         public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
         /* Module Specific Constants */
@@ -138,7 +138,7 @@ public final class Constants {
           public static final int driveMotorID = 3;
           public static final int angleMotorID = 4;
           public static final int canCoderID = 12;
-          public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-20);   
+          public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-25);   
           public static final SwerveModuleConstants constants = 
               new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, false);
       }
@@ -168,7 +168,7 @@ public final class Constants {
           public static final int driveMotorID = 7;
           public static final int angleMotorID = 8;
           public static final int canCoderID = 13;
-          public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-53.407288);
+          public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-56.407288);
           public static final SwerveModuleConstants constants = 
               new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset, true);
       }
