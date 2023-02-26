@@ -13,7 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakeArmConstants.*;
+
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.Constants.IntakeArmConstants.*;
@@ -26,7 +26,7 @@ public class IntakeArm extends SubsystemBase {
   /** Creates a new IntakeArm. */
   private WPI_TalonFX m_talonLeft = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortLeft);
   private WPI_TalonFX m_talonRight = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortRight);
-  private double m_positionSetpointMeters;
+  private double m_positionSetpointAngle;
   public int stateTimer;
   private final SR_ProfiledPIDController m_controller = 
     new SR_ProfiledPIDController(
@@ -51,7 +51,7 @@ public class IntakeArm extends SubsystemBase {
 
 
   public IntakeArm() {
-    m_intakeArmState = m_intakeArmStates.StateRetracted;
+    m_intakeArmState = m_intakeArmStates.StateWait;
     TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     talonConfig.voltageCompSaturation = Constants.kNominalVoltage;
     talonConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
@@ -81,37 +81,46 @@ public class IntakeArm extends SubsystemBase {
 
     m_controller.setTolerance(0.05);
 
-    this.resetPositionMeters(0);
+    this.resetAngle(0);
   }
 
-  public void setPositionMeters(double position) {
+  public void setPositionRadians(double position) {
     
-    m_positionSetpointMeters = MathUtil.clamp(position, 0, kMaxPositionMeters);
+    m_positionSetpointAngle= MathUtil.clamp(position, 0, kMaxPositionMeters);
   }
-  public double getPositionMeters() {
-    return m_talonLeft.getSelectedSensorPosition() * kDistancePerPulse;
+  public double getRadians() {
+    return m_talonLeft.getSelectedSensorPosition() * kRadiansPerPulse;
   }
 
   public double getError() {
-    return Math.abs(m_positionSetpointMeters - this.getPositionMeters());
+    return Math.abs(m_positionSetpointAngle - this.getRadians());
   }
   public boolean atSetpoint() {
     return m_controller.atSetpoint();
   }
-  public double getVelocityMetersPerSecond() {
-    return m_talonLeft.getSelectedSensorVelocity() * kDistancePerPulse;
+  public double getRadiansPerSecond() {
+    return m_talonLeft.getSelectedSensorVelocity() * kRadiansPerPulse;
   }
 
-  public void resetPositionMeters(double position){
+  public void resetAngle(double position){
 
-    m_talonLeft.setSelectedSensorPosition(position / kDistancePerPulse);
-    m_talonRight.setSelectedSensorPosition(position / kDistancePerPulse);
+    m_talonLeft.setSelectedSensorPosition(position / kRadiansPerPulse);
+    m_talonRight.setSelectedSensorPosition(position / kRadiansPerPulse);
   }
-
+  private boolean firstTime = true;
+  double filteredAngle=0;
   public void runControlLoop(){
+   
+    if (firstTime) {
+      filteredAngle = this.getRadians();
+      firstTime = false;
+    } else {
+      filteredAngle += ((this.getRadians() - filteredAngle) * 0.5);
+    }
+
     double feedbackOutputVoltage = 0;
 
-    feedbackOutputVoltage = m_controller.calculate(this.getPositionMeters(), m_positionSetpointMeters)/Constants.kNominalVoltage;
+    feedbackOutputVoltage = m_controller.calculate(filteredAngle, m_positionSetpointAngle)/Constants.kNominalVoltage;
     m_talonLeft.set(ControlMode.PercentOutput, feedbackOutputVoltage);
     m_talonRight.set(ControlMode.PercentOutput, feedbackOutputVoltage);
 
@@ -135,9 +144,9 @@ public class IntakeArm extends SubsystemBase {
       case StateInit: stateTimer=25; m_intakeArmState=m_intakeArmStates.StateZero;
       case StateZero: m_talonLeft.setVoltage(-0.75); m_talonRight.setVoltage(-0.75);
         if(stateTimer==0){
-          if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
-            this.resetPositionMeters(0);
-            this.setPositionMeters(0);
+          if (Math.abs(this.getRadiansPerSecond()) < 0.01) {
+            this.resetAngle(0);
+            this.setPositionRadians(0);
             m_talonLeft.setVoltage(0);
             m_talonRight.setVoltage(0);
             m_intakeArmState = m_intakeArmState.StateIdle;
@@ -146,11 +155,11 @@ public class IntakeArm extends SubsystemBase {
         }
         else{stateTimer--;} break;
       case StateRetracted:
-        this.setPositionMeters(kIntakeArmRetractedPositionMeters);
+        this.setPositionRadians(kIntakeArmRetractedPositionRadians);
         m_intakeArmState=m_intakeArmStates.StateIdle;
         break;
       case StateDeployed:
-        this.setPositionMeters(kIntakeArmDeployedPositionMeters);
+        this.setPositionRadians(kIntakeArmDeployedPositionRadian);
         m_intakeArmState=m_intakeArmStates.StateIdle;
         break;
       case StateIdle:

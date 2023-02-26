@@ -340,8 +340,8 @@ public final class Constants {
 
     public static final class IntakeArmConstants {
 
-        public static final int kIntakeArmPortLeft=0; //t
-        public static final int kIntakeArmPortRight=0; //t
+        public static final int kIntakeArmPortLeft=0; //tbd
+        public static final int kIntakeArmPortRight=0; //tbd
 
         public static final double kPIntakeArm=0;
         public static final double kIIntakeArm=0;
@@ -352,8 +352,8 @@ public final class Constants {
 
         public static final double kGearRatio=0;
 
-        public static double kIntakeArmRetractedPositionMeters=0;
-        public static double kIntakeArmDeployedPositionMeters=1;//TODO temp
+        public static double kIntakeArmRetractedPositionRadians=0;
+        public static double kIntakeArmDeployedPositionRadian=0.57890302605;
 
         public static double kIntakeArmSupplyCurrentLimitAmps;
         public static double kIntakeArmSupplyCurrentThresholdAmps;
@@ -363,8 +363,8 @@ public final class Constants {
 
         public static double kSprocketCrcumference = (kSprocketRadius*2)* Math.PI; //TODO: ALL VARIABLES HERE ARE PLACEHOLDER
 
-        public static final double kDistancePerMotorRev = kSprocketRadius / kGearRatio;
-        public static final double kDistancePerPulse = kDistancePerMotorRev / kFalconSensorUnitsPerRotation;
+        public static final double kRadiansPerMotorRev = kSprocketRadius / kGearRatio;
+        public static final double kRadiansPerPulse = kRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
 
 
     }
