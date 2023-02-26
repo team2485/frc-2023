@@ -204,6 +204,8 @@ public final class Constants {
         public static final double kElevatorTopStop = 0.8763;
 
         public static final double kElevatorTolerance = 0.05;
+
+        public static final double kElevatorOvershootAmountMeters = 0.08;
     
         public static final double kElevatorSupplyCurrentLimitAmps = 35;
         public static final double kElevatorSupplyCurrentThresholdAmps = 40;

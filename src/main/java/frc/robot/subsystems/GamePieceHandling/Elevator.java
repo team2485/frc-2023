@@ -21,7 +21,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     private double feedForwardVoltage = 0;
 
     @Log(name="setpoint")
-    private double m_positionSetpointMeters;
+    private double m_positionSetpointMeters = 0;
     
     private double m_voltageSetpoint = 0;
     private boolean m_enables = false;
@@ -37,6 +37,8 @@ public class Elevator extends SubsystemBase implements Loggable{
     private final WPI_TalonFX m_talonRight = new WPI_TalonFX(kElevatorPortRight);
 
     public boolean firstTime = true;
+    private boolean setpointOvershot = true;
+
 
     private final SR_ElevatorFeedforward m_feedforward = new SR_ElevatorFeedforward( kSElevatorVolts,  kGElevatorVolts,  kVElevatorVoltsSecondsPerMeter,  kAElevatorVoltsSecondsSquaredPerMeter);
     
@@ -50,12 +52,15 @@ public class Elevator extends SubsystemBase implements Loggable{
 
             public enum m_elevatorStates {
                 StateFault,
+                StateStart,
                 StateWait,
                 StateInit,
                 StateZero,
                 StateBottom,
-                StateMiddle,
-                StateTop,
+                StateMiddleCube,
+                StateTopCube,
+                StateMiddleCone,
+                StateTopCone,
                 StateIdle
               }
             
@@ -66,7 +71,8 @@ public class Elevator extends SubsystemBase implements Loggable{
 
     public Elevator(){
 
-    m_elevatorState = m_elevatorStates.StateMiddle;
+    m_pidController.setIntegratorRange(0, 12);
+    m_elevatorState = m_elevatorStates.StateStart;
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =
@@ -129,7 +135,10 @@ public class Elevator extends SubsystemBase implements Loggable{
 
     public double getVelocityMetersPerSecond() {
         return m_talonLeft.getSelectedSensorVelocity() * kDistancePerPulse;
+
     }
+
+    
 
     @Log(name="output voltage")
     public double getVoltage(){
@@ -142,11 +151,13 @@ public class Elevator extends SubsystemBase implements Loggable{
     }
 
     public void runControlLoop() {
-        if(RobotState.isEnabled()){
-            if(firstTime){
-                m_pidController.reset(0);
-                firstTime=false;
-            }
+
+        // if(firstTime){
+        //     if(RobotState.isEnabled()){
+        //         m_pidController.reset(0);
+        //         firstTime=false;
+        //     }
+        // }
 
         if (m_voltageOverride) {
             m_talonLeft.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
@@ -179,7 +190,7 @@ public class Elevator extends SubsystemBase implements Loggable{
           m_lastVelocitySetpoint = m_pidController.getSetpoint().velocity;
         }
     }
-    } 
+    
 
     public void requestState(m_elevatorStates state) {
         m_requestedState = state;
@@ -190,6 +201,9 @@ public class Elevator extends SubsystemBase implements Loggable{
         switch (m_elevatorState) {
             case StateFault:
               break;
+            case StateStart:
+                this.setPositionMeters(0.25);                
+                m_elevatorState = m_elevatorStates.StateIdle;
             case StateWait:
               if (RobotState.isEnabled())
                 m_elevatorState = m_elevatorStates.StateInit;
@@ -214,22 +228,37 @@ public class Elevator extends SubsystemBase implements Loggable{
               }
               break;
             case StateBottom:
-              this.setPositionMeters(0);
-              m_elevatorState = m_elevatorStates.StateIdle;
+              setpointOvershot = true;
+              this.setPositionMeters(0);             
+                m_elevatorState = m_elevatorStates.StateIdle;
               break;
-            case StateMiddle:
-              this.setPositionMeters(0.3);
-              m_elevatorState = m_elevatorStates.StateIdle;
+            case StateMiddleCube:
+                setpointOvershot = true;
+                this.setPositionMeters(0.5);                
+                m_elevatorState = m_elevatorStates.StateIdle;
               break;
-            case StateTop:
-              this.setPositionMeters(0.6);
-              m_elevatorState = m_elevatorStates.StateIdle;
+            case StateTopCube:
+                setpointOvershot = true;
+                this.setPositionMeters(0.8);                
+                m_elevatorState = m_elevatorStates.StateIdle;
+              break;
+            case StateMiddleCone:
+                setpointOvershot = true;
+                this.setPositionMeters(0.70);               
+                 m_elevatorState = m_elevatorStates.StateIdle;
+              break;
+            case StateTopCone:
+                setpointOvershot = true;
+                this.setPositionMeters(0.87);               
+                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateIdle:
               if (m_voltageOverride) {
                 m_talonLeft.set(m_voltageSetpoint / kNominalVoltage);
               } else {
-                this.runControlLoop();
+                if(RobotState.isEnabled()){
+                    this.runControlLoop();
+                } 
               }
       
               if (m_requestedState != null)

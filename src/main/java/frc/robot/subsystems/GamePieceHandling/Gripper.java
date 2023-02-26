@@ -22,7 +22,7 @@ import static frc.robot.Constants.GripperConstants.*;
 
 public class Gripper extends SubsystemBase implements Loggable{
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
-  private final PIDController m_controller = new PIDController(3, 0.5, 0);
+  private final PIDController m_controller = new PIDController(5, 0.5, 0);
 
   @Log(name="setpoint")
   private double m_posSetpointMetersCurrent = 0;
@@ -35,13 +35,13 @@ public class Gripper extends SubsystemBase implements Loggable{
   @Log(name="piece")
   private String pieceType = "None";
 
-  public enum m_pieceType {
+  public static enum m_pieceType {
     Cone,
     Cube,
     None,
   }
 
-  private m_pieceType currentPieceType = m_pieceType.None;
+  public static m_pieceType currentPieceType = m_pieceType.None;
 
   public enum m_gripperStates {
     StateFault,
@@ -119,7 +119,7 @@ public class Gripper extends SubsystemBase implements Loggable{
             }
             break;
         case StateGrip:
-              this.setPositionSetpoint(1.55);
+              this.setPositionSetpoint(1.65);
               m_gripperState = m_gripperStates.StateIdle;
             break;        
         case StateIdle:

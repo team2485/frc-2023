@@ -191,7 +191,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         if(stateTimer==0){
           if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) {
             this.resetAngleRadians(0);
-            this.setAngleRadians(2);
+            this.setAngleRadians(1.8);
             m_talon.setVoltage(0);
             m_wristState = m_wristStates.StateIdle;
           }
@@ -200,15 +200,15 @@ public class Wrist extends SubsystemBase implements Loggable {
         }
         break;
       case StateBottom:
-        this.setAngleRadians(0);
+        this.setAngleRadians(1.5);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateMiddle:
-        this.setAngleRadians(2);
+        this.setAngleRadians(1.8);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateTop:
-        this.setAngleRadians(3);
+        this.setAngleRadians(2.4);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateIdle:
