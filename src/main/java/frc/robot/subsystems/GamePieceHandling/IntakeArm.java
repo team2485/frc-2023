@@ -14,10 +14,12 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeArmConstants.*;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.Constants.IntakeArmConstants.*;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeArm extends SubsystemBase {
@@ -25,6 +27,7 @@ public class IntakeArm extends SubsystemBase {
   private WPI_TalonFX m_talonLeft = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortLeft);
   private WPI_TalonFX m_talonRight = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortRight);
   private double m_positionSetpointMeters;
+  public int stateTimer;
   private final SR_ProfiledPIDController m_controller = 
     new SR_ProfiledPIDController(
       kPIntakeArm, 
@@ -108,13 +111,54 @@ public class IntakeArm extends SubsystemBase {
   public void runControlLoop(){
     double feedbackOutputVoltage = 0;
 
-    feedbackOutputVoltage = m_controller.calculate(this.getPositionMeters(), m_positionSetpointMeters);
-    m_talonLeft.set(ControlMode.Position, feedbackOutputVoltage);
-    m_talonRight.set(ControlMode.Position, feedbackOutputVoltage);
+    feedbackOutputVoltage = m_controller.calculate(this.getPositionMeters(), m_positionSetpointMeters)/Constants.kNominalVoltage;
+    m_talonLeft.set(ControlMode.PercentOutput, feedbackOutputVoltage);
+    m_talonRight.set(ControlMode.PercentOutput, feedbackOutputVoltage);
+
+  }
+
+  private m_intakeArmStates requestedState;
+  public void requestState(m_intakeArmStates state){
+    requestedState=state;
+
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    switch(m_intakeArmState){
+      case StateFault: break;
+      case StateWait: if(RobotState.isEnabled()){
+        m_intakeArmState = m_intakeArmStates.StateInit;
+        break;
+      }
+      case StateInit: stateTimer=25; m_intakeArmState=m_intakeArmStates.StateZero;
+      case StateZero: m_talonLeft.setVoltage(-0.75); m_talonRight.setVoltage(-0.75);
+        if(stateTimer==0){
+          if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
+            this.resetPositionMeters(0);
+            this.setPositionMeters(0);
+            m_talonLeft.setVoltage(0);
+            m_talonRight.setVoltage(0);
+            m_intakeArmState = m_intakeArmState.StateIdle;
+          }
+
+        }
+        else{stateTimer--;} break;
+      case StateRetracted:
+        this.setPositionMeters(kIntakeArmRetractedPositionMeters);
+        m_intakeArmState=m_intakeArmStates.StateIdle;
+        break;
+      case StateDeployed:
+        this.setPositionMeters(kIntakeArmDeployedPositionMeters);
+        m_intakeArmState=m_intakeArmStates.StateIdle;
+        break;
+      case StateIdle:
+        this.runControlLoop();
+        if(requestedState==null){break;}
+        m_intakeArmState=requestedState;
+        requestedState=null;
+        break;
+    }
   }
 }

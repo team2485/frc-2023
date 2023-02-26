@@ -352,7 +352,9 @@ public final class Constants {
 
         public static final double kGearRatio=0;
 
-        public static double kIntakeArmBottomPositionRadians;
+        public static double kIntakeArmRetractedPositionMeters=0;
+        public static double kIntakeArmDeployedPositionMeters=1;//TODO temp
+
         public static double kIntakeArmSupplyCurrentLimitAmps;
         public static double kIntakeArmSupplyCurrentThresholdAmps;
         public static double kIntakeArmSupplyCurrentThresholdTimeSecs;
