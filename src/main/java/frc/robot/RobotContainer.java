@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.Command.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -121,7 +122,8 @@ public class RobotContainer {
     m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
     m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
 
-    m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)));
+    //the closing is fast enough to not have to wait until a piece is detected in order to raise the elevator
+    m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)).andThen(new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateLow))));
     m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
 
     m_operator.leftBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateIn)));
