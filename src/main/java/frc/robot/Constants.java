@@ -340,15 +340,31 @@ public final class Constants {
 
     public static final class IntakeArmConstants {
 
-        public static final int kIntakeArmPort=0; //t
+        public static final int kIntakeArmPortLeft=0; //t
+        public static final int kIntakeArmPortRight=0; //t
+
         public static final double kPIntakeArm=0;
         public static final double kIIntakeArm=0;
         public static final double kDIntakeArm=0;
         public static final frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints(kFalconSensorUnitsPerRotation, kCANTimeoutMs);
-        public static double kSIntakeArmVolts;
-        public static double kGIntakeArmVolts;
-        public static double kAIntakeArmVoltsSecondsSquaredPerRadian;
-        public static double kVIntakeArmVoltsSecondsPerRadian;
+      
+        public static final double kSprocketRadius=0;
+
+        public static final double kGearRatio=0;
+
         public static double kIntakeArmBottomPositionRadians;
+        public static double kIntakeArmSupplyCurrentLimitAmps;
+        public static double kIntakeArmSupplyCurrentThresholdAmps;
+        public static double kIntakeArmSupplyCurrentThresholdTimeSecs;
+        public static double kMaxPositionMeters;
+
+
+        public static double kSprocketCrcumference = (kSprocketRadius*2)* Math.PI; //TODO: ALL VARIABLES HERE ARE PLACEHOLDER
+
+        public static final double kDistancePerMotorRev = kSprocketRadius / kGearRatio;
+        public static final double kDistancePerPulse = kDistancePerMotorRev / kFalconSensorUnitsPerRotation;
+
+
     }
+
 }
