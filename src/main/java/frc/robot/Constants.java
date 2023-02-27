@@ -139,7 +139,7 @@ public final class Constants {
     public static final double maxAngularVelocity = 4; // TODO: This must be tuned to specific robot
 
     /* Neutral Modes */
-    public static final NeutralMode angleNeutralMode = NeutralMode.Coast;
+    public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
     public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
     /* Module Specific Constants */
@@ -148,7 +148,7 @@ public final class Constants {
       public static final int driveMotorID = 3;
       public static final int angleMotorID = 4;
       public static final int canCoderID = 12;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-20);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-25);
       public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID,
           canCoderID, angleOffset, false);
     }
@@ -178,7 +178,7 @@ public final class Constants {
       public static final int driveMotorID = 7;
       public static final int angleMotorID = 8;
       public static final int canCoderID = 13;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-53.407288);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(-56.407288);
       public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID,
           canCoderID, angleOffset, true);
     }
@@ -213,6 +213,9 @@ public final class Constants {
 
     public static final double kElevatorBottomStop = 0;
     public static final double kElevatorTopStop = 0.8763;
+        public static final double kElevatorTolerance = 0.05;
+
+        public static final double kElevatorOvershootAmountMeters = 0.08;
 
     public static final double kElevatorSupplyCurrentLimitAmps = 35;
     public static final double kElevatorSupplyCurrentThresholdAmps = 40;
@@ -234,13 +237,13 @@ public final class Constants {
 
     // velocity loop constants
     public static final double kSElevatorVolts = 0.095783;
-    public static final double kGElevatorVolts = 0.2;
-    public static final double kVElevatorVoltsSecondsPerMeter = 2.5;
+    public static final double kGElevatorVolts = 0.8;
+    public static final double kVElevatorVoltsSecondsPerMeter = 4;
     public static final double kAElevatorVoltsSecondsSquaredPerMeter = 0.1854;
 
     // position loop constants
     public static final double kPElevatorVoltsPerMeter = 80;
-    public static final double kIElevatorVoltsPerMeter = 0;
+    public static final double kIElevatorVoltsPerMeter = 15;
     public static final double kDElevatorVoltSecondsPerMeter = 0;
     public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
         kElevatorMaxSpeedMetersPerSecond,
@@ -250,43 +253,45 @@ public final class Constants {
     // public static final double kFeedForwardVoltage = 0;
   }
 
-  public static final class WristConstants {
-    public static final int kWristTalonPort = 16;
+    public static final class WristConstants {
+        public static final int kWristTalonPort = 16;
+    
+        public static final double kWristGearRatio = 48; // motor turns : output/full hood turns
+        public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kWristGearRatio;
+        public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
+    
+        public static final double kWristBottomPositionRadians = 0; // from horizontal
+        public static final double kWristTopPositionRadians = 4.4;
+    
+        public static final double kIndexerSupplyCurrentLimitAmps = 25;
+        public static final double kIndexerSupplyCurrentThresholdAmps = 30;
+        public static final double kIndexerSupplyCurrentThresholdTimeSecs = 0.1;
+    
+        public static final double kIndexerStatorCurrentLimitAmps = 40;
+        public static final double kIndexerStatorCurrentThresholdAmps = 45;
+        public static final double kIndexerStatorCurrentThresholdTimeSecs = 0.05;
+    
+        public static final double kWristTolerance = 0.1;
 
-    public static final double kWristGearRatio = 48; // motor turns : output/full hood turns
-    public static final double kWristRadiansPerMotorRev = 2 * Math.PI / kWristGearRatio;
-    public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
-
-    public static final double kWristBottomPositionRadians = 0; // from horizontal
-    public static final double kWristTopPositionRadians = 4.4;
-
-    public static final double kIndexerSupplyCurrentLimitAmps = 25;
-    public static final double kIndexerSupplyCurrentThresholdAmps = 30;
-    public static final double kIndexerSupplyCurrentThresholdTimeSecs = 0.1;
-
-    public static final double kIndexerStatorCurrentLimitAmps = 40;
-    public static final double kIndexerStatorCurrentThresholdAmps = 45;
-    public static final double kIndexerStatorCurrentThresholdTimeSecs = 0.05;
-
-    // Wrist characterization constants
-    public static final double kSWristVolts = 0.083516;
-    public static final double kGWristVolts = 0.3281;
-    public static final double kVWristVoltSecondsPerRadian = 0.81827;
-    public static final double kAWristVoltSecondsSquaredPerRadian = 0.029701;
-
-    public static final double kWristMaxSpeedRadiansPerSecond = 2 * Math.PI;
-
-    public static final double kWristMaxAccelerationRadiansPerSecondSquared = Math.PI;
-
-    public static final SR_TrapezoidProfile.Constraints kWristMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(
-        kWristMaxSpeedRadiansPerSecond, kWristMaxAccelerationRadiansPerSecondSquared);
-    // Wrist PID constants
-    public static final double kPWrist = 3;
-    public static final double kIWrist = 4;
-    public static final double kDWrist = 0.25;
-    public static final double kWristControllerPositionTolerance = 0;
-
-  }
+        // Wrist characterization constants
+        public static final double kSWristVolts = 0.083516;
+        public static final double kGWristVolts = 0.3281;
+        public static final double kVWristVoltSecondsPerRadian = 0.81827;
+        public static final double kAWristVoltSecondsSquaredPerRadian = 0.029701;
+    
+        public static final double kWristMaxSpeedRadiansPerSecond = 2*Math.PI;
+    
+        public static final double kWristMaxAccelerationRadiansPerSecondSquared = Math.PI;
+    
+        public static final SR_TrapezoidProfile.Constraints kWristMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(
+            kWristMaxSpeedRadiansPerSecond, kWristMaxAccelerationRadiansPerSecondSquared);
+        // Wrist PID constants
+        public static final double kPWrist = 3;
+        public static final double kIWrist = 4;
+        public static final double kDWrist = 0.25;
+        public static final double kWristControllerPositionTolerance = 0;
+    
+      }
 
   public static final class GripperConstants {
     public static final int kGripperSparkPort = 17;
@@ -310,11 +315,13 @@ public final class Constants {
 
   public static final class TelescopeConstants {
 
-    public static final int kTelescopePort = 18;
-    public static final int kTelescopeSmartCurrentLimitAmps = 45;
-    public static final int kTelescopeImmediateCurrentLimitAmps = 0;
+        public static final int kTelescopePort = 18;            
+        public static final int kTelescopeSmartCurrentLimitAmps = 45;
+        public static final int kTelescopeImmediateCurrentLimitAmps = 0;
+        
+        public static final double kTelescopeTolerance = 0.05;
 
-    public static final double kTelescopeMaxPosition = 0.9;
+        public static final double kTelescopeMaxPosition = 0.9;
 
     public static final double kSTelescopeVolts = 0.01;
     public static final double kVTelescopeVoltSecondsPerMeter = 0.5;

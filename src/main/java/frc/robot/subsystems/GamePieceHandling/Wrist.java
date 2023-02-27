@@ -47,6 +47,10 @@ public class Wrist extends SubsystemBase implements Loggable {
   public double filteredAngle;
 
   public double m_voltageSetpoint = 0;
+  
+  public boolean firstTime2 = true;
+
+
 
   @Log(name = "timer")
   public double stateTimer = 0;
@@ -59,6 +63,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     StateBottom,
     StateMiddle,
     StateTop,
+    StateHigh,
     StateIdle
   }
 
@@ -66,7 +71,7 @@ public class Wrist extends SubsystemBase implements Loggable {
   public static m_wristStates m_requestedState;
 
   public Wrist() {
-    m_wristState = m_wristStates.StateWait;
+    m_wristState = m_wristStates.StateIdle;
 
     TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
     wristTalonConfig.voltageCompSaturation = kNominalVoltage;
@@ -106,6 +111,15 @@ public class Wrist extends SubsystemBase implements Loggable {
   @Log(name = "enabled")
   public boolean isEnabled() {
     return RobotState.isEnabled();
+  }
+
+  @Log(name = "error")
+  public double getError() {
+    return Math.abs(m_angleSetpointRadiansCurrent - this.getAngleRadians());
+  }
+
+  public boolean atSetpoint(){
+    return this.getError() < kWristTolerance;
   }
 
   @Log(name = "Current angle (radians)")
@@ -176,7 +190,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         if (stateTimer == 0) {
           if (Math.abs(this.getVelocityRadiansPerSecond()) < 0.01) {
             this.resetAngleRadians(0);
-            this.setAngleRadians(2);
+            this.setAngleRadians(1.8);
             m_talon.setVoltage(0);
             m_wristState = m_wristStates.StateIdle;
           }
@@ -185,14 +199,18 @@ public class Wrist extends SubsystemBase implements Loggable {
         }
         break;
       case StateBottom:
-        this.setAngleRadians(0);
+        this.setAngleRadians(1.35);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateMiddle:
-        this.setAngleRadians(2);
+        this.setAngleRadians(1.8);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateTop:
+        this.setAngleRadians(2.4);
+        m_wristState = m_wristStates.StateIdle;
+        break;
+      case StateHigh:
         this.setAngleRadians(3);
         m_wristState = m_wristStates.StateIdle;
         break;
@@ -201,7 +219,13 @@ public class Wrist extends SubsystemBase implements Loggable {
         if (m_requestedState != null)
           m_wristState = m_requestedState;
         m_requestedState = null;
-        break;
-    }
-  }
+
+        if(firstTime2){
+          if(Telescope.m_telescopeState==Telescope.m_telescopeStates.StateIdle){
+            m_wristState = m_wristStates.StateInit;
+            firstTime2 = false;
+          }
+        }
+        break; 
+    }   
 }

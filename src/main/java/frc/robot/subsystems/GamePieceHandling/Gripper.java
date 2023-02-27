@@ -8,9 +8,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
+import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
+import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
+import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -19,7 +23,7 @@ import static frc.robot.Constants.GripperConstants.*;
 
 public class Gripper extends SubsystemBase implements Loggable {
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
-  private final PIDController m_controller = new PIDController(3, 0.5, 0);
+  private final PIDController m_controller = new PIDController(10.0, 1, 0.0);
 
   @Log(name = "setpoint")
   private double m_posSetpointMetersCurrent = 0;
@@ -32,13 +36,13 @@ public class Gripper extends SubsystemBase implements Loggable {
   @Log(name = "piece")
   private String pieceType = "None";
 
-  public enum m_pieceType {
+  public static enum m_pieceType {
     Cone,
     Cube,
     None,
   }
 
-  private m_pieceType currentPieceType = m_pieceType.None;
+  public static m_pieceType currentPieceType = m_pieceType.None;
 
   public enum m_gripperStates {
     StateFault,
@@ -114,22 +118,40 @@ public class Gripper extends SubsystemBase implements Loggable {
             m_spark.setVoltage(0);
             m_gripperState = m_gripperStates.StateIdle;
           }
-        } else {
-          stateTimer--;
-        }
-        break;
-      case StateGrip:
-        this.setPositionSetpoint(1.45);
-        m_gripperState = m_gripperStates.StateIdle;
-        break;
-      case StateIdle:
-        if (m_voltageOverride) {
-          m_spark.set(m_voltageSetpoint / kNominalVoltage);
-        } else {
-          double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
-          m_spark.set(controllerVoltage / kNominalVoltage);
-          this.updateCurrentHeldPiece();
-        }
+          break;
+        case StateInit:
+            stateTimer = 25;
+            m_gripperState = m_gripperStates.StateZero;
+            break;
+        case StateZero:
+            m_spark.setVoltage(-1.25);
+            if (stateTimer == 0) {
+                if (Math.abs(this.getEncoderVelocity()) < 0.01) {
+                    this.resetEncoderPosition(0);
+                    this.setPositionSetpoint(0);
+                    m_spark.setVoltage(0);
+                    m_gripperState = m_gripperStates.StateIdle;
+                }
+            } else {
+                stateTimer--;
+            }
+            break;
+        case StateGrip:
+              this.setPositionSetpoint(1.5);
+              m_gripperState = m_gripperStates.StateIdle;
+            break;        
+        case StateIdle:
+            if (m_voltageOverride) {
+                m_spark.set(m_voltageSetpoint / kNominalVoltage);
+            } else {
+                // if(this.getVoltage()<=20){
+                double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
+                m_spark.set((controllerVoltage) / kNominalVoltage);
+                // }else{
+                  // m_spark.set(0.5);
+                // }
+                this.updateCurrentHeldPiece();
+            }
 
         if (m_requestedState != null)
           m_gripperState = m_requestedState;
