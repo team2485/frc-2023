@@ -360,7 +360,7 @@ public final class Constants {
         public static final double kGearRatio=0;
 
         public static double kIntakeArmRetractedPositionRadians=0;
-        public static double kIntakeArmDeployedPositionRadian=0.57890302605;
+        public static double kIntakeArmDeployedPositionRadian=0.70949691016; //radians betwween open and closoed pos.
 
         public static double kIntakeArmSupplyCurrentLimitAmps;
         public static double kIntakeArmSupplyCurrentThresholdAmps;
@@ -368,9 +368,9 @@ public final class Constants {
         public static double kMaxPositionMeters;
 
 
-        public static double kSprocketCrcumference = (kSprocketRadius*2)* Math.PI; //TODO: ALL VARIABLES HERE ARE PLACEHOLDER
+        //public static double kSprocketCrcumference = (kSprocketRadius*2)* Math.PI; //TODO: ALL VARIABLES HERE ARE PLACEHOLDER
 
-        public static final double kRadiansPerMotorRev = kSprocketRadius / kGearRatio;
+        public static final double kRadiansPerMotorRev = 2*Math.PI / kGearRatio;
         public static final double kRadiansPerPulse = kRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
 
 
