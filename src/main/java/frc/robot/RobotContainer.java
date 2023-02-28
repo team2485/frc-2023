@@ -5,18 +5,41 @@
 package frc.robot;
 
 import frc.WarlordsLib.WL_CommandXboxController;
+import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.DriveWithController;
-import frc.robot.commands.GamePieceHandling;
+import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
+import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.GamePieceHandling.Elevator;
+import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Telescope;
+import frc.robot.subsystems.GamePieceHandling.Wrist;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_pieceType;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
+import frc.robot.subsystems.GamePieceStateMachine.heightState;
+import frc.robot.subsystems.GamePieceStateMachine.pieceState;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.drive.Intake;
 import io.github.oblarg.oblog.annotations.Log;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.Command.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -34,7 +57,14 @@ public class RobotContainer {
 
   private final Intake m_intake = new Intake();
 
-  public final Drivetrain m_drivetrain;
+  public final Drivetrain m_drivetrain = new Drivetrain();
+  public final Elevator m_elevator = new Elevator();
+  public final Wrist m_wrist = new Wrist();
+  public final Gripper m_gripper = new Gripper();
+  public final Telescope m_telescope = new Telescope();
+
+
+  public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
   @Log(name = "Auto Chooser", width = 2, height = 2, rowIndex = 4, columnIndex = 0)
   private SendableChooser<Command> m_autoChooser = new SendableChooser<Command>();
@@ -42,9 +72,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    m_drivetrain = new Drivetrain();
-    m_drivetrain.zeroGyro();
     configureBindings();
+    m_drivetrain.zeroGyro();
 
     m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
   }
@@ -61,9 +90,8 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    configureDrivetrainCommands();
-    configureGamePieceHandlingCommands();
-
+    this.configureDrivetrainCommands();
+    this.configureGamePieceCommands();
     
   }
 
@@ -84,13 +112,40 @@ public class RobotContainer {
     );
 
     m_driver.x().onTrue(new InstantCommand(()->m_drivetrain.zeroGyro()));
-
     m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
+
+    //hypothetical state machine formatting (delete later)
+  
+
   }
 
-  private void configureGamePieceHandlingCommands(){
-    m_driver.rightTrigger().whileTrue(GamePieceHandling.getRunIntakeCommand(m_intake))
-                           .whileFalse(GamePieceHandling.getStopIntakeCommand(m_intake));
+  private void configureGamePieceCommands(){
+    m_operator.rightPOV().onTrue(new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateMiddleCube)));
+    
+
+    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
+    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+
+    //the closing is fast enough to not have to wait until a piece is detected in order to raise the elevator
+    m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)).andThen(new WaitCommand(1), new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateLow))));
+    m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
+
+    m_operator.leftBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateIn)));
+    m_operator.rightBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateMiddleCube)));
+    m_operator.rightTrigger().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateHigh)));
+
+    m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
+
+    m_operator.leftPOV().onTrue(
+        new ConditionalCommand(GamePieceHandlingCommands.midCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+                              GamePieceHandlingCommands.midConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+                              ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
+
+    m_operator.upperPOV().onTrue(
+      new ConditionalCommand(GamePieceHandlingCommands.highCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+                              GamePieceHandlingCommands.highConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+                              ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
+
   }
 
   public Command getAutonomousCommand() {
