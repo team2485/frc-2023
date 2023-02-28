@@ -7,28 +7,34 @@ package frc.robot.subsystems.drive;
 
 import static frc.robot.Constants.IntakeConstants.*;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import io.github.oblarg.oblog.annotations.Config;
 import io.github.oblarg.oblog.annotations.Log;
-import frc.WarlordsLib.motorcontrol.WL_SparkMax;
+import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
-
-
-
-
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  private final WPI_TalonFX m_talon = new WPI_TalonFX(kIntakeTalonPort);
+  
+  public enum m_intakeStates {
+    StateFault,
+    StateWait,
+    StateInit,
+    StateOn,
+    StateOff
+  }
 
+  private m_intakeStates m_intakeState;
+
+  private final WPI_SparkMax m_spark = new WPI_SparkMax(kIntakeSparkPort, MotorType.kBrushless);
+  private final RelativeEncoder m_encoder = m_spark.getEncoder();
   private final SR_SimpleMotorFeedforward m_feedforward = 
                                   new SR_SimpleMotorFeedforward(kSIntakeVolts, kVIntakeVoltSecondsPerMeter, kAIntakeVoltSecondsSquaredPerMeter);
-
+  
   @Log(name = "Velocity Setpoint")
   private double m_velocitySetpointRotationsPerSecond;
 
@@ -44,17 +50,26 @@ public class Intake extends SubsystemBase {
   private double m_lastOutputVoltage = 0;
 
   public Intake(){
-    m_talon.configVoltageCompSaturation(Constants.kNominalVoltage);
-    m_talon.enableVoltageCompensation(true);
-    m_talon.setNeutralMode(NeutralMode.Brake);
-    //m_talon.setInverted(true);
+    //m_spark.kCompensatedNominalVoltage
+    //m_spark.configVoltageCompSaturation(Constants.kNominalVoltage);
+    //m_spark.enableVoltageCompensation(true);
+    //m_spark.setNeutralMode(NeutralMode.Brake);
+    //m_spark.setInverted(true);
     //maybe add current limiting questionmark
+
+    m_intakeState = m_intakeStates.StateWait;
+
+    m_spark.setSmartCurrentLimit(kIntakeSmartCurrentLimitAmps);
+    // some people were saying that this method was not properly implemented and does nothing
+    // it probably works now as those complaints were from 2020 but check this if there are issues 
+ 
+   // m_feedforward.(kIntakeVelocityToleranceRotationsPerSecond);
   }
 
 
   @Log(name = "Current Velocity (RPS)")
   public double getVelocityRotationsPerSecond(){
-    return m_talon.getSelectedSensorVelocity() / (kIntakeGearRatio *  Constants.kFalconSensorUnitsPerRotation * 10);
+    return m_encoder.getVelocity() / (kIntakeGearRatio * Constants.kNeoSensorUnitsPerRotation * 10);
   }
 
   @Config(name = "Set Velocity (RPS)")
@@ -73,10 +88,10 @@ public class Intake extends SubsystemBase {
 
   public void runControlLoop(){
     double outputVoltage = 0;
-    if(m_voltageOverride){
+
+    if (m_voltageOverride){
       outputVoltage = m_voltageSetpoint;
-    }
-    else{
+    } else {
       double feedForwardOutput = m_feedforward.calculate(m_lastVelocitySetpoint, m_velocitySetpointRotationsPerSecond, kIntakeLoopTimeSeconds);
 
       outputVoltage = feedForwardOutput;
@@ -84,14 +99,43 @@ public class Intake extends SubsystemBase {
     }
 
     if(outputVoltage != m_lastOutputVoltage){
-      m_talon.setVoltage(outputVoltage);
+      m_spark.setVoltage(outputVoltage);
     }
 
     m_lastOutputVoltage = outputVoltage;
   }
 
+  private m_intakeStates m_requestedState;
+  public void requestState(m_intakeStates state){
+    m_requestedState = state;
+  }
+
   @Override
   public void periodic(){
-    this.runControlLoop();
+    
+    switch(m_intakeState){
+      case StateFault:
+        break;
+      case StateWait:
+          if(RobotState.isEnabled()){
+            m_intakeState = m_intakeStates.StateInit;
+          }
+          break;
+      case StateInit:
+          
+          m_intakeState = m_intakeStates.StateOff;
+          break;
+      case StateOff:
+        this.setVoltage(m_lastOutputVoltage);
+        this.setVelocityRotationsPerSecond(0);
+        if(m_requestedState != null) m_intakeState = m_requestedState;
+        m_requestedState=null;
+      case StateOn:
+        this.runControlLoop();
+        this.setVelocityRotationsPerSecond(kIntakeDefaultSpeedRotationsPerSecond);
+        if(m_requestedState != null) m_intakeState = m_requestedState;
+        m_requestedState = null;
+       
+    }
   }
 }  
