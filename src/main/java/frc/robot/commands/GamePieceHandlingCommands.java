@@ -51,7 +51,7 @@ public class GamePieceHandlingCommands {
         return group;
     }
     public static Command highConeSetpoint(Telescope telescope, Elevator elevator, Gripper gripper, Wrist wrist){
-        ParallelCommandGroup group = new ParallelCommandGroup(new InstantCommand(()->wrist.requestState(m_wristStates.StateTop)),
+        ParallelCommandGroup group = new ParallelCommandGroup(new InstantCommand(()->wrist.requestState(m_wristStates.StateHigh)),
             new InstantCommand(()->telescope.requestState(m_telescopeStates.StateOutCone)),
                        new InstantCommand(()->elevator.requestState(m_elevatorStates.StateTopCone)));
 
@@ -64,6 +64,14 @@ public class GamePieceHandlingCommands {
                    new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)));
 
     return group;
+}
 
+    public static Command doubleSubstationSetpoint(Telescope telescope, Elevator elevator, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)),
+        new InstantCommand(()->telescope.requestState(m_telescopeStates.StateMiddleCone)),
+                   new InstantCommand(()->elevator.requestState(m_elevatorStates.StateTopCone)));
+
+    return group;
     }
+
 }

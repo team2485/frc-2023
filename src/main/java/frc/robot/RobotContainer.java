@@ -117,7 +117,7 @@ public class RobotContainer {
   }
 
   private void configureGamePieceCommands(){
-    m_operator.rightPOV().onTrue(new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateMiddleCube)));
+    // m_operator.rightPOV().onTrue(new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateMiddleCube)));
     
 
     m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
@@ -144,6 +144,8 @@ public class RobotContainer {
                               GamePieceHandlingCommands.highConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
                               ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
 
+    m_operator.rightPOV().onTrue(
+      GamePieceHandlingCommands.doubleSubstationSetpoint(m_telescope, m_elevator, m_wrist));
   }
 
   public Command getAutonomousCommand() {

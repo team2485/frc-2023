@@ -202,7 +202,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCone:
-        this.setPositionSetpointMeters(0.8);
+        this.setPositionSetpointMeters(0.80);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIdle: 
