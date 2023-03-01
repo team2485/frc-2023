@@ -57,4 +57,13 @@ public class GamePieceHandlingCommands {
 
         return group;
     }
+
+    public static Command travelSetpoint(Telescope telescope, Elevator elevator, Gripper gripper, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)),
+        new InstantCommand(()->telescope.requestState(m_telescopeStates.StateIn)),
+                   new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)));
+
+    return group;
+
+    }
 }

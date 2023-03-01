@@ -82,7 +82,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
     m_spark.setSmartCurrentLimit(kTelescopeSmartCurrentLimitAmps);
     m_spark.setSecondaryCurrentLimit(kTelescopeImmediateCurrentLimitAmps);
-    m_spark.setInverted(true);
+    m_spark.setInverted(false);
     m_spark.setIdleMode(IdleMode.kBrake);
 
     m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
@@ -173,9 +173,9 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateZero;
         break;
       case StateZero:
-        m_spark.setVoltage(-0.75);
+        m_spark.setVoltage(-1.25);
         if(stateTimer==0){
-          if (Math.abs(this.getCurrent()) > 25) {
+          if (Math.abs(this.getCurrent()) > 30) {
             this.resetPositionMeters(-0.05);
             this.setPositionSetpointMeters(0.15);
             m_spark.setVoltage(0);

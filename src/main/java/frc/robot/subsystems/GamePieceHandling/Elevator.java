@@ -37,7 +37,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     private final WPI_TalonFX m_talonRight = new WPI_TalonFX(kElevatorPortRight);
 
     public boolean firstTime = true;
-    //private boolean setpointOvershot = false;
+    private boolean setpointOvershot = false;
 
 
     private final SR_ElevatorFeedforward m_feedforward = new SR_ElevatorFeedforward( kSElevatorVolts,  kGElevatorVolts,  kVElevatorVoltsSecondsPerMeter,  kAElevatorVoltsSecondsSquaredPerMeter);
@@ -103,7 +103,7 @@ public class Elevator extends SubsystemBase implements Loggable{
       m_talonRight.setInverted(false);
       m_talonRight.configNeutralDeadband(0.001);
       
-      m_pidController.setTolerance(0.05);
+      m_pidController.setTolerance(0);
 
       this.resetPositionMeters(0);
 
@@ -129,6 +129,11 @@ public class Elevator extends SubsystemBase implements Loggable{
         return m_talonLeft.getSelectedSensorPosition() * kDistancePerPulse; 
     }
 
+    @Log(name="position2")
+    public double getPositionMetersTheOtherOne() {
+        return m_talonRight.getSelectedSensorPosition() * kDistancePerPulse; 
+    }
+
     public void resetPositionMeters(double position) {
         m_talonLeft.setSelectedSensorPosition(position/kDistancePerPulse);
         m_talonRight.setSelectedSensorPosition(position/kDistancePerPulse);
@@ -141,9 +146,14 @@ public class Elevator extends SubsystemBase implements Loggable{
 
     
 
-    @Log(name="output voltage")
-    public double getVoltage(){
-        return m_talonLeft.getMotorOutputVoltage();
+    @Log(name="output current")
+    public double getStatorCurrent(){
+        return m_talonLeft.getStatorCurrent();
+    }
+
+    @Log(name="output current 2")
+    public double getStatorCurrent2(){
+        return m_talonRight.getStatorCurrent();
     }
 
     public void setVoltage(double voltage) {
@@ -159,6 +169,11 @@ public class Elevator extends SubsystemBase implements Loggable{
         //         firstTime=false;
         //     }
         // }
+
+        if(setpointOvershot && this.atSetpoint()){
+          setpointOvershot = false;
+          m_positionSetpointMeters-=kElevatorOvershootAmountMeters;
+        }
 
         if (m_voltageOverride) {
             m_talonLeft.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
@@ -229,32 +244,33 @@ public class Elevator extends SubsystemBase implements Loggable{
               }
               break;
             case StateBottom:
-               //setpointOvershot = true;
-               this.setPositionMeters(0);             
+               setpointOvershot = true;
+               this.setPositionMeters(0+kElevatorOvershootAmountMeters);             
                m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateLow:
-                this.setPositionMeters(0.25);
+                setpointOvershot = true;
+                this.setPositionMeters(0.25+kElevatorOvershootAmountMeters);
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateMiddleCube:
-                //setpointOvershot = true;
-                this.setPositionMeters(0.5);                
+                setpointOvershot = true;
+                this.setPositionMeters(0.5+kElevatorOvershootAmountMeters);                
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateTopCube:
-                //setpointOvershot = true;
-                this.setPositionMeters(0.8);                
+                setpointOvershot = true;
+                this.setPositionMeters(0.8+kElevatorOvershootAmountMeters);                
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateMiddleCone:
-                //setpointOvershot = true;
-                this.setPositionMeters(0.70);               
+                setpointOvershot = true;
+                this.setPositionMeters(0.70+kElevatorOvershootAmountMeters);               
                  m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateTopCone:
-                //setpointOvershot = true;
-                this.setPositionMeters(0.87);               
+                setpointOvershot = true;
+                this.setPositionMeters(0.87+kElevatorOvershootAmountMeters);               
                  m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateIdle:

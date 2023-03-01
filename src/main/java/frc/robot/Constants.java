@@ -205,13 +205,13 @@ public final class Constants {
 
         public static final double kElevatorTolerance = 0.05;
 
-        public static final double kElevatorOvershootAmountMeters = 0.08;
+        public static final double kElevatorOvershootAmountMeters = 0.03;
     
-        public static final double kElevatorSupplyCurrentLimitAmps = 35;
-        public static final double kElevatorSupplyCurrentThresholdAmps = 40;
+        public static final double kElevatorSupplyCurrentLimitAmps = 45;
+        public static final double kElevatorSupplyCurrentThresholdAmps = 50;
         public static final double kElevatorSupplyCurrentThresholdTimeSecs = 0.1;
-        public static final double kElevatorStatorCurrentLimitAmps = 50;
-        public static final double kElevatorStatorCurrentThresholdAmps = 55;
+        public static final double kElevatorStatorCurrentLimitAmps = 60;
+        public static final double kElevatorStatorCurrentThresholdAmps = 65;
         public static final double kElevatorStatorCurrentThresholdTimeSecs = 0.05;
 
         public static final double kElevatorGearRatio = 3.86;
@@ -237,7 +237,7 @@ public final class Constants {
         public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
             kElevatorMaxSpeedMetersPerSecond,
             kElevatorMaxAccelerationMetersPerSecondSquared);
-        public static final double kElevatorControlLoopTimeSeconds = 0.01;
+        public static final double kElevatorControlLoopTimeSeconds = 0.02;
 
         //public static final double kFeedForwardVoltage = 0;
     }
