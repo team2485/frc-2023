@@ -8,13 +8,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Intake;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm;
+import frc.robot.subsystems.GamePieceHandling.Magazine;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
+import frc.robot.subsystems.GamePieceHandling.Magazine.m_magazineStates;
 import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 
@@ -72,6 +79,45 @@ public class GamePieceHandlingCommands {
                    new InstantCommand(()->elevator.requestState(m_elevatorStates.StateTopCone)));
 
     return group;
+    }
+
+    public static Command deployIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(
+            // new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
+            // new InstantCommand(()->telescope.requestState(m_telescopeStates.StateIn)),
+            // new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)),
+            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployed)),
+            new InstantCommand(()->intake.requestState(m_intakeStates.StateOn)),
+            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOn)));
+        
+        return group;
+    }
+
+    public static Command outtakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(
+            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployed)),
+            new InstantCommand(()->intake.requestState(m_intakeStates.StateOut)),
+            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOut)));
+        
+        return group;
+    }
+
+    public static Command retractIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(
+            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateRetracted)),
+            new InstantCommand(()->intake.requestState(m_intakeStates.StateOff)),
+            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOff)));
+        
+        return group;
+    }
+
+    public static Command liftFromIntakeCommand(Elevator elevator, Wrist wrist, Gripper gripper){
+
+        return new InstantCommand(()->gripper.requestState(m_gripperStates.StateGrip))
+                .andThen(new WaitCommand(0.5), 
+                        new InstantCommand(()->elevator.requestState(m_elevatorStates.StateMiddleCube)), 
+                        new WaitCommand(0.25),
+                        new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)));
     }
 
 }

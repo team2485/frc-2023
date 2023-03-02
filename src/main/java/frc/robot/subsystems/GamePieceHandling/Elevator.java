@@ -73,7 +73,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     public Elevator(){
 
     m_pidController.setIntegratorRange(0, 12);
-    m_elevatorState = m_elevatorStates.StateStart;
+    m_elevatorState = m_elevatorStates.StateFault;
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =

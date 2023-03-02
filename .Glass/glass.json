@@ -11,6 +11,9 @@
         "GamePieceStateMachine": {
           "open": true
         },
+        "IntakeArm": {
+          "open": true
+        },
         "Telescope": {
           "open": true
         },
@@ -33,7 +36,7 @@
     "Plot <0>": {
       "plots": [
         {
-          "height": 693,
+          "height": 1239,
           "series": [
             {
               "color": [
@@ -78,7 +81,7 @@
     "Plot <1>": {
       "plots": [
         {
-          "height": 0,
+          "height": 1277,
           "series": [
             {
               "color": [
@@ -123,7 +126,7 @@
     "Plot <2>": {
       "plots": [
         {
-          "height": 0,
+          "height": 980,
           "series": [
             {
               "color": [
@@ -177,7 +180,7 @@
     "Plot <3>": {
       "plots": [
         {
-          "height": 332,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -205,6 +208,24 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/Gripper/setpoint"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <4>": {
+      "plots": [
+        {
+          "height": 1057,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/IntakeArm/output current"
             }
           ]
         }

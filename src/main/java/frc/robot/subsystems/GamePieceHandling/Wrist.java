@@ -57,11 +57,12 @@ public class Wrist extends SubsystemBase implements Loggable {
   @Log(name="timer")
   public double stateTimer = 0;
 
-  public enum m_wristStates {
+  public static enum m_wristStates {
     StateFault,
     StateWait,
     StateInit,
     StateZero,
+    StateDown,
     StateBottom,
     StateMiddle,
     StateTop,
@@ -122,6 +123,10 @@ public class Wrist extends SubsystemBase implements Loggable {
 
   public boolean atSetpoint(){
     return this.getError() < kWristTolerance;
+  }
+
+  public double getSetpoint(){
+    return m_angleSetpointRadiansCurrent;
   }
 
   @Log(name = "Current angle (radians)")
@@ -200,6 +205,9 @@ public class Wrist extends SubsystemBase implements Loggable {
           stateTimer--;
         }
         break;
+      case StateDown:
+        this.setAngleRadians(0);
+        m_wristState = m_wristStates.StateIdle;
       case StateBottom:
         this.setAngleRadians(1.35);
         m_wristState = m_wristStates.StateIdle;

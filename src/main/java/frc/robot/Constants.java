@@ -331,7 +331,93 @@ public final class Constants {
         public static final double kPulleyCircumference = 0.0222 * Math.PI;
         public static final double kDistancePerMotorRev = kPulleyCircumference / kTelescopeGearRatio;
 
+    }
 
+    public static final class IntakeArmConstants{
+
+        public static final int kIntakeArmPortLeft=19; //tbd
+        public static final int kIntakeArmPortRight=20; //tbd
+
+        public static final double kPIntakeArm=2;
+        public static final double kIIntakeArm=0;
+        public static final double kDIntakeArm=0;
+        public static final frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile.Constraints(kFalconSensorUnitsPerRotation, kCANTimeoutMs);
+      
+        public static final double kGearRatio=20;
+
+        public static double kIntakeArmRetractedPositionRadians=0;
+        public static double kIntakeArmDeployedPositionRadians=1.1; //radians betwween open and closoed pos.
+
+        public static final double kIntakeArmSupplyCurrentLimitAmps = 35;
+        public static final double kIntakeArmSupplyCurrentThresholdAmps = 40;
+        public static final double kIntakeArmSupplyCurrentThresholdTimeSecs = 0.1;
+        
+        public static final double kIntakeArmStatorCurrentLimitAmps = 45;
+        public static final double kIntakeArmStatorCurrentThresholdAmps = 50;
+        public static final double kIntakeArmStatorCurrentThresholdTimeSecs = 0.05;
+
+        public static double kMaxPositionMeters = kIntakeArmDeployedPositionRadians;
+
+        //public static double kSprocketCrcumference = (kSprocketRadius*2)* Math.PI; //TODO: ALL VARIABLES HERE ARE PLACEHOLDER
+
+        public static final double kRadiansPerMotorRev = 2*Math.PI / kGearRatio;
+        public static final double kRadiansPerPulse = kRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
+    }
+
+    public static final class IntakeConstants{
+
+        public static final int kIntakeSparkPort = 21;
+        public static final double kIntakeLoopTimeSeconds = 0.02;
+        public static final int kIntakeSmartCurrentLimitAmps = 20;
+        public static final int kIntakeImmediateCurrentLimitAmps = 25;
+  
+        public static final double kIntakeGearRatio = 2; // motor turns : output/full hood turns
+  
+        public static final double kIntakeFreeSpeedRotationsPerSecond =
+            kNeoFreeSpeedRotationsPerSecond / kIntakeGearRatio;
+  
+        public static final double kIntakeTopWheelDiameterMeters = 0.1016; // 4 in
+        public static final double kIntakeBottomWheelDiameterMeters = 0.1524; // 6 in
+        public static final double kIntakeBottomWheelCircumferenceMeters = 0.1524 * Math.PI;
+        public static final double kIntakeDefaultSpeedRotationsPerSecond = 9;
+  
+        public static final double kSIntakeVolts = 0.1;
+        public static final double kVIntakeVoltSecondsPerMeter = 0.3;
+        public static final double kAIntakeVoltSecondsSquaredPerMeter = 0.01;
+
+    }
+
+    public static final class MagazineConstants{
+        public static final double kIntakeTopWheelDiameterMeters = 0.1016;
+        public static final int kMagazineTalonPort = 22;
+        public static final double kMagazineLoopTimeSeconds = 0.02;
+        public static final int kMagazineSmartCurrentLimitAmps = 25;
+        public static final int kMagazineImmediateCurrentLimitAmps = 30;
+    
+        public static final double kMagazineSupplyCurrentLimitAmps = 25;
+        public static final double kMagazineSupplyCurrentThresholdAmps = 30;
+        public static final double kMagazineSupplyCurrentThresholdTimeSecs = 0.1;
+        public static final double kMagazineStatorCurrentLimitAmps = 40;
+        public static final double kMagazineStatorCurrentThresholdAmps = 45;
+        public static final double kMagazineStatorCurrentThresholdTimeSecs = 0.05;
+    
+        public static final double kMagazineGearRatio = 4; // motor turns : output/full hood turns
+    
+        public static final double kMagazineFreeSpeedRotationsPerSecond =
+            kNeoFreeSpeedRotationsPerSecond / kMagazineGearRatio;
+    
+        public static final double kMagazineEntryWheelDiameterMeters = 0.0508; // 2 inches
+    
+        public static final double kMagazineIntakeSpeedRatio =
+            kIntakeTopWheelDiameterMeters / kMagazineEntryWheelDiameterMeters;
+    
+        public static final double kMagazineDefaultSpeedRotationsPerSecond = 4;
+    
+        public static final double kSMagazineVolts = 0.1;
+        public static final double kVMagazineVoltSecondsPerMeter = 0.3;
+        public static final double kAMagazineVoltSecondsSquaredPerMeter = 0.01;
+    
+        public static final double kMagazineVelocityToleranceRotationsPerSecond = 0.5;
 
     }
 }

@@ -13,11 +13,15 @@ import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.GamePieceStateMachine;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Intake;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm;
+import frc.robot.subsystems.GamePieceHandling.Magazine;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_pieceType;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.GamePieceStateMachine.heightState;
@@ -59,6 +63,9 @@ public class RobotContainer {
   public final Wrist m_wrist = new Wrist();
   public final Gripper m_gripper = new Gripper();
   public final Telescope m_telescope = new Telescope();
+  public final IntakeArm m_intakeArm = new IntakeArm();
+  public final Intake m_intake = new Intake();
+  public final Magazine m_magazine = new Magazine();
 
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
@@ -119,33 +126,45 @@ public class RobotContainer {
   private void configureGamePieceCommands(){
     // m_operator.rightPOV().onTrue(new InstantCommand(()->m_elevator.requestState(m_elevatorStates.StateMiddleCube)));
     
+    m_driver.rightTrigger().whileTrue(GamePieceHandlingCommands.deployIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist))
+                          .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist));
 
-    m_operator.a().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateBottom)));
-    m_operator.y().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateMiddle)));
+    m_driver.rightBumper().whileTrue(GamePieceHandlingCommands.outtakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist))
+                          .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist));
 
     //the closing is fast enough to not have to wait until a piece is detected in order to raise the elevator
-    m_operator.b().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)));
-    m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
-    m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
+    // m_operator.b().onTrue(
+    //      new ConditionalCommand(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)),
+    //                             new ConditionalCommand(
+    //                                     GamePieceHandlingCommands.liftFromIntakeCommand(m_elevator, m_wrist, m_gripper), 
+    //                                     new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)), 
+    //                                     ()->{return m_wrist.getSetpoint()==0;}), 
+    //                             ()->{return m_gripper.getSetpoint()==1.5;}));
+    
+    // new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateGrip)));
 
-    m_operator.leftBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateIn)));
-    m_operator.rightBumper().onTrue(new InstantCommand(()->m_telescope.requestState(m_telescopeStates.StateMiddleCube)));
-    m_operator.rightTrigger().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateHigh)));
 
-    m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
+    // m_operator.leftBumper().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateRetracted)));
+    // m_operator.rightBumper().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateDeployed)));
 
-    m_operator.leftPOV().onTrue(
-        new ConditionalCommand(GamePieceHandlingCommands.midCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
-                              GamePieceHandlingCommands.midConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
-                              ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
 
-    m_operator.upperPOV().onTrue(
-      new ConditionalCommand(GamePieceHandlingCommands.highCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
-                              GamePieceHandlingCommands.highConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
-                              ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
+    // m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
+    // m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
 
-    m_operator.rightPOV().onTrue(
-      GamePieceHandlingCommands.doubleSubstationSetpoint(m_telescope, m_elevator, m_wrist));
+    // m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
+
+    // m_operator.leftPOV().onTrue(
+    //     new ConditionalCommand(GamePieceHandlingCommands.midCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+    //                           GamePieceHandlingCommands.midConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+    //                           ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
+
+    // m_operator.upperPOV().onTrue(
+    //   new ConditionalCommand(GamePieceHandlingCommands.highCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+    //                           GamePieceHandlingCommands.highConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
+    //                           ()->{return Gripper.currentPieceType == Gripper.m_pieceType.Cube;}));
+
+    // m_operator.rightPOV().onTrue(
+    //   GamePieceHandlingCommands.doubleSubstationSetpoint(m_telescope, m_elevator, m_wrist));
   }
 
   public Command getAutonomousCommand() {

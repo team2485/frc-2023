@@ -87,6 +87,10 @@ public class Gripper extends SubsystemBase implements Loggable{
     return m_spark.getEncoder().getPosition();
   }
 
+  public double getSetpoint(){
+    return m_posSetpointMetersCurrent;
+  }
+
   @Override
   public void periodic() {
     // only update the piece type when it would realistically change to prevent erratically swtiching between states as the encoder passes through them

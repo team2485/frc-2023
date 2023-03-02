@@ -33,7 +33,7 @@ public class Telescope extends SubsystemBase implements Loggable{
   private double m_feedForwardVoltage, m_voltageSetpoint, m_lastVelocitySetpoint;
 
   @Log(name = "setpoint")
-  private double m_positionSetpointMeters;
+  private double m_positionSetpointMeters = 0;
   private double m_outputPercentage, m_feedbackOutput, m_feedforwardOutput;
   private boolean m_isEnabled, m_voltageOverride;
 
@@ -66,7 +66,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
 
   public Telescope() {
-    m_telescopeState = m_telescopeStates.StateWait;
+    m_telescopeState = m_telescopeStates.StateIdle;
 
     m_feedForwardVoltage = 0;
     m_positionSetpointMeters = 0;
@@ -86,6 +86,7 @@ public class Telescope extends SubsystemBase implements Loggable{
     m_spark.setIdleMode(IdleMode.kBrake);
 
     m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
+    this.resetPositionMeters(0);
 
   }
 
@@ -173,7 +174,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateZero;
         break;
       case StateZero:
-        m_spark.setVoltage(-1.25);
+        m_spark.setVoltage(-0.75);
         if(stateTimer==0){
           if (Math.abs(this.getCurrent()) > 30) {
             this.resetPositionMeters(-0.05);
