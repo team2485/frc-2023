@@ -203,9 +203,9 @@ public final class Constants {
         public static final double kElevatorBottomStop = 0;
         public static final double kElevatorTopStop = 0.8763;
 
-        public static final double kElevatorTolerance = 0.05;
+        public static final double kElevatorTolerance = 0.02;
 
-        public static final double kElevatorOvershootAmountMeters = 0.03;
+        public static final double kElevatorOvershootAmountMeters = 0.04;
     
         public static final double kElevatorSupplyCurrentLimitAmps = 45;
         public static final double kElevatorSupplyCurrentThresholdAmps = 50;
@@ -232,7 +232,7 @@ public final class Constants {
         
         //position loop constants
         public static final double kPElevatorVoltsPerMeter = 80;
-        public static final double kIElevatorVoltsPerMeter = 15;
+        public static final double kIElevatorVoltsPerMeter = 20;
         public static final double kDElevatorVoltSecondsPerMeter = 0;
         public static final SR_TrapezoidProfile.Constraints kElevatorControllerConstraints = new SR_TrapezoidProfile.Constraints(
             kElevatorMaxSpeedMetersPerSecond,
@@ -292,9 +292,9 @@ public final class Constants {
         public static final double kGripperOpenPositionSetpoint = 0;
         public static final int kGripperCurrentLimit = 20;
         public static final double kGripperStoppedVelocityTolerance = 0;
-        public static final double kPieceDetectionTolerance = 0.12;
-        public static final double kCubeEncoderDistance = 1.18;
-        public static final double kConeEncoderThreshold = 1.3;
+        public static final double kPieceDetectionTolerance = 0.1;
+        public static final double kCubeEncoderDistance = 1.04;
+        public static final double kConeEncoderThreshold = 1.2;
 
         public static final double kGripperGearRatio = 25;
         public static final double kGripperRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
@@ -319,8 +319,8 @@ public final class Constants {
         public static final double kMaxVelocity = 2.5;
         public static final double kMaxAcceleration = 1.5;
 
-        public static final double kPTelescope = 25;
-        public static final double kITelescope = 8;
+        public static final double kPTelescope = 20;
+        public static final double kITelescope = 10;
         public static final double kDTelescope = 0;
         public static final SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
         public static final double kTelescopeControlLoopTimeSeconds = 0.01;

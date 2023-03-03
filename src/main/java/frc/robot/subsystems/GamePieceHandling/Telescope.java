@@ -53,6 +53,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         StateWait,
         StateInit,
         StateZero,
+        StatePickup,
         StateIn,
         StateMiddleCube,
         StateMiddleCone,
@@ -66,7 +67,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
 
   public Telescope() {
-    m_telescopeState = m_telescopeStates.StateIdle;
+    m_telescopeState = m_telescopeStates.StateWait;
 
     m_feedForwardVoltage = 0;
     m_positionSetpointMeters = 0;
@@ -174,9 +175,9 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateZero;
         break;
       case StateZero:
-        m_spark.setVoltage(-0.75);
+        m_spark.setVoltage(-1.5);
         if(stateTimer==0){
-          if (Math.abs(this.getCurrent()) > 30) {
+          if (Math.abs(this.getCurrent()) > 40) {
             this.resetPositionMeters(-0.05);
             this.setPositionSetpointMeters(0.15);
             m_spark.setVoltage(0);
@@ -186,8 +187,12 @@ public class Telescope extends SubsystemBase implements Loggable{
           stateTimer--;
         }
         break;
+      case StatePickup:
+        this.setPositionSetpointMeters(0);
+        m_telescopeState = m_telescopeStates.StateIdle;
+        break;
       case StateIn:
-        this.setPositionSetpointMeters(0.05);
+        this.setPositionSetpointMeters(0.08);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCube: 
@@ -203,7 +208,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCone:
-        this.setPositionSetpointMeters(0.80);
+        this.setPositionSetpointMeters(0.92);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIdle: 

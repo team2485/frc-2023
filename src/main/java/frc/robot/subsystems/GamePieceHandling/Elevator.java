@@ -56,6 +56,7 @@ public class Elevator extends SubsystemBase implements Loggable{
                 StateWait,
                 StateInit,
                 StateZero,
+                StateTravel,
                 StateBottom,
                 StateLow,
                 StateMiddleCube,
@@ -73,7 +74,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     public Elevator(){
 
     m_pidController.setIntegratorRange(0, 12);
-    m_elevatorState = m_elevatorStates.StateFault;
+    m_elevatorState = m_elevatorStates.StateStart;
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =
@@ -243,40 +244,46 @@ public class Elevator extends SubsystemBase implements Loggable{
                 stateTimer--;
               }
               break;
+            case StateTravel:
+                setpointOvershot = true;
+                // this.setPositionMeters(0.25+kElevatorOvershootAmountMeters);
+                this.setPositionMeters(0.315+kElevatorOvershootAmountMeters);
+                m_elevatorState = m_elevatorStates.StateIdle;
+                break;
             case StateBottom:
               //  setpointOvershot = true;
               //  this.setPositionMeters(0+kElevatorOvershootAmountMeters);   
-               this.setPositionMeters(0);          
+               this.setPositionMeters(0.01) ;          
                m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateLow:
                 // setpointOvershot = true;
                 // this.setPositionMeters(0.25+kElevatorOvershootAmountMeters);
-                this.setPositionMeters(0.25);
+                this.setPositionMeters(0.315);
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateMiddleCube:
-                // setpointOvershot = true;
+                setpointOvershot = true;
                 // this.setPositionMeters(0.5+kElevatorOvershootAmountMeters);                
-                this.setPositionMeters(0.5);
+                this.setPositionMeters(0.5+kElevatorOvershootAmountMeters);
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateTopCube:
-                // setpointOvershot = true;
+                setpointOvershot = true;
                 // this.setPositionMeters(0.8+kElevatorOvershootAmountMeters);        
-                this.setPositionMeters(0.8);        
+                this.setPositionMeters(0.8+kElevatorOvershootAmountMeters);        
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateMiddleCone:
-                // setpointOvershot = true;
+                setpointOvershot = true;
                 // this.setPositionMeters(0.70+kElevatorOvershootAmountMeters);     
-                this.setPositionMeters(0.7);          
+                this.setPositionMeters(0.7+kElevatorOvershootAmountMeters);          
                  m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateTopCone:
                 // setpointOvershot = true;
                 // this.setPositionMeters(0.87+kElevatorOvershootAmountMeters);     
-                this.setPositionMeters(0.87);          
+                this.setPositionMeters(0.84);          
                  m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateIdle:

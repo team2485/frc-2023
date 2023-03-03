@@ -68,7 +68,7 @@ public class GamePieceHandlingCommands {
     public static Command travelSetpoint(Telescope telescope, Elevator elevator, Gripper gripper, Wrist wrist){
         ParallelCommandGroup group = new ParallelCommandGroup(new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)),
         new InstantCommand(()->telescope.requestState(m_telescopeStates.StateIn)),
-                   new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)));
+                   new InstantCommand(()->elevator.requestState(m_elevatorStates.StateTravel)));
 
     return group;
 }
@@ -81,14 +81,15 @@ public class GamePieceHandlingCommands {
     return group;
     }
 
-    public static Command deployIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist){
+    public static Command deployIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist, Gripper gripper){
         ParallelCommandGroup group = new ParallelCommandGroup(
-            // new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
-            // new InstantCommand(()->telescope.requestState(m_telescopeStates.StateIn)),
-            // new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)),
+            new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
+            new InstantCommand(()->telescope.requestState(m_telescopeStates.StatePickup)),
+            new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)),
             new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployed)),
             new InstantCommand(()->intake.requestState(m_intakeStates.StateOn)),
-            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOn)));
+            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOn)),
+            new InstantCommand(()->gripper.requestState(m_gripperStates.StateInit)));
         
         return group;
     }
@@ -114,7 +115,7 @@ public class GamePieceHandlingCommands {
     public static Command liftFromIntakeCommand(Elevator elevator, Wrist wrist, Gripper gripper){
 
         return new InstantCommand(()->gripper.requestState(m_gripperStates.StateGrip))
-                .andThen(new WaitCommand(0.5), 
+                .andThen(new WaitCommand(1), 
                         new InstantCommand(()->elevator.requestState(m_elevatorStates.StateMiddleCube)), 
                         new WaitCommand(0.25),
                         new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)));
