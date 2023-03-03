@@ -2,6 +2,8 @@ package frc.robot.subsystems.GamePieceHandling;
 
 import static frc.robot.Constants.TelescopeConstants.*;
 
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -38,6 +40,9 @@ public class Telescope extends SubsystemBase implements Loggable{
   private boolean m_isEnabled, m_voltageOverride;
 
   public int stateTimer = 0;
+
+  @Log(name = "Current timer")
+  public int currentTimer=0;
 
   private final SR_SimpleMotorFeedforward m_feedforward = new SR_SimpleMotorFeedforward(
       kSTelescopeVolts, kVTelescopeVoltSecondsPerMeter, kATelescopeVoltSecondsSquaredPerMeter);
@@ -172,20 +177,23 @@ public class Telescope extends SubsystemBase implements Loggable{
         break;
       case StateInit:
         stateTimer = 20;
+        currentTimer = 20;
         m_telescopeState = m_telescopeStates.StateZero;
         break;
       case StateZero:
         m_spark.setVoltage(-1.5);
-        if(stateTimer==0){
-          if (Math.abs(this.getCurrent()) > 40) {
-            this.resetPositionMeters(-0.05);
-            this.setPositionSetpointMeters(0.15);
-            m_spark.setVoltage(0);
-            m_telescopeState = m_telescopeStates.StateIdle;
+          if (this.getCurrent()>40) {
+            currentTimer--;
+            if(currentTimer<=0){
+              this.resetPositionMeters(-0.05);
+              this.setPositionSetpointMeters(0.15);
+              m_spark.setVoltage(0);
+              m_telescopeState = m_telescopeStates.StateIdle;
           }
         }else{
-          stateTimer--;
+          currentTimer=10;
         }
+      
         break;
       case StatePickup:
         this.setPositionSetpointMeters(0);

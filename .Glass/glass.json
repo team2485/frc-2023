@@ -2,18 +2,6 @@
   "NetworkTables": {
     "transitory": {
       "Shuffleboard": {
-        "Drivetrain": {
-          "open": true
-        },
-        "Elevator": {
-          "open": true
-        },
-        "GamePieceStateMachine": {
-          "open": true
-        },
-        "IntakeArm": {
-          "open": true
-        },
         "Telescope": {
           "open": true
         },
@@ -36,7 +24,7 @@
     "Plot <0>": {
       "plots": [
         {
-          "height": 1239,
+          "height": 693,
           "series": [
             {
               "color": [
@@ -81,7 +69,7 @@
     "Plot <1>": {
       "plots": [
         {
-          "height": 1277,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -126,7 +114,7 @@
     "Plot <2>": {
       "plots": [
         {
-          "height": 980,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -180,7 +168,7 @@
     "Plot <3>": {
       "plots": [
         {
-          "height": 0,
+          "height": 332,
           "series": [
             {
               "color": [
@@ -211,12 +199,15 @@
             }
           ]
         }
-      ]
+      ],
+      "window": {
+        "visible": false
+      }
     },
     "Plot <4>": {
       "plots": [
         {
-          "height": 1057,
+          "height": 0,
           "series": [
             {
               "color": [
@@ -226,6 +217,24 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/IntakeArm/output current"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <5>": {
+      "plots": [
+        {
+          "height": 332,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/Telescope/current"
             }
           ]
         }
