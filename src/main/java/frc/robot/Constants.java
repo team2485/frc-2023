@@ -207,11 +207,11 @@ public final class Constants {
 
         public static final double kElevatorOvershootAmountMeters = 0.04;
     
-        public static final double kElevatorSupplyCurrentLimitAmps = 45;
-        public static final double kElevatorSupplyCurrentThresholdAmps = 50;
-        public static final double kElevatorSupplyCurrentThresholdTimeSecs = 0.1;
-        public static final double kElevatorStatorCurrentLimitAmps = 60;
-        public static final double kElevatorStatorCurrentThresholdAmps = 65;
+        public static final double kElevatorSupplyCurrentLimitAmps = 55;
+        public static final double kElevatorSupplyCurrentThresholdAmps = 60;
+        public static final double kElevatorSupplyCurrentThresholdTimeSecs = 0.05;
+        public static final double kElevatorStatorCurrentLimitAmps = 65;
+        public static final double kElevatorStatorCurrentThresholdAmps = 70;
         public static final double kElevatorStatorCurrentThresholdTimeSecs = 0.05;
 
         public static final double kElevatorGearRatio = 3.86;
@@ -292,9 +292,9 @@ public final class Constants {
         public static final double kGripperOpenPositionSetpoint = 0;
         public static final int kGripperCurrentLimit = 20;
         public static final double kGripperStoppedVelocityTolerance = 0;
-        public static final double kPieceDetectionTolerance = 0.1;
-        public static final double kCubeEncoderDistance = 1.04;
-        public static final double kConeEncoderThreshold = 1.2;
+        public static final double kPieceDetectionTolerance = 0.15;
+        public static final double kCubeEncoderDistance = 1.2;
+        public static final double kConeEncoderThreshold = 1.4;
 
         public static final double kGripperGearRatio = 25;
         public static final double kGripperRadiansPerMotorRev = 2 * Math.PI / kGripperGearRatio;
@@ -305,22 +305,22 @@ public final class Constants {
     public static final class TelescopeConstants {
 
         public static final int kTelescopePort = 18;            
-        public static final int kTelescopeSmartCurrentLimitAmps = 45;
-        public static final int kTelescopeImmediateCurrentLimitAmps = 0;
+        public static final int kTelescopeSmartCurrentLimitAmps = 55;
+        public static final int kTelescopeImmediateCurrentLimitAmps = 65;
         
         public static final double kTelescopeTolerance = 0.05;
 
-        public static final double kTelescopeMaxPosition = 0.9;
+        public static final double kTelescopeMaxPosition = 1.1;
 
         public static final double kSTelescopeVolts = 0.01; 
-        public static final double kVTelescopeVoltSecondsPerMeter = 0.5;
+        public static final double kVTelescopeVoltSecondsPerMeter = 0.2;
         public static final double kATelescopeVoltSecondsSquaredPerMeter = 0.02;
 
         public static final double kMaxVelocity = 2.5;
         public static final double kMaxAcceleration = 1.5;
 
-        public static final double kPTelescope = 20;
-        public static final double kITelescope = 10;
+        public static final double kPTelescope = 45;
+        public static final double kITelescope = 25;
         public static final double kDTelescope = 0;
         public static final SR_TrapezoidProfile.Constraints kMotionProfileConstraints = new SR_TrapezoidProfile.Constraints(kMaxVelocity, kMaxAcceleration);
         public static final double kTelescopeControlLoopTimeSeconds = 0.01;

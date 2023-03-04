@@ -31,11 +31,15 @@ public class Telescope extends SubsystemBase implements Loggable{
   private WPI_SparkMax m_spark = new WPI_SparkMax(kTelescopePort, MotorType.kBrushless);
 
   private static final double kTelescopeStartPosition = 0;
+  
+  public double currentPosition = 0;
+  public double lastPosition = 0;
 
   private double m_feedForwardVoltage, m_voltageSetpoint, m_lastVelocitySetpoint;
 
   @Log(name = "setpoint")
   private double m_positionSetpointMeters = 0;
+  private double m_lastPositionMeters=0;
   private double m_outputPercentage, m_feedbackOutput, m_feedforwardOutput;
   private boolean m_isEnabled, m_voltageOverride;
 
@@ -43,6 +47,9 @@ public class Telescope extends SubsystemBase implements Loggable{
 
   @Log(name = "Current timer")
   public int currentTimer=0;
+
+  @Log(name="position timer")
+  public int positionTimer = 3;
 
   private final SR_SimpleMotorFeedforward m_feedforward = new SR_SimpleMotorFeedforward(
       kSTelescopeVolts, kVTelescopeVoltSecondsPerMeter, kATelescopeVoltSecondsSquaredPerMeter);
@@ -86,6 +93,7 @@ public class Telescope extends SubsystemBase implements Loggable{
     m_isEnabled = false;
     m_voltageOverride = false;
 
+    
     m_spark.setSmartCurrentLimit(kTelescopeSmartCurrentLimitAmps);
     m_spark.setSecondaryCurrentLimit(kTelescopeImmediateCurrentLimitAmps);
     m_spark.setInverted(false);
@@ -93,6 +101,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
     m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
     this.resetPositionMeters(0);
+    // m_spark.getEncoder().setMeasurementPeriod(64);  
 
   }
 
@@ -146,20 +155,34 @@ public class Telescope extends SubsystemBase implements Loggable{
     } else {
       double feedbackOutputVoltage = 0;
 
-      feedbackOutputVoltage = telescopeController.calculate(this.getPositionMeters(), m_positionSetpointMeters);
+
+      currentPosition = this.getPositionMeters();
+      if(currentPosition<0.02){
+        currentPosition = lastPosition;
+      }
+      
+      feedbackOutputVoltage = telescopeController.calculate(currentPosition, m_positionSetpointMeters);
 
       double feedForwardOutputVoltage = 0;
 
       feedForwardOutputVoltage = m_feedforward.calculate(m_lastVelocitySetpoint,
           telescopeController.getSetpoint().velocity, kTelescopeControlLoopTimeSeconds);
 
-      m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage) / Constants.kNominalVoltage; // same deal as above
+      
+      // if(this.getPositionMeters()!=0){
+       m_outputPercentage = (feedbackOutputVoltage + feedForwardOutputVoltage) / Constants.kNominalVoltage; // same deal as above
+      // }
 
       m_feedbackOutput = feedbackOutputVoltage;
       m_feedforwardOutput = feedForwardOutputVoltage;
 
+      
+     
       m_spark.set(m_outputPercentage);
 
+      if(this.getPositionMeters()>0.02){
+      lastPosition = currentPosition;
+      }
       m_lastVelocitySetpoint = telescopeController.getSetpoint().velocity;
     }
   }
@@ -177,7 +200,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         break;
       case StateInit:
         stateTimer = 20;
-        currentTimer = 20;
+        currentTimer = 5;
         m_telescopeState = m_telescopeStates.StateZero;
         break;
       case StateZero:
@@ -185,38 +208,39 @@ public class Telescope extends SubsystemBase implements Loggable{
           if (this.getCurrent()>40) {
             currentTimer--;
             if(currentTimer<=0){
-              this.resetPositionMeters(-0.05);
+              //calling the zero 0.05 to avoid running into the random position drops
+              this.resetPositionMeters(0.05);
               this.setPositionSetpointMeters(0.15);
               m_spark.setVoltage(0);
               m_telescopeState = m_telescopeStates.StateIdle;
           }
         }else{
-          currentTimer=10;
+          currentTimer=5;
         }
       
         break;
       case StatePickup:
-        this.setPositionSetpointMeters(0);
+        this.setPositionSetpointMeters(0.03);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIn:
-        this.setPositionSetpointMeters(0.08);
+        this.setPositionSetpointMeters(0.15);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCube: 
-        this.setPositionSetpointMeters(0.5);
+        this.setPositionSetpointMeters(0.55);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCube:
-        this.setPositionSetpointMeters(0.8);
+        this.setPositionSetpointMeters(0.85);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCone: 
-        this.setPositionSetpointMeters(0.5);
+        this.setPositionSetpointMeters(0.55);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCone:
-        this.setPositionSetpointMeters(0.92);
+        this.setPositionSetpointMeters(0.98);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIdle: 

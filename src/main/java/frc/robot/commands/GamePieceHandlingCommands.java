@@ -121,4 +121,23 @@ public class GamePieceHandlingCommands {
                         new InstantCommand(()->wrist.requestState(m_wristStates.StateMiddle)));
     }
 
+
+    public static Command robotRevealll(Elevator elevator, Telescope telescope, Gripper gripper, Wrist wrist) {
+        return new InstantCommand(()-> elevator.requestState(m_elevatorStates.StateMiddleCube))
+                .andThen(new InstantCommand(()-> gripper.requestState(m_gripperStates.StateGrip)), new InstantCommand(()-> wrist.requestState(m_wristStates.StateMiddle)), new WaitCommand(1),
+                new InstantCommand(()->telescope.requestState(m_telescopeStates.StateOutCube)),
+                new WaitCommand(1),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateInit)),
+                new WaitCommand(0.5),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateGrip)),
+                new WaitCommand(0.5),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateInit)),
+                new WaitCommand(0.5),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateGrip)),
+                new WaitCommand(0.5),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateInit)),
+                new WaitCommand(0.5),
+                new InstantCommand(()->gripper.requestState(m_gripperStates.StateGrip))
+                );
+    } 
 }

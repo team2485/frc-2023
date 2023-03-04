@@ -23,7 +23,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   
-  public enum m_intakeStates {
+  public static enum m_intakeStates {
     StateFault,
     StateWait,
     StateInit,

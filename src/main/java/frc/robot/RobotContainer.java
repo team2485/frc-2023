@@ -15,12 +15,14 @@ import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
 import frc.robot.subsystems.GamePieceHandling.Intake;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm;
+import frc.robot.subsystems.GamePieceHandling.IntakeServo;
 import frc.robot.subsystems.GamePieceHandling.Magazine;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_pieceType;
+import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
@@ -38,6 +40,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -66,6 +69,7 @@ public class RobotContainer {
   public final IntakeArm m_intakeArm = new IntakeArm();
   public final Intake m_intake = new Intake();
   public final Magazine m_magazine = new Magazine();
+  public final IntakeServo m_servo = new IntakeServo();
 
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
@@ -132,6 +136,9 @@ public class RobotContainer {
     m_driver.rightBumper().whileTrue(GamePieceHandlingCommands.outtakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist))
                           .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope, m_elevator, m_wrist));
 
+
+
+
     //the closing is fast enough to not have to wait until a piece is detected in order to raise the elevator
     m_operator.b().onTrue(
          new ConditionalCommand(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)),
@@ -142,9 +149,10 @@ public class RobotContainer {
                                 ()->{return m_gripper.getSetpoint()==1.5;}));
     
 
-    m_operator.leftBumper().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateRetracted)));
-    m_operator.rightBumper().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateDeployed)));
-
+    m_driver.leftBumper().onTrue(new ConditionalCommand(new InstantCommand(()->m_servo.lock()), new InstantCommand(()->m_servo.release()), ()->{return m_servo.getPosition()==0;}));
+    m_driver.leftTrigger().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateDeployed)));
+    m_driver.y().whileTrue(new InstantCommand(()->m_intake.requestState(Intake.m_intakeStates.StateOut)))
+    .onFalse(new InstantCommand(()->m_intake.requestState(m_intakeStates.StateOff)));
 
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)));
@@ -163,6 +171,8 @@ public class RobotContainer {
 
     m_operator.rightPOV().onTrue(
       GamePieceHandlingCommands.doubleSubstationSetpoint(m_telescope, m_elevator, m_wrist));
+
+    m_operator.leftTrigger().onTrue(new InstantCommand(()->m_wrist.requestState(m_wristStates.StateDown)));
   }
 
   public Command getAutonomousCommand() {
