@@ -83,7 +83,7 @@ public class RobotContainer {
     configureBindings();
     m_drivetrain.zeroGyro();
 
-    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain));
+    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain, m_gripper));
   }
 
   /** 
@@ -138,8 +138,6 @@ public class RobotContainer {
 
 
 
-
-    //the closing is fast enough to not have to wait until a piece is detected in order to raise the elevator
     m_operator.b().onTrue(
          new ConditionalCommand(new InstantCommand(()->m_gripper.requestState(m_gripperStates.StateInit)),
                                 new ConditionalCommand(
@@ -149,8 +147,12 @@ public class RobotContainer {
                                 ()->{return m_gripper.getSetpoint()==1.5;}));
     
 
-    m_driver.leftBumper().onTrue(new ConditionalCommand(new InstantCommand(()->m_servo.lock()), new InstantCommand(()->m_servo.release()), ()->{return m_servo.getPosition()==0;}));
-    m_driver.leftTrigger().onTrue(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateDeployed)));
+    m_driver.leftBumper().onTrue(new ConditionalCommand(new InstantCommand(()->m_intakeArm.requestState(m_intakeArmStates.StateRetracted)),
+                                      GamePieceHandlingCommands.deployAndLockIntakeCommand(m_intakeArm, m_telescope, m_elevator, m_wrist), 
+                                      ()->{return IntakeArm.m_intakeArmState==m_intakeArmStates.StateDeployAndLock;}));
+
+    m_driver.leftTrigger().onTrue(new InstantCommand(()->m_intake.requestState(m_intakeStates.StateOn))).onFalse(new InstantCommand(()->m_intake.requestState(m_intakeStates.StateOff)));
+
     m_driver.y().whileTrue(new InstantCommand(()->m_intake.requestState(Intake.m_intakeStates.StateOut)))
     .onFalse(new InstantCommand(()->m_intake.requestState(m_intakeStates.StateOff)));
 

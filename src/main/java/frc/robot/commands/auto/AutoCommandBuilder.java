@@ -9,17 +9,19 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.drive.Drivetrain;
 
 
 public class AutoCommandBuilder {
 
-  public static Command testAuto(Drivetrain drivetrain) {
+  public static Command testAuto(Drivetrain drivetrain, Gripper gripper) {
 
     WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Test");
 
-    return new InstantCommand(drivetrain::zeroGyro).andThen(getResetOdometryCommand(drivetrain, path), path);
+    return new InstantCommand();
     }
 }
   

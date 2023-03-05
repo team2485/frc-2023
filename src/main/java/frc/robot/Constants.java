@@ -239,6 +239,7 @@ public final class Constants {
             kElevatorMaxAccelerationMetersPerSecondSquared);
         public static final double kElevatorControlLoopTimeSeconds = 0.02;
 
+
         //public static final double kFeedForwardVoltage = 0;
     }
 
@@ -290,7 +291,7 @@ public final class Constants {
 
         public static final double kGripperControllerPositionTolerance = 0;
         public static final double kGripperOpenPositionSetpoint = 0;
-        public static final int kGripperCurrentLimit = 20;
+        public static final int kGripperCurrentLimit = 25;
         public static final double kGripperStoppedVelocityTolerance = 0;
         public static final double kPieceDetectionTolerance = 0.15;
         public static final double kCubeEncoderDistance = 1.2;

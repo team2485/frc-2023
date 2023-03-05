@@ -2,6 +2,9 @@
   "NetworkTables": {
     "transitory": {
       "Shuffleboard": {
+        "Gripper": {
+          "open": true
+        },
         "Telescope": {
           "open": true
         },
@@ -283,6 +286,24 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/Telescope/setpoint"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <7>": {
+      "plots": [
+        {
+          "height": 816,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/Gripper/output current"
             }
           ]
         }

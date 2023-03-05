@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import edu.wpi.first.math.controller.ElevatorFeedforward;
 import frc.WarlordsLib.sendableRichness.*;
+import frc.robot.Robot;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.GamePieceStateMachine.pieceState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.*;
@@ -63,18 +66,27 @@ public class Elevator extends SubsystemBase implements Loggable{
                 StateTopCube,
                 StateMiddleCone,
                 StateTopCone,
-                StateIdle
+                StateIdle,
+                StateAutoWait,
+                StateAutoInit
               }
             
               public static m_elevatorStates m_elevatorState;
               public static m_elevatorStates m_requestedState;
             
               private double stateTimer = 0;
+            
 
     public Elevator(){
 
     m_pidController.setIntegratorRange(0, 12);
+
+    if(RobotState.isAutonomous()){
+      m_elevatorState = m_elevatorStates.StateAutoWait;
+    }else{
     m_elevatorState = m_elevatorStates.StateStart;
+    }
+
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =
@@ -209,7 +221,7 @@ public class Elevator extends SubsystemBase implements Loggable{
     }
     
 
-    public void requestState(m_elevatorStates state) {
+    public static void requestState(m_elevatorStates state) {
         m_requestedState = state;
       }
     @Override
@@ -221,6 +233,7 @@ public class Elevator extends SubsystemBase implements Loggable{
             case StateStart:
                 this.setPositionMeters(0.25);                
                 m_elevatorState = m_elevatorStates.StateIdle;
+                break;
             case StateWait:
               if (RobotState.isEnabled())
                 m_elevatorState = m_elevatorStates.StateInit;
@@ -265,13 +278,13 @@ public class Elevator extends SubsystemBase implements Loggable{
             case StateMiddleCube:
                 setpointOvershot = true;
                 // this.setPositionMeters(0.5+kElevatorOvershootAmountMeters);                
-                this.setPositionMeters(0.5+kElevatorOvershootAmountMeters);
+                this.setPositionMeters(0.54+kElevatorOvershootAmountMeters);
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateTopCube:
                 setpointOvershot = true;
                 // this.setPositionMeters(0.8+kElevatorOvershootAmountMeters);        
-                this.setPositionMeters(0.82);        
+                this.setPositionMeters(0.86);        
                 m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateMiddleCone:
@@ -299,6 +312,28 @@ public class Elevator extends SubsystemBase implements Loggable{
                 m_elevatorState = m_requestedState;
               m_requestedState = null;
               break;
+            case StateAutoWait:
+              if (m_requestedState != null){
+                m_elevatorState = m_requestedState;
+                stateTimer=50;
+              }
+             m_requestedState = null;
+              break;
+            case StateAutoInit:
+              this.setPositionMeters(0.58); 
+              if(RobotState.isEnabled()){
+                this.runControlLoop();
+               } 
+              if(stateTimer==0){
+                Telescope.requestState(m_telescopeStates.StateAutoInit);
+                Wrist.requestState(m_wristStates.StateAutoInit);
+              }else{
+                stateTimer--;
+              }
+               if (m_requestedState != null)
+                m_elevatorState = m_requestedState;
+              m_requestedState = null;
+               break;           
           }
         }
     }

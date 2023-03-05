@@ -18,6 +18,9 @@ import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -53,22 +56,31 @@ public class Gripper extends SubsystemBase implements Loggable{
     StateInit,
     StateZero,
     StateGrip,
-    StateIdle
+    StateIdle,
+    StateAutoWait,
+    StateAutoInit
   }
 
   public static m_gripperStates m_gripperState;
   public static m_gripperStates m_requestedState;
 
   private double stateTimer = 0;
+  private double stateTimer2 = 0;
 
   public Gripper() {
-    m_gripperState = m_gripperStates.StateWait;
+    if(RobotState.isAutonomous()){
+      m_gripperState = m_gripperStates.StateAutoWait;
+    }else{
+       m_gripperState = m_gripperStates.StateWait;
+
+    }
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
     // some people were saying that this method was not properly implemented and does nothing
     // it probably works now as those complaints were from 2020 but check this if there are issues 
  
     m_controller.setTolerance(kGripperControllerPositionTolerance);
+    this.resetEncoderPosition(0);
 
   }
 
@@ -91,6 +103,20 @@ public class Gripper extends SubsystemBase implements Loggable{
     return m_posSetpointMetersCurrent;
   }
 
+  public void runControlLoop(){
+    if (m_voltageOverride) {
+      m_spark.set(m_voltageSetpoint / kNominalVoltage);
+  } else {
+      // if(this.getVoltage()<=20){
+      double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
+      m_spark.set((controllerVoltage) / kNominalVoltage);
+      // }else{
+        // m_spark.set(0.5);
+      // }
+      this.updateCurrentHeldPiece();
+  }
+  }
+
   @Override
   public void periodic() {
     // only update the piece type when it would realistically change to prevent erratically swtiching between states as the encoder passes through them
@@ -110,6 +136,7 @@ public class Gripper extends SubsystemBase implements Loggable{
           }
           break;
         case StateInit:
+    
             stateTimer = 25;
             m_gripperState = m_gripperStates.StateZero;
             break;
@@ -131,21 +158,27 @@ public class Gripper extends SubsystemBase implements Loggable{
               m_gripperState = m_gripperStates.StateIdle;
             break;        
         case StateIdle:
-            if (m_voltageOverride) {
-                m_spark.set(m_voltageSetpoint / kNominalVoltage);
-            } else {
-                // if(this.getVoltage()<=20){
-                double controllerVoltage = m_controller.calculate(this.getGripperPosition(), m_posSetpointMetersCurrent);
-                m_spark.set((controllerVoltage) / kNominalVoltage);
-                // }else{
-                  // m_spark.set(0.5);
-                // }
-                this.updateCurrentHeldPiece();
-            }
+          this.runControlLoop();
 
             if (m_requestedState != null) m_gripperState = m_requestedState;
             m_requestedState = null;
             break;
+
+        case StateAutoWait:
+            if(RobotState.isEnabled()){
+              stateTimer2=25;
+              m_gripperState = m_gripperStates.StateAutoInit;
+            }
+            break;
+        case StateAutoInit:
+          this.setPositionSetpoint(1.8);
+          this.runControlLoop();
+          if(stateTimer2==0){
+            Elevator.requestState(m_elevatorStates.StateAutoInit);
+          }else{
+            stateTimer2--;
+          }
+          break;
     }
   }
 

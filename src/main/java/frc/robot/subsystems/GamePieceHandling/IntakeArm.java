@@ -22,6 +22,7 @@ import static frc.robot.Constants.IntakeArmConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class IntakeArm extends SubsystemBase implements Loggable{
   /** Creates a new IntakeArm. */
@@ -33,6 +34,8 @@ public class IntakeArm extends SubsystemBase implements Loggable{
 
   @Log(name = "stateTimer")
   public int stateTimer = 0;
+  public int stateTimer2 = 0;
+
   private final SR_ProfiledPIDController m_controller = 
     new SR_ProfiledPIDController(
       kPIntakeArm, 
@@ -40,7 +43,7 @@ public class IntakeArm extends SubsystemBase implements Loggable{
       kDIntakeArm,
       kMotionProfileConstraints);
 
-  public enum m_intakeArmStates {
+  public static enum m_intakeArmStates {
     StateFault,
     StateWait,
     StateInit,
@@ -48,6 +51,7 @@ public class IntakeArm extends SubsystemBase implements Loggable{
     StateRetracted,
    // StateMiddle,
     StateDeployed,
+    StateDeployAndLock,
     StateIdle
   }
   public static m_intakeArmStates m_intakeArmState;
@@ -173,12 +177,37 @@ public class IntakeArm extends SubsystemBase implements Loggable{
         } 
         break;
       case StateRetracted:
-        this.setPositionRadians(kIntakeArmRetractedPositionRadians);
-        m_intakeArmState=m_intakeArmStates.StateIdle;
+        IntakeServo.release();
+        if(stateTimer2==0){
+          this.setPositionRadians(kIntakeArmRetractedPositionRadians);
+        }else{
+          stateTimer2--;
+        }
+        this.runControlLoop();
+        if(requestedState!=null){
+          m_intakeArmState=requestedState;
+          requestedState=null;
+        }
         break;
       case StateDeployed:
         this.setPositionRadians(kIntakeArmDeployedPositionRadians);
-        m_intakeArmState=m_intakeArmStates.StateIdle;
+        this.runControlLoop();
+        if(requestedState!=null){
+          m_intakeArmState=requestedState;
+          requestedState=null;
+        } 
+        break;
+      case StateDeployAndLock:
+        this.setPositionRadians(kIntakeArmDeployedPositionRadians);
+        if(this.atSetpoint()){
+          IntakeServo.lock();
+        }
+        this.runControlLoop();  
+        if(requestedState!=null){
+          stateTimer2 = 25;
+          m_intakeArmState=requestedState;
+          requestedState=null;
+        } 
         break;
       case StateIdle:
         this.runControlLoop();

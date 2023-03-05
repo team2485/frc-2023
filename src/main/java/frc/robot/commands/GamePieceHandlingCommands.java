@@ -94,6 +94,17 @@ public class GamePieceHandlingCommands {
         return group;
     }
 
+    public static Command deployAndLockIntakeCommand(IntakeArm intakeArm, Telescope telescope, Elevator elevator, Wrist wrist){
+        ParallelCommandGroup group = new ParallelCommandGroup(
+            new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
+            new InstantCommand(()->telescope.requestState(m_telescopeStates.StatePickup)),
+            new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)),
+            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)));
+
+        return group;
+    
+    }
+
     public static Command outtakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist){
         ParallelCommandGroup group = new ParallelCommandGroup(
             new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployed)),

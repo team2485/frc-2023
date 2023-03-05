@@ -67,14 +67,21 @@ public class Wrist extends SubsystemBase implements Loggable {
     StateMiddle,
     StateTop,
     StateHigh,
-    StateIdle
+    StateIdle,
+    StateAutoWait,
+    StateAutoInit
   }
 
   public static m_wristStates m_wristState;
   public static m_wristStates m_requestedState;
 
   public Wrist() {
-    m_wristState = m_wristStates.StateIdle;
+
+    if(RobotState.isAutonomous()){
+      m_wristState = m_wristStates.StateAutoWait;
+    }else{
+      m_wristState = m_wristStates.StateIdle;
+    }
 
     TalonFXConfiguration wristTalonConfig = new TalonFXConfiguration();
     wristTalonConfig.voltageCompSaturation = kNominalVoltage;
@@ -107,7 +114,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     Shuffleboard.getTab("Wrist").add("Current State", m_wristState.name());
   }
 
-  public void requestState(m_wristStates state) {
+  public static void requestState(m_wristStates state) {
     m_requestedState = state;
   }
 
@@ -237,6 +244,16 @@ public class Wrist extends SubsystemBase implements Loggable {
           }
         }
         break; 
+      case StateAutoWait:
+        if (m_requestedState != null) m_wristState = m_requestedState;
+         m_requestedState = null;
+         break;
+      case StateAutoInit:
+        this.setAngleRadians(1.8);
+        if(RobotState.isEnabled()){
+          this.runControlLoop();
+         }   
+        break;
     }   
 }
 }

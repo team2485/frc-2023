@@ -12,6 +12,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.GamePieceHandling.Elevator;
+import frc.robot.subsystems.GamePieceHandling.Telescope;
+import frc.robot.subsystems.GamePieceHandling.Wrist;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.CTREConfigs;
 import io.github.oblarg.oblog.Logger;
 
@@ -86,6 +92,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+  
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {

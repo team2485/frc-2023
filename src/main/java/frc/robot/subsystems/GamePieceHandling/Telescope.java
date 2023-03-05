@@ -71,7 +71,9 @@ public class Telescope extends SubsystemBase implements Loggable{
         StateMiddleCone,
         StateOutCube,
         StateOutCone,
-        StateIdle
+        StateIdle,
+        StateAutoWait,
+        StateAutoInit,
       }
   
     public static m_telescopeStates m_telescopeState;
@@ -79,7 +81,12 @@ public class Telescope extends SubsystemBase implements Loggable{
 
 
   public Telescope() {
-    m_telescopeState = m_telescopeStates.StateWait;
+
+    if(RobotState.isAutonomous()){
+      m_telescopeState = m_telescopeStates.StateAutoWait;
+    }else{
+      m_telescopeState = m_telescopeStates.StateWait;
+    }
 
     m_feedForwardVoltage = 0;
     m_positionSetpointMeters = 0;
@@ -100,12 +107,12 @@ public class Telescope extends SubsystemBase implements Loggable{
     m_spark.setIdleMode(IdleMode.kBrake);
 
     m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
-    this.resetPositionMeters(0);
+    this.resetPositionMeters(0.05);
     // m_spark.getEncoder().setMeasurementPeriod(64);  
 
   }
 
-  public void requestState(m_telescopeStates state){
+  public static void requestState(m_telescopeStates state){
     m_telescopeState = state;
   }
 
@@ -232,7 +239,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCube:
-        this.setPositionSetpointMeters(0.85);
+        this.setPositionSetpointMeters(0.87);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCone: 
@@ -248,6 +255,19 @@ public class Telescope extends SubsystemBase implements Loggable{
         if(m_requestedState!=null) m_telescopeState = m_requestedState;
         m_requestedState = null;
         break;
+      case StateAutoWait:
+      if(m_requestedState!=null) m_telescopeState = m_requestedState;
+         m_requestedState = null;
+        break;
+      case StateAutoInit:
+        this.setPositionSetpointMeters(0.87);
+        if(RobotState.isEnabled()){
+          this.runControlLoop();
+         }   
+         if(m_requestedState!=null) m_telescopeState = m_requestedState;
+         m_requestedState = null;
+        break;
+
     }
     
   }

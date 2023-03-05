@@ -23,13 +23,13 @@ public class IntakeServo extends SubsystemBase implements Loggable{
 
   }
 
-  public void release(){ 
+  public static void release(){ 
     m_servoLeft.set(0.35);
     m_servoRight.set(0);
 
   }
 
-  public void lock(){
+  public static void lock(){
     m_servoLeft.set(0);
     m_servoRight.set(0.35);
 
