@@ -6,10 +6,13 @@ package frc.robot;
 
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AlignToTag;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
 import frc.robot.subsystems.GamePieceHandling.Intake;
@@ -22,8 +25,12 @@ import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
+import frc.robot.subsystems.Vision.m_visionStates;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.util.PoseEstimation;
 import io.github.oblarg.oblog.annotations.Log;
+
+import org.photonvision.PhotonCamera;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,6 +65,10 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
+  public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
+  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
+  // public final Vision m_vision = new Vision(m_drivetrain, m_poseEstimator::getCurrentPose);
+  public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -187,6 +198,12 @@ public class RobotContainer {
 
   private void configureVisionCommands() {
     // TODO: update bindings for vision offsets
+
+    m_driver.a().toggleOnTrue(m_alignToTag);
+
+    // m_driver.a().toggleOnTrue(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateAlign)));
+    // m_driver.a().toggleOnFalse(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateIdle)));
+
     // m_driver.leftPOV().onTrue(new InstantCommand(() ->
     // m_alignToTag.addOffset(-Vision.kOffsetToNextScoringStation)));
     // m_driver.rightPOV().onTrue(new InstantCommand(() ->

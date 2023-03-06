@@ -112,6 +112,14 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         return positions;
     }
 
+    public SwerveModulePosition[] getModulePositionsInverted() {
+        SwerveModulePosition[] positions = new SwerveModulePosition[4];
+        for(SwerveModule mod : mSwerveMods){
+            positions[mod.moduleNumber] = new SwerveModulePosition(-mod.getPosition().distanceMeters, mod.getPosition().angle);
+        }
+        return positions;
+    }
+
     public void zeroGyro(){
         gyro.setYaw(0);
     }

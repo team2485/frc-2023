@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+  package frc.robot.subsystems;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -68,6 +68,8 @@ public class Vision extends SubsystemBase {
   public static m_visionStates m_requestedState;
 
   public Vision(Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
+    m_visionState = m_visionStates.StateWait;
+
     this.m_drivetrain = drivetrain;
     this.m_poseProvider = poseProvider;
 
@@ -107,8 +109,8 @@ public class Vision extends SubsystemBase {
         var result = m_camera.getLatestResult();
 
         // make sure that we are not detecting tags on the other side of the field
-        if (alliance == Alliance.Blue && result.getBestTarget().getFiducialId() > 4
-            || alliance == Alliance.Red && result.getBestTarget().getFiducialId() < 5)
+        if (alliance == Alliance.Blue && result.getBestTarget().getFiducialId() < 5
+            || alliance == Alliance.Red && result.getBestTarget().getFiducialId() > 4)
           m_visionState = m_visionStates.StateFault; // TODO: actually handle error
         if (result.hasTargets()) {
           // find tag to chase
