@@ -21,7 +21,7 @@ public class AutoCommandBuilder {
 
     WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Test");
 
-    return new InstantCommand();
+    return new WaitCommand(5);
     }
 }
   

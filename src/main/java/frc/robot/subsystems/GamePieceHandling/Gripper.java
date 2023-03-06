@@ -58,7 +58,8 @@ public class Gripper extends SubsystemBase implements Loggable{
     StateGrip,
     StateIdle,
     StateAutoWait,
-    StateAutoInit
+    StateAutoInit,
+    StateAutoRelease
   }
 
   public static m_gripperStates m_gripperState;
@@ -178,11 +179,14 @@ public class Gripper extends SubsystemBase implements Loggable{
           }else{
             stateTimer2--;
           }
+          if (m_requestedState != null) m_gripperState = m_requestedState;
+            m_requestedState = null;
           break;
+          
     }
   }
 
-  public void requestState(m_gripperStates state){
+  public static void requestState(m_gripperStates state){
     m_requestedState = state;
   }
 

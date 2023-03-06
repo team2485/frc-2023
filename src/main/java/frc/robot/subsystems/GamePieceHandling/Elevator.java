@@ -319,6 +319,8 @@ public class Elevator extends SubsystemBase implements Loggable{
               }
              m_requestedState = null;
               break;
+
+              
             case StateAutoInit:
               this.setPositionMeters(0.58); 
               if(RobotState.isEnabled()){

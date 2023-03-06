@@ -309,7 +309,7 @@ public final class Constants {
         public static final int kTelescopeSmartCurrentLimitAmps = 55;
         public static final int kTelescopeImmediateCurrentLimitAmps = 65;
         
-        public static final double kTelescopeTolerance = 0.05;
+        public static final double kTelescopeTolerance = 0.01;
 
         public static final double kTelescopeMaxPosition = 1.1;
 

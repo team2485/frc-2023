@@ -253,6 +253,8 @@ public class Wrist extends SubsystemBase implements Loggable {
         if(RobotState.isEnabled()){
           this.runControlLoop();
          }   
+         if (m_requestedState != null) m_wristState = m_requestedState;
+         m_requestedState = null;
         break;
     }   
 }

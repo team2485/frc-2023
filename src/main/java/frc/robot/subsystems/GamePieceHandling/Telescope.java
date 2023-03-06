@@ -23,6 +23,8 @@ import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.robot.Constants;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -74,6 +76,7 @@ public class Telescope extends SubsystemBase implements Loggable{
         StateIdle,
         StateAutoWait,
         StateAutoInit,
+        StateAutoIn
       }
   
     public static m_telescopeStates m_telescopeState;
@@ -164,7 +167,7 @@ public class Telescope extends SubsystemBase implements Loggable{
 
 
       currentPosition = this.getPositionMeters();
-      if(currentPosition<0.02){
+      if(currentPosition<0.01){
         currentPosition = lastPosition;
       }
       
@@ -187,7 +190,7 @@ public class Telescope extends SubsystemBase implements Loggable{
      
       m_spark.set(m_outputPercentage);
 
-      if(this.getPositionMeters()>0.02){
+      if(this.getPositionMeters()>0.01){
       lastPosition = currentPosition;
       }
       m_lastVelocitySetpoint = telescopeController.getSetpoint().velocity;
@@ -256,19 +259,38 @@ public class Telescope extends SubsystemBase implements Loggable{
         m_requestedState = null;
         break;
       case StateAutoWait:
-      if(m_requestedState!=null) m_telescopeState = m_requestedState;
-         m_requestedState = null;
-        break;
+        if(m_requestedState!=null) m_telescopeState = m_requestedState;
+          m_requestedState = null;
+          break;
       case StateAutoInit:
         this.setPositionSetpointMeters(0.87);
         if(RobotState.isEnabled()){
           this.runControlLoop();
-         }   
+        }
+        if(this.atSetpoint()){
+          stateTimer=25;
+          Gripper.requestState(m_gripperStates.StateInit);
+          if(stateTimer==0){
+            stateTimer=50;
+            m_telescopeState = m_telescopeStates.StateAutoIn;
+          }else{
+            stateTimer--;
+          }
+        }   
          if(m_requestedState!=null) m_telescopeState = m_requestedState;
          m_requestedState = null;
         break;
-
-    }
-    
+      case StateAutoIn:
+        this.setPositionSetpointMeters(0); 
+        if(stateTimer==0){
+          Elevator.requestState(m_elevatorStates.StateInit);
+        }else{
+          stateTimer--;
+        }
+        this.runControlLoop();
+        if(m_requestedState!=null) m_telescopeState = m_requestedState;
+        m_requestedState = null;
+        break;
+      }
   }
 }
