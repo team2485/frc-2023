@@ -1,8 +1,14 @@
 {
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "transitory": {
       "Shuffleboard": {
         "Gripper": {
+          "open": true
+        },
+        "RobotContainer": {
           "open": true
         },
         "Telescope": {

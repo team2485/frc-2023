@@ -87,6 +87,8 @@ public class Elevator extends SubsystemBase implements Loggable{
     m_elevatorState = m_elevatorStates.StateStart;
     }
 
+    // m_elevatorState = m_elevatorStates.StateFault;
+
       TalonFXConfiguration talonConfig = new TalonFXConfiguration();
       talonConfig.voltageCompSaturation = kNominalVoltage;
       talonConfig.supplyCurrLimit =
@@ -152,6 +154,8 @@ public class Elevator extends SubsystemBase implements Loggable{
         m_talonRight.setSelectedSensorPosition(position/kDistancePerPulse);
     }
 
+
+    @Log(name="velocity")
     public double getVelocityMetersPerSecond() {
         return m_talonLeft.getSelectedSensorVelocity() * kDistancePerPulse;
 
@@ -188,12 +192,7 @@ public class Elevator extends SubsystemBase implements Loggable{
           m_positionSetpointMeters-=kElevatorOvershootAmountMeters;
         }
 
-        if (m_voltageOverride) {
-            m_talonLeft.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
-            m_talonRight.set(ControlMode.PercentOutput, m_voltageSetpoint / kNominalVoltage);
-        } 
-        else {
-
+    
         double feedbackOutputVoltage = 0;
 
             feedbackOutputVoltage =
@@ -218,7 +217,7 @@ public class Elevator extends SubsystemBase implements Loggable{
 
           m_lastVelocitySetpoint = m_pidController.getSetpoint().velocity;
         }
-    }
+    
     
 
     public static void requestState(m_elevatorStates state) {
@@ -243,15 +242,17 @@ public class Elevator extends SubsystemBase implements Loggable{
               m_elevatorState = m_elevatorStates.StateZero;
               break;
             case StateZero:
-              m_talonLeft.setVoltage(-0.75);
-              m_talonRight.setVoltage(-0.75);
+              m_talonLeft.setVoltage(-1.5);
+              m_talonRight.setVoltage(-1.5);  
               if (stateTimer == 0) {
-                if (Math.abs(this.getVelocityMetersPerSecond()) < 0.01) {
+                if (Math.abs(this.getVelocityMetersPerSecond()) < 0.03) {
+                  this.setPositionMeters(0.01);
                   this.resetPositionMeters(0);
-                  this.setPositionMeters(0);
+                  m_pidController.reset(0);
                   m_talonLeft.setVoltage(0);
                   m_talonRight.setVoltage(0);
                   m_elevatorState = m_elevatorStates.StateIdle;
+                  stateTimer--;
                 }
               } else {
                 stateTimer--;
@@ -300,16 +301,11 @@ public class Elevator extends SubsystemBase implements Loggable{
                  m_elevatorState = m_elevatorStates.StateIdle;
               break;
             case StateIdle:
-              if (m_voltageOverride) {
-                m_talonLeft.set(m_voltageSetpoint / kNominalVoltage);
-              } else {
                 if(RobotState.isEnabled()){
                     this.runControlLoop();
-                } 
               }
       
-              if (m_requestedState != null)
-                m_elevatorState = m_requestedState;
+              if (m_requestedState != null) m_elevatorState = m_requestedState;
               m_requestedState = null;
               break;
             case StateAutoWait:
@@ -320,20 +316,19 @@ public class Elevator extends SubsystemBase implements Loggable{
              m_requestedState = null;
               break;
 
-              
             case StateAutoInit:
-              this.setPositionMeters(0.58); 
+              this.setPositionMeters(0.66); 
               if(RobotState.isEnabled()){
                 this.runControlLoop();
                } 
               if(stateTimer==0){
                 Telescope.requestState(m_telescopeStates.StateAutoInit);
                 Wrist.requestState(m_wristStates.StateAutoInit);
+                stateTimer--;
               }else{
                 stateTimer--;
               }
-               if (m_requestedState != null)
-                m_elevatorState = m_requestedState;
+               if (m_requestedState != null) m_elevatorState = m_requestedState;
               m_requestedState = null;
                break;           
           }

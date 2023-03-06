@@ -187,9 +187,9 @@ public final class Constants {
         public static final double kIAutoYController = 0.05;
         public static final double kDAutoYController = 0.2;
 
-        public static final double kPAutoThetaController = -7.5;
-        public static final double kIAutoThetaController = 0.1;
-        public static final double kDAutoThetaController = 0.1;
+        public static final double kPAutoThetaController = -15;
+        public static final double kIAutoThetaController = 0;
+        public static final double kDAutoThetaController = -2;
     
         /* Constraint for the motion profilied robot angle controller */
         public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints =
@@ -309,7 +309,7 @@ public final class Constants {
         public static final int kTelescopeSmartCurrentLimitAmps = 55;
         public static final int kTelescopeImmediateCurrentLimitAmps = 65;
         
-        public static final double kTelescopeTolerance = 0.01;
+        public static final double kTelescopeTolerance = 0.025;
 
         public static final double kTelescopeMaxPosition = 1.1;
 

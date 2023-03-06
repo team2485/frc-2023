@@ -25,6 +25,7 @@ import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.robot.Constants;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -45,6 +46,7 @@ public class Telescope extends SubsystemBase implements Loggable{
   private double m_outputPercentage, m_feedbackOutput, m_feedforwardOutput;
   private boolean m_isEnabled, m_voltageOverride;
 
+  @Log(name="state timer")
   public int stateTimer = 0;
 
   @Log(name = "Current timer")
@@ -52,6 +54,8 @@ public class Telescope extends SubsystemBase implements Loggable{
 
   @Log(name="position timer")
   public int positionTimer = 3;
+
+  public boolean firstTime = true;
 
   private final SR_SimpleMotorFeedforward m_feedforward = new SR_SimpleMotorFeedforward(
       kSTelescopeVolts, kVTelescopeVoltSecondsPerMeter, kATelescopeVoltSecondsSquaredPerMeter);
@@ -90,6 +94,7 @@ public class Telescope extends SubsystemBase implements Loggable{
     }else{
       m_telescopeState = m_telescopeStates.StateWait;
     }
+    // m_telescopeState = m_telescopeStates.StateFault;
 
     m_feedForwardVoltage = 0;
     m_positionSetpointMeters = 0;
@@ -258,6 +263,8 @@ public class Telescope extends SubsystemBase implements Loggable{
         if(m_requestedState!=null) m_telescopeState = m_requestedState;
         m_requestedState = null;
         break;
+
+
       case StateAutoWait:
         if(m_requestedState!=null) m_telescopeState = m_requestedState;
           m_requestedState = null;
@@ -268,11 +275,14 @@ public class Telescope extends SubsystemBase implements Loggable{
           this.runControlLoop();
         }
         if(this.atSetpoint()){
-          stateTimer=25;
+          if(firstTime){
+            stateTimer=25;
+            firstTime=false;
+          }
           Gripper.requestState(m_gripperStates.StateInit);
           if(stateTimer==0){
-            stateTimer=50;
             m_telescopeState = m_telescopeStates.StateAutoIn;
+            firstTime=true;
           }else{
             stateTimer--;
           }
@@ -281,9 +291,15 @@ public class Telescope extends SubsystemBase implements Loggable{
          m_requestedState = null;
         break;
       case StateAutoIn:
+        if(firstTime){
+          stateTimer=50;
+          firstTime=false;
+        }
         this.setPositionSetpointMeters(0); 
         if(stateTimer==0){
           Elevator.requestState(m_elevatorStates.StateInit);
+          Wrist.requestState(m_wristStates.StateAutoBottom);
+          stateTimer--;
         }else{
           stateTimer--;
         }

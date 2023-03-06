@@ -199,7 +199,7 @@ public class IntakeArm extends SubsystemBase implements Loggable{
         break;
       case StateDeployAndLock:
         this.setPositionRadians(kIntakeArmDeployedPositionRadians);
-        if(this.atSetpoint() && this.getRadians()>1){
+        if(this.getRadians()>1.2){
           IntakeServo.lock();
         }
         this.runControlLoop();  

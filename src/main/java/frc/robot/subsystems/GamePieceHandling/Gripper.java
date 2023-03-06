@@ -50,7 +50,7 @@ public class Gripper extends SubsystemBase implements Loggable{
 
   public static m_pieceType currentPieceType = m_pieceType.None;
 
-  public enum m_gripperStates {
+  public static enum m_gripperStates {
     StateFault,
     StateWait,
     StateInit,
@@ -59,7 +59,6 @@ public class Gripper extends SubsystemBase implements Loggable{
     StateIdle,
     StateAutoWait,
     StateAutoInit,
-    StateAutoRelease
   }
 
   public static m_gripperStates m_gripperState;
@@ -73,7 +72,6 @@ public class Gripper extends SubsystemBase implements Loggable{
       m_gripperState = m_gripperStates.StateAutoWait;
     }else{
        m_gripperState = m_gripperStates.StateWait;
-
     }
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
@@ -176,6 +174,7 @@ public class Gripper extends SubsystemBase implements Loggable{
           this.runControlLoop();
           if(stateTimer2==0){
             Elevator.requestState(m_elevatorStates.StateAutoInit);
+            stateTimer2--;
           }else{
             stateTimer2--;
           }

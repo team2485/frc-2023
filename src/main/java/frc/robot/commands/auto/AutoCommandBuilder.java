@@ -19,9 +19,9 @@ public class AutoCommandBuilder {
 
   public static Command testAuto(Drivetrain drivetrain, Gripper gripper) {
 
-    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Test");
+    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueLeft2Piece");
 
-    return new WaitCommand(5);
+    return new WaitCommand(5.5).andThen(getResetOdometryCommand(drivetrain, path), path, new WaitCommand(2), new InstantCommand(()->Gripper.requestState(m_gripperStates.StateGrip)));
     }
 }
   
