@@ -3,8 +3,8 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems.GamePieceHandling;
+
 import frc.robot.Constants.IntakeArmConstants;
-import frc.WarlordsLib.sendableRichness.SR_ArmFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -14,7 +14,6 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import frc.robot.Constants;
 
-import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.Constants.IntakeArmConstants.*;
@@ -22,24 +21,22 @@ import static frc.robot.Constants.IntakeArmConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-public class IntakeArm extends SubsystemBase implements Loggable{
+public class IntakeArm extends SubsystemBase implements Loggable {
   /** Creates a new IntakeArm. */
   private WPI_TalonFX m_talonLeft = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortLeft);
   private WPI_TalonFX m_talonRight = new WPI_TalonFX(IntakeArmConstants.kIntakeArmPortRight);
 
-  @Log(name="setpoint")
+  @Log(name = "setpoint")
   private double m_positionSetpointAngle;
 
   @Log(name = "stateTimer")
   public int stateTimer = 0;
   public int stateTimer2 = 0;
 
-  private final SR_ProfiledPIDController m_controller = 
-    new SR_ProfiledPIDController(
-      kPIntakeArm, 
-      kIIntakeArm, 
+  private final SR_ProfiledPIDController m_controller = new SR_ProfiledPIDController(
+      kPIntakeArm,
+      kIIntakeArm,
       kDIntakeArm,
       kMotionProfileConstraints);
 
@@ -49,11 +46,12 @@ public class IntakeArm extends SubsystemBase implements Loggable{
     StateInit,
     StateZero,
     StateRetracted,
-   // StateMiddle,
+    // StateMiddle,
     StateDeployed,
     StateDeployAndLock,
     StateIdle
   }
+
   public static m_intakeArmStates m_intakeArmState;
 
   public IntakeArm() {
@@ -61,16 +59,16 @@ public class IntakeArm extends SubsystemBase implements Loggable{
     TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     talonConfig.voltageCompSaturation = Constants.kNominalVoltage;
     talonConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
-      true,
-      kIntakeArmSupplyCurrentLimitAmps,
-      kIntakeArmSupplyCurrentThresholdAmps,
-      kIntakeArmSupplyCurrentThresholdTimeSecs);
-  
+        true,
+        kIntakeArmSupplyCurrentLimitAmps,
+        kIntakeArmSupplyCurrentThresholdAmps,
+        kIntakeArmSupplyCurrentThresholdTimeSecs);
+
     talonConfig.statorCurrLimit = new StatorCurrentLimitConfiguration(
-      true,
-      kIntakeArmStatorCurrentLimitAmps,
-      kIntakeArmStatorCurrentThresholdAmps,
-      kIntakeArmStatorCurrentThresholdTimeSecs);
+        true,
+        kIntakeArmStatorCurrentLimitAmps,
+        kIntakeArmStatorCurrentThresholdAmps,
+        kIntakeArmStatorCurrentThresholdTimeSecs);
 
     m_talonLeft.configAllSettings(talonConfig);
     m_talonRight.configAllSettings(talonConfig);
@@ -91,11 +89,11 @@ public class IntakeArm extends SubsystemBase implements Loggable{
   }
 
   public void setPositionRadians(double position) {
-    
-    m_positionSetpointAngle= MathUtil.clamp(position, 0, kMaxPositionMeters);
+
+    m_positionSetpointAngle = MathUtil.clamp(position, 0, kMaxPositionMeters);
   }
 
-  @Log(name="radians")
+  @Log(name = "radians")
   public double getRadians() {
     return m_talonLeft.getSelectedSensorPosition() * kRadiansPerPulse;
   }
@@ -103,28 +101,32 @@ public class IntakeArm extends SubsystemBase implements Loggable{
   public double getError() {
     return Math.abs(m_positionSetpointAngle - this.getRadians());
   }
+
   public boolean atSetpoint() {
     return m_controller.atSetpoint();
   }
-  @Log(name="radians per sec")
+
+  @Log(name = "radians per sec")
   public double getRadiansPerSecond() {
     return m_talonLeft.getSelectedSensorVelocity() * kRadiansPerPulse;
   }
 
-  @Log(name="output current")
-  public double getCurrent(){
+  @Log(name = "output current")
+  public double getCurrent() {
     return m_talonLeft.getStatorCurrent();
   }
 
-  public void resetAngle(double position){
+  public void resetAngle(double position) {
 
     m_talonLeft.setSelectedSensorPosition(position / kRadiansPerPulse);
     m_talonRight.setSelectedSensorPosition(position / kRadiansPerPulse);
   }
+
   private boolean firstTime = true;
-  double filteredAngle=0;
-  public void runControlLoop(){
-   
+  double filteredAngle = 0;
+
+  public void runControlLoop() {
+
     if (firstTime) {
       filteredAngle = this.getRadians();
       firstTime = false;
@@ -134,86 +136,85 @@ public class IntakeArm extends SubsystemBase implements Loggable{
 
     double feedbackOutputVoltage = 0;
 
-    feedbackOutputVoltage = m_controller.calculate(filteredAngle, m_positionSetpointAngle)/Constants.kNominalVoltage;
+    feedbackOutputVoltage = m_controller.calculate(filteredAngle, m_positionSetpointAngle) / Constants.kNominalVoltage;
     m_talonLeft.set(ControlMode.PercentOutput, feedbackOutputVoltage);
     m_talonRight.set(ControlMode.PercentOutput, feedbackOutputVoltage);
-
   }
 
   private m_intakeArmStates requestedState;
-  public void requestState(m_intakeArmStates state){
-    requestedState=state;
 
+  public void requestState(m_intakeArmStates state) {
+    requestedState = state;
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    switch(m_intakeArmState){
-      case StateFault: 
+    switch (m_intakeArmState) {
+      case StateFault:
         break;
-      case StateWait: 
-        if(RobotState.isEnabled()){
+      case StateWait:
+        if (RobotState.isEnabled()) {
           m_intakeArmState = m_intakeArmStates.StateInit;
         }
-      break;
-      case StateInit: 
-        stateTimer=50; 
-        m_intakeArmState=m_intakeArmStates.StateZero;
         break;
-      case StateZero: 
-        m_talonLeft.setVoltage(-0.75);   
+      case StateInit:
+        stateTimer = 50;
+        m_intakeArmState = m_intakeArmStates.StateZero;
+        break;
+      case StateZero:
+        m_talonLeft.setVoltage(-0.75);
         m_talonRight.setVoltage(-0.75);
-        if(stateTimer==0){
-          if (this.getCurrent()>20) {
+        if (stateTimer == 0) {
+          if (this.getCurrent() > 20) {
             this.resetAngle(0);
             this.setPositionRadians(0);
             m_talonLeft.setVoltage(0);
             m_talonRight.setVoltage(0);
             m_intakeArmState = m_intakeArmStates.StateIdle;
           }
-        }else{
+        } else {
           stateTimer--;
-        } 
+        }
         break;
       case StateRetracted:
         IntakeServo.release();
-        if(stateTimer2==0){
+        if (stateTimer2 == 0) {
           this.setPositionRadians(kIntakeArmRetractedPositionRadians);
-        }else{
+        } else {
           stateTimer2--;
         }
         this.runControlLoop();
-        if(requestedState!=null){
-          m_intakeArmState=requestedState;
-          requestedState=null;
+        if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
         }
         break;
       case StateDeployed:
         this.setPositionRadians(kIntakeArmDeployedPositionRadians);
         this.runControlLoop();
-        if(requestedState!=null){
-          m_intakeArmState=requestedState;
-          requestedState=null;
-        } 
+        if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
+        }
         break;
       case StateDeployAndLock:
         this.setPositionRadians(kIntakeArmDeployedPositionRadians);
-        if(this.getRadians()>1.2){
+        if (this.getRadians() > 1.2) {
           IntakeServo.lock();
         }
-        this.runControlLoop();  
-        if(requestedState!=null){
+        this.runControlLoop();
+        if (requestedState != null) {
           stateTimer2 = 25;
-          m_intakeArmState=requestedState;
-          requestedState=null;
-        } 
+          m_intakeArmState = requestedState;
+          requestedState = null;
+        }
         break;
       case StateIdle:
         this.runControlLoop();
-        if(requestedState!=null){
-        m_intakeArmState=requestedState;
-        requestedState=null;
+        if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
         }
         break;
     }

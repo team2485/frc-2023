@@ -4,10 +4,8 @@
 
 package frc.robot.subsystems.GamePieceHandling;
 
-
 import static frc.robot.Constants.IntakeConstants.*;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.RobotState;
@@ -19,10 +17,9 @@ import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
 import com.revrobotics.CANSparkMax.IdleMode;
 
-
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  
+
   public static enum m_intakeStates {
     StateFault,
     StateWait,
@@ -36,9 +33,9 @@ public class Intake extends SubsystemBase {
 
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kIntakeSparkPort, MotorType.kBrushless);
   private final RelativeEncoder m_encoder = m_spark.getEncoder();
-  private final SR_SimpleMotorFeedforward m_feedforward = 
-                                  new SR_SimpleMotorFeedforward(kSIntakeVolts, kVIntakeVoltSecondsPerMeter, kAIntakeVoltSecondsSquaredPerMeter);
-  
+  private final SR_SimpleMotorFeedforward m_feedforward = new SR_SimpleMotorFeedforward(kSIntakeVolts,
+      kVIntakeVoltSecondsPerMeter, kAIntakeVoltSecondsSquaredPerMeter);
+
   @Log(name = "Velocity Setpoint")
   private double m_velocitySetpointRotationsPerSecond;
 
@@ -53,56 +50,57 @@ public class Intake extends SubsystemBase {
   @Log(name = "output voltage")
   private double m_lastOutputVoltage = 0;
 
-  public Intake(){
-    //m_spark.kCompensatedNominalVoltage
+  public Intake() {
+    // m_spark.kCompensatedNominalVoltage
     m_spark.enableVoltageCompensation(Constants.kNominalVoltage);
     m_spark.setIdleMode(IdleMode.kBrake);
     m_spark.setInverted(true);
-    //maybe add current limiting questionmark
+    // maybe add current limiting questionmark
 
     m_intakeState = m_intakeStates.StateWait;
 
     m_spark.setSmartCurrentLimit(kIntakeSmartCurrentLimitAmps);
     m_spark.setSecondaryCurrentLimit(kIntakeImmediateCurrentLimitAmps);
-    // some people were saying that this method was not properly implemented and does nothing
-    // it probably works now as those complaints were from 2020 but check this if there are issues 
- 
-   // m_feedforward.(kIntakeVelocityToleranceRotationsPerSecond);
+    // some people were saying that this method was not properly implemented and
+    // does nothing
+    // it probably works now as those complaints were from 2020 but check this if
+    // there are issues
+
+    // m_feedforward.(kIntakeVelocityToleranceRotationsPerSecond);
   }
 
-
   @Log(name = "Current Velocity (RPS)")
-  public double getVelocityRotationsPerSecond(){
+  public double getVelocityRotationsPerSecond() {
     return m_encoder.getVelocity() / (kIntakeGearRatio * Constants.kNeoSensorUnitsPerRotation);
   }
 
   @Config(name = "Set Velocity (RPS)")
-  public void setVelocityRotationsPerSecond(double rotationsPerSecond){
+  public void setVelocityRotationsPerSecond(double rotationsPerSecond) {
     m_voltageOverride = false;
 
     m_velocitySetpointRotationsPerSecond = rotationsPerSecond;
   }
 
   @Config.NumberSlider(name = "setVoltage", min = -12, max = 12)
-  public void setVoltage(double voltage){
+  public void setVoltage(double voltage) {
     m_voltageOverride = true;
     m_voltageSetpoint = voltage;
   }
 
-
-  public void runControlLoop(){
+  public void runControlLoop() {
     double outputVoltage = 0;
 
-    if (m_voltageOverride){
+    if (m_voltageOverride) {
       outputVoltage = m_voltageSetpoint;
     } else {
-      double feedForwardOutput = m_feedforward.calculate(m_lastVelocitySetpoint, m_velocitySetpointRotationsPerSecond, kIntakeLoopTimeSeconds);
+      double feedForwardOutput = m_feedforward.calculate(m_lastVelocitySetpoint, m_velocitySetpointRotationsPerSecond,
+          kIntakeLoopTimeSeconds);
 
       outputVoltage = feedForwardOutput;
       m_feedforwardOutput = feedForwardOutput;
     }
 
-    if(outputVoltage != m_lastOutputVoltage){
+    if (outputVoltage != m_lastOutputVoltage) {
       m_spark.setVoltage(outputVoltage);
     }
 
@@ -110,43 +108,46 @@ public class Intake extends SubsystemBase {
   }
 
   private m_intakeStates m_requestedState;
-  public void requestState(m_intakeStates state){
+
+  public void requestState(m_intakeStates state) {
     m_requestedState = state;
   }
 
   @Override
-  public void periodic(){
-    
-    switch(m_intakeState){
+  public void periodic() {
+
+    switch (m_intakeState) {
       case StateFault:
         break;
       case StateWait:
-          if(RobotState.isEnabled()){
-            m_intakeState = m_intakeStates.StateInit;
-          }
-          break;
+        if (RobotState.isEnabled()) {
+          m_intakeState = m_intakeStates.StateInit;
+        }
+        break;
       case StateInit:
-          m_intakeState = m_intakeStates.StateOff;
-          break;
+        m_intakeState = m_intakeStates.StateOff;
+        break;
       case StateOff:
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(0);
-        if(m_requestedState != null) m_intakeState = m_requestedState;
-        m_requestedState=null;
+        if (m_requestedState != null)
+          m_intakeState = m_requestedState;
+        m_requestedState = null;
         break;
       case StateOn:
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(kIntakeDefaultSpeedRotationsPerSecond);
-        if(m_requestedState != null) m_intakeState = m_requestedState;
+        if (m_requestedState != null)
+          m_intakeState = m_requestedState;
         m_requestedState = null;
         break;
       case StateOut:
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(-kIntakeDefaultSpeedRotationsPerSecond);
-       if(m_requestedState != null) m_intakeState = m_requestedState;
+        if (m_requestedState != null)
+          m_intakeState = m_requestedState;
         m_requestedState = null;
-       break;
-
+        break;
     }
   }
-}  
+}

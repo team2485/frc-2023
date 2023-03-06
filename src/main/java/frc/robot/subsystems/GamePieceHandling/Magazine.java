@@ -53,7 +53,8 @@ public class Magazine extends SubsystemBase implements Loggable {
   private m_magazineStates m_magazineState;
 
   private m_magazineStates m_requestedState;
-  public void requestState(m_magazineStates state){
+
+  public void requestState(m_magazineStates state) {
     m_requestedState = state;
   }
 
@@ -150,34 +151,37 @@ public class Magazine extends SubsystemBase implements Loggable {
   }
 
   public void periodic() {
-    switch(m_magazineState){
+    switch (m_magazineState) {
       case StateFault:
         break;
       case StateWait:
-          if(RobotState.isEnabled()){
-            m_magazineState = m_magazineStates.StateInit;
-          }
-          break;
+        if (RobotState.isEnabled()) {
+          m_magazineState = m_magazineStates.StateInit;
+        }
+        break;
       case StateInit:
-          m_magazineState = m_magazineStates.StateOff;
-          break;
+        m_magazineState = m_magazineStates.StateOff;
+        break;
       case StateOff:
         // this.setVoltage(m_lastOutputVoltage);
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(0);
-        if(m_requestedState != null) m_magazineState = m_requestedState;
-        m_requestedState=null;
+        if (m_requestedState != null)
+          m_magazineState = m_requestedState;
+        m_requestedState = null;
         break;
       case StateOn:
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(kMagazineDefaultSpeedRotationsPerSecond);
-        if(m_requestedState != null) m_magazineState = m_requestedState;
+        if (m_requestedState != null)
+          m_magazineState = m_requestedState;
         m_requestedState = null;
         break;
       case StateOut:
-       this.runControlLoop();
+        this.runControlLoop();
         this.setVelocityRotationsPerSecond(-kMagazineDefaultSpeedRotationsPerSecond);
-        if(m_requestedState != null) m_magazineState = m_requestedState;
+        if (m_requestedState != null)
+          m_magazineState = m_requestedState;
         m_requestedState = null;
         break;
     }
