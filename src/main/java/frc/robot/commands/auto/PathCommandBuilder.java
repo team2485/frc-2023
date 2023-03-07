@@ -6,19 +6,12 @@ import static frc.robot.Constants.Swerve.*;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.Constants.Swerve;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.WarlordsLib.sendableRichness.SR_PIDController;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
-import frc.robot.Constants.AutoConstants;;
-
 
 public class PathCommandBuilder {
   public static WL_SwerveControllerCommand getPathCommand(Drivetrain drivetrain, String name) {

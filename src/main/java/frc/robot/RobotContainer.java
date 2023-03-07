@@ -199,7 +199,7 @@ public class RobotContainer {
   private void configureVisionCommands() {
     // TODO: update bindings for vision offsets
 
-    m_driver.a().toggleOnTrue(m_alignToTag);
+    // m_driver.a().toggleOnTrue(m_alignToTag);
 
     // m_driver.a().toggleOnTrue(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateAlign)));
     // m_driver.a().toggleOnFalse(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateIdle)));
