@@ -291,6 +291,7 @@ public class Elevator extends SubsystemBase implements Loggable {
         m_requestedState = null;
         break;
       case StateAutoWait:
+        m_pidController.reset(0);
         if (m_requestedState != null) {
           m_elevatorState = m_requestedState;
           stateTimer = 50;

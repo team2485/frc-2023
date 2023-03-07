@@ -83,7 +83,7 @@ public class RobotContainer {
     configureBindings();
     m_drivetrain.zeroGyro();
 
-    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain, m_gripper));
+    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
   }
 
   /**
