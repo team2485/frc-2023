@@ -2,16 +2,22 @@ package frc.robot.commands.auto;
 
 import static frc.robot.commands.auto.PathCommandBuilder.*;
 
+import java.time.Instant;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.AutoBalance;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.*;
@@ -20,7 +26,16 @@ import frc.robot.subsystems.drive.Drivetrain;
 
 public class AutoCommandBuilder {
 
-   public static Command testAuto(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
+  
+   public static Command onePieceClimb(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope, IntakeArm intakeArm){
+    WL_SwerveControllerCommand path = getPathSlowCommand(drivetrain, "Middle1PieceClimb");
+
+    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)), new WaitCommand(1),
+        getResetOdometryCommand(drivetrain, path), 
+        path.withTimeout(2),new AutoBalance(drivetrain));
+   }
+
+   public static Command twoPiece(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
 
     WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueLeft2PiecePt1");
     WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "BlueLeft2PiecePt2");

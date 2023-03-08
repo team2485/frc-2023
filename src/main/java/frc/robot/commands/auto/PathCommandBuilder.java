@@ -41,6 +41,33 @@ public class PathCommandBuilder {
       return pathCommand; 
           }
 
+          public static WL_SwerveControllerCommand getPathSlowCommand(Drivetrain drivetrain, String name) {
+            PathPlannerTrajectory path =
+                PathPlanner.loadPath(
+                    name, kSlowerSpeedMetersPerSecond, kSlowerAccelerationMetersPerSecondSquared);
+        
+            // put trajectory on Glass's Field2d widget
+        
+            // create controller for robot angle
+        
+            // create command to follow path
+            var thetaController = new SR_ProfiledPIDController(kPAutoThetaController, kIAutoThetaController, kDAutoThetaController, kThetaControllerConstraints);
+            thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        
+            WL_SwerveControllerCommand pathCommand =
+                new WL_SwerveControllerCommand(
+                    path,
+                    drivetrain::getPose,
+                    swerveKinematics,
+                    new SR_PIDController(kPAutoXController, kIAutoXController, kDAutoXController),
+                    new SR_PIDController(kPAutoYController, kIAutoYController, kDAutoYController),
+                    thetaController,
+                    drivetrain::setModuleStates,
+                    drivetrain);
+        
+              return pathCommand; 
+                  }
+
   public static InstantCommand getResetOdometryCommand(
             Drivetrain drivetrain, WL_SwerveControllerCommand pathCommand) {
           return new InstantCommand(

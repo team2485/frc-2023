@@ -8,6 +8,7 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToTag;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
@@ -65,6 +66,7 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
+  
   // public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
   // public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
   // // public final Vision m_vision = new Vision(m_drivetrain, m_poseEstimator::getCurrentPose);
@@ -83,7 +85,9 @@ public class RobotContainer {
     configureBindings();
     m_drivetrain.zeroGyro();
 
-    m_autoChooser.setDefaultOption("Test", AutoCommandBuilder.testAuto(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.setDefaultOption("2Piece", AutoCommandBuilder.twoPiece(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+
+    m_autoChooser.addOption("OnePieceClimb", AutoCommandBuilder.onePieceClimb(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope, m_intakeArm));
   }
 
   /**
@@ -127,7 +131,9 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
     m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
 
-    // hypothetical state machine formatting (delete later)
+    m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
+
+    // hypothetical state machine formatting (delete later)\][]
   }
 
   private void configureGamePieceCommands() {

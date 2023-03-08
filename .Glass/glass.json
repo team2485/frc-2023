@@ -5,6 +5,9 @@
     },
     "transitory": {
       "Shuffleboard": {
+        "Drivetrain": {
+          "open": true
+        },
         "Gripper": {
           "open": true
         },
@@ -293,6 +296,15 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/Telescope/setpoint"
+            },
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/Drivetrain/pitch"
             }
           ]
         }
