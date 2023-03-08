@@ -38,6 +38,7 @@ public class Elevator extends SubsystemBase implements Loggable {
   private final WPI_TalonFX m_talonRight = new WPI_TalonFX(kElevatorPortRight);
 
   public boolean firstTime = true;
+  public boolean firstTime2 = true;
   private boolean setpointOvershot = false;
 
   private final SR_ElevatorFeedforward m_feedforward = new SR_ElevatorFeedforward(kSElevatorVolts, kGElevatorVolts,
@@ -65,7 +66,8 @@ public class Elevator extends SubsystemBase implements Loggable {
     StateTopCone,
     StateIdle,
     StateAutoWait,
-    StateAutoInit
+    StateAutoInit,
+    StateAutoHigh
   }
 
   public static m_elevatorStates m_elevatorState;
@@ -264,9 +266,9 @@ public class Elevator extends SubsystemBase implements Loggable {
         m_elevatorState = m_elevatorStates.StateIdle;
         break;
       case StateTopCube:
-        setpointOvershot = true;
+        // setpointOvershot = true;
         // this.setPositionMeters(0.8+kElevatorOvershootAmountMeters);
-        this.setPositionMeters(0.86);
+        this.setPositionMeters(0.87);
         m_elevatorState = m_elevatorStates.StateIdle;
         break;
       case StateMiddleCone:
@@ -286,14 +288,16 @@ public class Elevator extends SubsystemBase implements Loggable {
           this.runControlLoop();
         }
 
-        if (m_requestedState != null)
+        if (m_requestedState != null){
           m_elevatorState = m_requestedState;
+          stateTimer = 50;
+        }
         m_requestedState = null;
         break;
       case StateAutoWait:
-        m_pidController.reset(0);
         if (m_requestedState != null) {
           m_elevatorState = m_requestedState;
+          m_pidController.reset(0);
           stateTimer = 50;
         }
         m_requestedState = null;
@@ -311,10 +315,24 @@ public class Elevator extends SubsystemBase implements Loggable {
         } else {
           stateTimer--;
         }
-        if (m_requestedState != null)
-          m_elevatorState = m_requestedState;
+        if (m_requestedState != null) m_elevatorState = m_requestedState;
         m_requestedState = null;
-        break;
-    }
+        break; 
+      case StateAutoHigh:
+        this.setPositionMeters(0.86);
+         if (RobotState.isEnabled()) {
+        this.runControlLoop();
+        }
+        if (stateTimer == 0 && firstTime2) {
+          Telescope.requestState(m_telescopeStates.StateAutoInit);
+          firstTime2 = true;
+          stateTimer--;
+        }else{
+          stateTimer--;
+        }
+        if (m_requestedState != null) m_elevatorState = m_requestedState;
+        m_requestedState = null;
+        break; 
   }
+}
 }

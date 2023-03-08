@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.WarlordsLib.sendableRichness.SR_ArmFeedforward;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.*;
 
@@ -70,7 +72,8 @@ public class Wrist extends SubsystemBase implements Loggable {
     StateIdle,
     StateAutoWait,
     StateAutoInit,
-    StateAutoBottom
+    StateAutoBottom,
+    StateAutoHigh
   }
 
   public static m_wristStates m_wristState;
@@ -262,10 +265,27 @@ public class Wrist extends SubsystemBase implements Loggable {
       case StateAutoBottom:
         this.setAngleRadians(1.35);
         this.runControlLoop();
-        if (m_requestedState != null) m_wristState = m_requestedState;
+        if (m_requestedState != null){
+          m_wristState = m_requestedState;
+         stateTimer = 150;
+        }
          m_requestedState = null;
         break;
-
+      case StateAutoHigh:
+        this.setAngleRadians(2.5);
+        this.runControlLoop();
+        if(stateTimer==0){
+          Elevator.requestState(m_elevatorStates.StateAutoHigh);
+          stateTimer--;
+        }else{
+          stateTimer--;
+        }
+        if (m_requestedState != null){
+          m_wristState = m_requestedState;
+          firstTime2=false;
+        }
+        m_requestedState = null;
+        break;
     }   
 }
 }

@@ -22,7 +22,8 @@
     },
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/Shuffleboard/RobotContainer/Auto Chooser": "String Chooser"
+      "/Shuffleboard/RobotContainer/Auto Chooser": "String Chooser",
+      "/Shuffleboard/Vision/Field": "Field2d"
     }
   },
   "NetworkTables Settings": {

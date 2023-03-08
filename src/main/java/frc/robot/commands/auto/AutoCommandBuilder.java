@@ -2,6 +2,7 @@ package frc.robot.commands.auto;
 
 import static frc.robot.commands.auto.PathCommandBuilder.*;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -21,9 +22,15 @@ public class AutoCommandBuilder {
 
    public static Command testAuto(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
 
-    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Test");
+    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueLeft2PiecePt1");
+    WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "BlueLeft2PiecePt2");
 
-    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(6), path);
+
+    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
+        path.alongWith(new WaitCommand(3.2).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.2),
+        new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
+        new WaitCommand(0.25), path2.withTimeout(3.5));
+        
     }
 
 
@@ -33,5 +40,12 @@ public class AutoCommandBuilder {
                   new InstantCommand(()->Wrist.m_wristState=m_wristStates.StateAutoWait),
                   new InstantCommand(()->Gripper.m_gripperState=m_gripperStates.StateAutoWait));
   }
+
+  public static Command test(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
+    return new InstantCommand(()->Elevator.m_elevatorState=m_elevatorStates.StateFault)
+        .andThen(new InstantCommand(()->Telescope.m_telescopeState=m_telescopeStates.StateFault),
+                new InstantCommand(()->Wrist.m_wristState=m_wristStates.StateFault),
+                new InstantCommand(()->Gripper.m_gripperState=m_gripperStates.StateFault));
+}
   
 }

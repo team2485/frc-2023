@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -50,6 +51,7 @@ public class Gripper extends SubsystemBase implements Loggable {
     StateIdle,
     StateAutoWait,
     StateAutoInit,
+    StateAutoGrip
   }
 
   public static m_gripperStates m_gripperState;
@@ -153,8 +155,10 @@ public class Gripper extends SubsystemBase implements Loggable {
       case StateIdle:
         this.runControlLoop();
 
-        if (m_requestedState != null)
+        if (m_requestedState != null){
           m_gripperState = m_requestedState;
+          stateTimer = 10;
+      }
         m_requestedState = null;
         break;
 
@@ -173,9 +177,23 @@ public class Gripper extends SubsystemBase implements Loggable {
         } else {
           stateTimer2--;
         }
-        if (m_requestedState != null)
-          m_gripperState = m_requestedState;
+        if (m_requestedState != null) m_gripperState = m_requestedState;
         m_requestedState = null;
+        break;
+      case StateAutoGrip:
+        this.setPositionSetpoint(1.6);
+        this.runControlLoop();
+
+        if(stateTimer==0){
+          Wrist.requestState(m_wristStates.StateAutoHigh);
+          stateTimer--;
+        }else{
+          stateTimer--;
+        }
+
+        if (m_requestedState != null) m_gripperState = m_requestedState;
+        m_requestedState = null;        
+        
         break;
     }
   }

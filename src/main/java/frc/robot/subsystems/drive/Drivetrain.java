@@ -92,6 +92,11 @@ public class Drivetrain extends SubsystemBase implements Loggable{
         return swerveOdometry.getPoseMeters().getRotation().getDegrees();
     }
 
+    @Log(name="pitch")
+    public double getPitch(){
+        return gyro.getPitch();
+    }
+
     public void resetOdometry(Pose2d pose) {
         swerveOdometry.resetPosition(getYaw(), getModulePositions(), pose);
     }

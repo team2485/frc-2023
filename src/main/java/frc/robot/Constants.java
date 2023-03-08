@@ -144,7 +144,7 @@ public final class Constants {
     public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
     public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
-    /* Module Specific Constants */
+    /* Module Specific Constan  ts */
     /* Front Left Module - Module 0 */
     public static final class Mod0 { // TODO: This must be tuned to specific robot
       public static final int driveMotorID = 3;
@@ -190,19 +190,19 @@ public final class Constants {
                                             // to specific robot
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-    public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 2*Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2*Math.PI;
 
-    public static final double kPAutoXController = 4;
+    public static final double kPAutoXController = 3;
     public static final double kIAutoXController = 0.05;
-    public static final double kDAutoXController = 0.2;
-    public static final double kPAutoYController = 4;
-    public static final double kIAutoYController = 0.05;
-    public static final double kDAutoYController = 0.2;
+    public static final double kDAutoXController = 0;
+    public static final double kPAutoYController = 3;
+    public static final double kIAutoYController = 0.25;
+    public static final double kDAutoYController = 0;
 
-    public static final double kPAutoThetaController = -15;
-    public static final double kIAutoThetaController = 0;
-    public static final double kDAutoThetaController = -2;
+    public static final double kPAutoThetaController = -5;
+    public static final double kIAutoThetaController = -0;
+    public static final double kDAutoThetaController = -1;
 
     /* Constraint for the motion profilied robot angle controller */
     public static final SR_TrapezoidProfile.Constraints kThetaControllerConstraints = new SR_TrapezoidProfile.Constraints(
@@ -322,7 +322,7 @@ public final class Constants {
     public static final int kTelescopeSmartCurrentLimitAmps = 55;
     public static final int kTelescopeImmediateCurrentLimitAmps = 65;
 
-    public static final double kTelescopeTolerance = 0.025;
+    public static final double kTelescopeTolerance = 0.03;
 
     public static final double kTelescopeMaxPosition = 1.1;
 

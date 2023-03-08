@@ -65,10 +65,10 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
-  public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
-  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
-  // public final Vision m_vision = new Vision(m_drivetrain, m_poseEstimator::getCurrentPose);
-  public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
+  // public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
+  // public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
+  // // public final Vision m_vision = new Vision(m_drivetrain, m_poseEstimator::getCurrentPose);
+  // public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
