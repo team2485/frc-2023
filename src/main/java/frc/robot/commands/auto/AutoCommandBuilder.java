@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoBalance;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
+import frc.robot.subsystems.GamePieceHandling.Intake;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
+import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
@@ -48,12 +50,19 @@ public class AutoCommandBuilder {
         
     }
 
+    public static Command onePiece(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
+        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueRight2Piece");
+        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),getResetOdometryCommand(drivetrain, path), 
+        path.withTimeout(4));
+    }
+
 
     public static Command autoInit(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
       return new InstantCommand(()->Elevator.m_elevatorState=m_elevatorStates.StateAutoWait)
           .andThen(new InstantCommand(()->Telescope.m_telescopeState=m_telescopeStates.StateAutoWait),
                   new InstantCommand(()->Wrist.m_wristState=m_wristStates.StateAutoWait),
-                  new InstantCommand(()->Gripper.m_gripperState=m_gripperStates.StateAutoWait));
+                  new InstantCommand(()->Gripper.m_gripperState=m_gripperStates.StateAutoWait),
+                  new InstantCommand(()->Intake.m_intakeState=m_intakeStates.StateAutoInit));
   }
 
   public static Command test(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){

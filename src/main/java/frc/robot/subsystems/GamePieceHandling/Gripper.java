@@ -136,7 +136,7 @@ public class Gripper extends SubsystemBase implements Loggable {
         m_gripperState = m_gripperStates.StateZero;
         break;
       case StateZero:
-        m_spark.setVoltage(-2);
+        m_spark.setVoltage(-2.2);
         if (stateTimer == 0) {
           if (Math.abs(this.getEncoderVelocity()) < 0.01) {
             this.resetEncoderPosition(0);

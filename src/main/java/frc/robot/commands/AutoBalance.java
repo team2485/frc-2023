@@ -32,7 +32,7 @@ public class AutoBalance extends CommandBase {
   @Override
   public void execute() {     
     pitch = m_drive.getPitch();
-    double kp = 0.0375;
+    double kp = 0.04;
     m_drive.drive(new Translation2d(pitch*kp, 0), 0, false, true);
 
   }

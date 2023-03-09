@@ -4,6 +4,9 @@
       "open": false
     },
     "transitory": {
+      "LiveWindow": {
+        "open": true
+      },
       "Shuffleboard": {
         "Drivetrain": {
           "open": true
@@ -19,8 +22,13 @@
         },
         "Wrist": {
           "open": true
-        },
-        "open": true
+        }
+      },
+      "photonvision": {
+        "open": true,
+        "photonvision": {
+          "open": true
+        }
       }
     },
     "types": {
@@ -30,7 +38,7 @@
     }
   },
   "NetworkTables Settings": {
-    "mode": "Client (NT4)",
+    "mode": "Client (NT3)",
     "serverTeam": "2485"
   },
   "Plots": {

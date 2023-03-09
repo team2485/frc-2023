@@ -26,10 +26,13 @@ public class Intake extends SubsystemBase {
     StateInit,
     StateOn,
     StateOff,
-    StateOut
+    StateOut,
+    StateAutoInit
   }
 
-  private m_intakeStates m_intakeState;
+  public static m_intakeStates m_intakeState;
+
+  double stateTimer = 50;
 
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kIntakeSparkPort, MotorType.kBrushless);
   private final RelativeEncoder m_encoder = m_spark.getEncoder();
@@ -144,6 +147,18 @@ public class Intake extends SubsystemBase {
       case StateOut:
         this.runControlLoop();
         this.setVelocityRotationsPerSecond(-kIntakeDefaultSpeedRotationsPerSecond);
+        if (m_requestedState != null)
+          m_intakeState = m_requestedState;
+        m_requestedState = null;
+        break;
+      case StateAutoInit:
+        this.runControlLoop();
+        this.setVelocityRotationsPerSecond(-kIntakeDefaultSpeedRotationsPerSecond);
+        if(stateTimer==0){
+          m_intakeState=m_intakeStates.StateOff;
+        }else{
+          stateTimer--;
+        }
         if (m_requestedState != null)
           m_intakeState = m_requestedState;
         m_requestedState = null;

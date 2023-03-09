@@ -7,6 +7,7 @@ package frc.robot;
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AlignToPole;
 import frc.robot.commands.AlignToTag;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.DriveWithController;
@@ -66,6 +67,8 @@ public class RobotContainer {
   public final Intake m_intake = new Intake();
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
+
+  public final AlignToPole m_align = new AlignToPole(m_drivetrain);
   
   // public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
   // public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
@@ -88,6 +91,8 @@ public class RobotContainer {
     m_autoChooser.setDefaultOption("2Piece", AutoCommandBuilder.twoPiece(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
     m_autoChooser.addOption("OnePieceClimb", AutoCommandBuilder.onePieceClimb(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope, m_intakeArm));
+
+    m_autoChooser.addOption("OnePieceRight", AutoCommandBuilder.onePiece(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
   }
 
   /**
@@ -129,9 +134,9 @@ public class RobotContainer {
             }));
 
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
-    m_driver.y().onTrue(new InstantCommand(m_drivetrain::resetToAbsolute));
-
+    m_driver.y().whileTrue(m_align);
     m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
+
 
     // hypothetical state machine formatting (delete later)\][]
   }
@@ -174,8 +179,8 @@ public class RobotContainer {
     m_driver.leftTrigger().onTrue(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOn)))
         .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
 
-    m_driver.y().whileTrue(new InstantCommand(() -> m_intake.requestState(Intake.m_intakeStates.StateOut)))
-        .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
+    // m_driver.y().whileTrue(new InstantCommand(() -> m_intake.requestState(Intake.m_intakeStates.StateOut)))
+    //     .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
 
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateInit)));
