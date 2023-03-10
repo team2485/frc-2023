@@ -251,6 +251,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         }
         break; 
       case StateAutoWait:
+        firstTime2 = false;
         if (m_requestedState != null) m_wristState = m_requestedState;
          m_requestedState = null;
          break;

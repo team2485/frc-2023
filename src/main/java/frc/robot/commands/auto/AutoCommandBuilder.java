@@ -37,10 +37,10 @@ public class AutoCommandBuilder {
         path.withTimeout(2),new AutoBalance(drivetrain));
    }
 
-   public static Command twoPiece(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
+   public static Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
 
-    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueLeft2PiecePt1");
-    WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "BlueLeft2PiecePt2");
+    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
+    WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
 
 
     return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
@@ -50,8 +50,31 @@ public class AutoCommandBuilder {
         
     }
 
-    public static Command onePiece(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
-        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "BlueRight2Piece");
+    public static Command onePieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
+        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue1Piece");
+
+        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),getResetOdometryCommand(drivetrain, path), 
+        path.withTimeout(4));
+    }
+
+
+    
+   public static Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
+
+    WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");
+    WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Red2PiecePt2");
+
+
+    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
+        path.alongWith(new WaitCommand(3.2).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.2),
+        new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
+        new WaitCommand(0.25), path2.withTimeout(3.5));
+        
+    }
+
+    public static Command onePieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope){
+        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red1Piece");
+        
         return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),getResetOdometryCommand(drivetrain, path), 
         path.withTimeout(4));
     }

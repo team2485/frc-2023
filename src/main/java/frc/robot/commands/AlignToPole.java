@@ -41,8 +41,9 @@ public class AlignToPole extends CommandBase implements Loggable{
   @Override
   public void execute() {
 
+    double offset = 14;
     double kp = -0.0375;
-    offset = NetworkTableInstance.getDefault().getTable("photonvision").getSubTable("photonvision").getEntry("targetYaw").getDouble(0)-14;
+    offset = NetworkTableInstance.getDefault().getTable("photonvision").getSubTable("photonvision").getEntry("targetYaw").getDouble(0)-offset;
     m_drive.drive(new Translation2d(0, kp*offset), 0, true, true);
 }
 
