@@ -144,7 +144,7 @@ public final class Constants {
     public static final NeutralMode angleNeutralMode = NeutralMode.Brake;
     public static final NeutralMode driveNeutralMode = NeutralMode.Brake;
 
-    /* Module Specific Constan  ts */
+    /* Module Specific Constan ts */
     /* Front Left Module - Module 0 */
     public static final class Mod0 { // TODO: This must be tuned to specific robot
       public static final int driveMotorID = 3;
@@ -194,8 +194,8 @@ public final class Constants {
     public static final double kSlowerSpeedMetersPerSecond = 2.5;
     public static final double kSlowerAccelerationMetersPerSecondSquared = 2;
 
-    public static final double kMaxAngularSpeedRadiansPerSecond = 2*Math.PI;
-    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2*Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
+    public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2 * Math.PI;
 
     public static final double kPAutoXController = 3;
     public static final double kIAutoXController = 0.05;
@@ -449,10 +449,8 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(3, 8);
 
     // TODO: ensure validity of measurements
-    //public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.257175, .1635125 * .5, .47625),
-    //    new Rotation3d());
-
-    public static final Transform3d kCameraToRobot = new Transform3d(new Translation3d(.2225, .2065, .4635), new Rotation3d());
+    public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(.2225, .2065, .4635),
+        new Rotation3d());
 
     // public static final int kTagOfInterest = 1;
     // public static final Transform2d kTagToGoal = new Transform2d(new
