@@ -146,7 +146,14 @@ public class Intake extends SubsystemBase {
         break;
       case StateOut:
         this.runControlLoop();
-        this.setVelocityRotationsPerSecond(-kIntakeDefaultSpeedRotationsPerSecond);
+        this.setVelocityRotationsPerSecond(-10
+        
+        
+        
+        
+        
+        
+        );
         if (m_requestedState != null)
           m_intakeState = m_requestedState;
         m_requestedState = null;

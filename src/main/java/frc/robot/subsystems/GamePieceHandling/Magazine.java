@@ -179,7 +179,7 @@ public class Magazine extends SubsystemBase implements Loggable {
         break;
       case StateOut:
         this.runControlLoop();
-        this.setVelocityRotationsPerSecond(-kMagazineDefaultSpeedRotationsPerSecond);
+        this.setVelocityRotationsPerSecond(-5);
         if (m_requestedState != null)
           m_magazineState = m_requestedState;
         m_requestedState = null;

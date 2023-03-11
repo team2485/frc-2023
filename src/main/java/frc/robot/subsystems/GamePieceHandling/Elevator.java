@@ -295,16 +295,16 @@ public class Elevator extends SubsystemBase implements Loggable {
         m_requestedState = null;
         break;
       case StateAutoWait:
+        m_pidController.reset(0);
         if (m_requestedState != null) {
           m_elevatorState = m_requestedState;
-          m_pidController.reset(0);
           stateTimer = 50;
         }
         m_requestedState = null;
         break;
 
       case StateAutoInit:
-        this.setPositionMeters(0.66);
+        this.setPositionMeters(0.64);
         if (RobotState.isEnabled()) {
           this.runControlLoop();
         }

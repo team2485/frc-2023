@@ -32,9 +32,15 @@ public class AutoCommandBuilder {
    public static Command onePieceClimb(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope, IntakeArm intakeArm){
     WL_SwerveControllerCommand path = getPathSlowCommand(drivetrain, "Middle1PieceClimb");
 
-    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)), new WaitCommand(1),
-        getResetOdometryCommand(drivetrain, path), 
-        path.withTimeout(2),new AutoBalance(drivetrain));
+    return autoInit(elevator, gripper, wrist, telescope).
+            andThen(new WaitCommand(4.3), 
+            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)), 
+            new WaitCommand(0.5),
+            getResetOdometryCommand(drivetrain, path), 
+            path.withTimeout(2), 
+            new AutoBalance(drivetrain).
+            alongWith(new WaitCommand(4).
+            andThen(new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateRetracted)))));
    }
 
    public static Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {

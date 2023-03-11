@@ -21,7 +21,7 @@ import static frc.robot.Constants.GripperConstants.*;
 
 public class Gripper extends SubsystemBase implements Loggable {
   private final WPI_SparkMax m_spark = new WPI_SparkMax(kGripperSparkPort, MotorType.kBrushless);
-  private final PIDController m_controller = new PIDController(10.0, 1, 0.0);
+  private final PIDController m_controller = new PIDController(5, 1, 0.0);
 
   @Log(name = "setpoint")
   private double m_posSetpointMetersCurrent = 0;
@@ -136,24 +136,38 @@ public class Gripper extends SubsystemBase implements Loggable {
         m_gripperState = m_gripperStates.StateZero;
         break;
       case StateZero:
-        m_spark.setVoltage(-2.2);
-        if (stateTimer == 0) {
-          if (Math.abs(this.getEncoderVelocity()) < 0.01) {
-            this.resetEncoderPosition(0);
-            this.setPositionSetpoint(0);
-            m_spark.setVoltage(0);
-            m_gripperState = m_gripperStates.StateIdle;
-          }
-        } else {
-          stateTimer--;
-        }
+        this.updateCurrentHeldPiece();
+        this.runControlLoop();
+        this.setPositionSetpoint(0);
+        if (m_requestedState != null){
+          m_gripperState = m_requestedState;
+          stateTimer = 10;
+      }
+        m_requestedState = null;
         break;
+      // case StateGrip:
+      //   this.setPositionSetpoint(1.6);
+      //   m_gripperState = m_gripperStates.StateIdle;
+      //   break;
       case StateGrip:
-        this.setPositionSetpoint(1.6);
-        m_gripperState = m_gripperStates.StateIdle;
+        this.updateCurrentHeldPiece();
+        if(this.getGripperPosition()<1.55){
+          if(currentPieceType==m_pieceType.Cone){
+            m_spark.set(0.6);
+          }else{
+            m_spark.set(0.25);
+          }
+        }else{
+          m_spark.set(0);
+        }
+
+        if (m_requestedState != null){
+          m_gripperState = m_requestedState;
+      }
+        m_requestedState = null;
         break;
       case StateIdle:
-        this.runControlLoop();
+      this.updateCurrentHeldPiece();
 
         if (m_requestedState != null){
           m_gripperState = m_requestedState;
@@ -163,14 +177,24 @@ public class Gripper extends SubsystemBase implements Loggable {
         break;
 
       case StateAutoWait:
+      
         if (RobotState.isEnabled()) {
           stateTimer2 = 25;
           m_gripperState = m_gripperStates.StateAutoInit;
         }
         break;
       case StateAutoInit:
-        this.setPositionSetpoint(1.8);
-        this.runControlLoop();
+      this.updateCurrentHeldPiece();
+
+        if(this.getGripperPosition()<1.55){
+          if(currentPieceType==m_pieceType.Cone){
+            m_spark.set(0.6);
+          }else{
+            m_spark.set(0.25);
+          }
+        }else{
+          m_spark.set(0);
+        }
         if (stateTimer2 == 0) {
           Elevator.requestState(m_elevatorStates.StateAutoInit);
           stateTimer2--;
@@ -181,9 +205,17 @@ public class Gripper extends SubsystemBase implements Loggable {
         m_requestedState = null;
         break;
       case StateAutoGrip:
-        this.setPositionSetpoint(1.6);
-        this.runControlLoop();
+        this.updateCurrentHeldPiece();
 
+        if(this.getGripperPosition()<1.55){
+          if(currentPieceType==m_pieceType.Cone){
+            m_spark.set(0.6);
+          }else{
+            m_spark.set(0.25);
+          }
+        }else{
+          m_spark.set(0);
+        }  
         if(stateTimer==0){
           Wrist.requestState(m_wristStates.StateAutoHigh);
           stateTimer--;

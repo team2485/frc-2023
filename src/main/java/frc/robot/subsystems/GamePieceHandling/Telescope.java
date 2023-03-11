@@ -281,7 +281,7 @@ public class Telescope extends SubsystemBase implements Loggable {
           stateTimer = 50;
           firstTime = false;
         }
-        this.setPositionSetpointMeters(0);
+        this.setPositionSetpointMeters(0.05);
         if (stateTimer == 0) {
           Elevator.requestState(m_elevatorStates.StateInit);
           Wrist.requestState(m_wristStates.StateAutoBottom);
