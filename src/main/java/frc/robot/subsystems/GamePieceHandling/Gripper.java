@@ -47,6 +47,9 @@ public class Gripper extends SubsystemBase implements Loggable {
     StateWait,
     StateInit,
     StateZero,
+    StateOpening,
+    StateOpening2,
+    StateOpen,
     StateGrip,
     StateIdle,
     StateAutoWait,
@@ -64,7 +67,7 @@ public class Gripper extends SubsystemBase implements Loggable {
     if (RobotState.isAutonomous()) {
       m_gripperState = m_gripperStates.StateAutoWait;
     } else {
-      m_gripperState = m_gripperStates.StateWait;
+      m_gripperState = m_gripperStates.StateOpening;
     }
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);
@@ -136,26 +139,59 @@ public class Gripper extends SubsystemBase implements Loggable {
         m_gripperState = m_gripperStates.StateZero;
         break;
       case StateZero:
+        
         this.updateCurrentHeldPiece();
         this.runControlLoop();
         this.setPositionSetpoint(0);
+
+
         if (m_requestedState != null){
           m_gripperState = m_requestedState;
           stateTimer = 10;
       }
         m_requestedState = null;
         break;
+    
       // case StateGrip:
       //   this.setPositionSetpoint(1.6);
       //   m_gripperState = m_gripperStates.StateIdle;
       //   break;
+
+      case StateOpening:
+        stateTimer = 25;
+        m_gripperState = m_gripperStates.StateOpening2;
+        break;
+      case StateOpening2:
+        this.updateCurrentHeldPiece();
+        m_spark.setVoltage(-2.20);
+        if(stateTimer==0){
+        if(Math.abs(this.getEncoderVelocity())<0.03){
+          m_gripperState = m_gripperStates.StateOpen;
+          this.resetEncoderPosition(0);
+        }
+        }else{
+          stateTimer--;
+        }
+     
+        break;
+      case StateOpen:
+        this.updateCurrentHeldPiece();
+
+        m_spark.setVoltage(-0.3);
+      
+        if (m_requestedState != null){
+          m_gripperState = m_requestedState;
+          stateTimer=10;
+      }
+        m_requestedState = null;
+        break;
       case StateGrip:
         this.updateCurrentHeldPiece();
-        if(this.getGripperPosition()<1.55){
+        if(this.getGripperPosition()<1.7){
           if(currentPieceType==m_pieceType.Cone){
-            m_spark.set(0.6);
+            m_spark.set(0.75);
           }else{
-            m_spark.set(0.25);
+            m_spark.set(0.4);
           }
         }else{
           m_spark.set(0);
@@ -186,11 +222,11 @@ public class Gripper extends SubsystemBase implements Loggable {
       case StateAutoInit:
       this.updateCurrentHeldPiece();
 
-        if(this.getGripperPosition()<1.55){
+        if(this.getGripperPosition()<1.7){
           if(currentPieceType==m_pieceType.Cone){
-            m_spark.set(0.6);
+            m_spark.set(0.75);
           }else{
-            m_spark.set(0.25);
+            m_spark.set(0.4);
           }
         }else{
           m_spark.set(0);
@@ -207,11 +243,11 @@ public class Gripper extends SubsystemBase implements Loggable {
       case StateAutoGrip:
         this.updateCurrentHeldPiece();
 
-        if(this.getGripperPosition()<1.55){
+        if(this.getGripperPosition()<1.7){
           if(currentPieceType==m_pieceType.Cone){
-            m_spark.set(0.6);
+            m_spark.set(0.75);
           }else{
-            m_spark.set(0.25);
+            m_spark.set(0.4);
           }
         }else{
           m_spark.set(0);

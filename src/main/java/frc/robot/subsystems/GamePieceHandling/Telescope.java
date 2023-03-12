@@ -262,9 +262,10 @@ public class Telescope extends SubsystemBase implements Loggable {
         if (this.atSetpoint()) {
           if (firstTime) {
             stateTimer = 25;
+
             firstTime = false;
           }
-          Gripper.requestState(m_gripperStates.StateInit);
+          Gripper.requestState(m_gripperStates.StateOpening);
           if (stateTimer == 0) {
             m_telescopeState = m_telescopeStates.StateAutoIn;
             firstTime = true;
@@ -272,8 +273,7 @@ public class Telescope extends SubsystemBase implements Loggable {
             stateTimer--;
           }
         }
-        if (m_requestedState != null)
-          m_telescopeState = m_requestedState;
+        if (m_requestedState != null) m_telescopeState = m_requestedState;
         m_requestedState = null;
         break;
       case StateAutoIn:

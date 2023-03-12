@@ -77,7 +77,7 @@ public class Elevator extends SubsystemBase implements Loggable {
 
   public Elevator() {
 
-    m_pidController.setIntegratorRange(0, 12);
+    m_pidController.setIntegratorRange(-6, 6);
 
     if (RobotState.isAutonomous()) {
       m_elevatorState = m_elevatorStates.StateAutoWait;
@@ -221,7 +221,7 @@ public class Elevator extends SubsystemBase implements Loggable {
           m_elevatorState = m_elevatorStates.StateInit;
         break;
       case StateInit:
-        stateTimer = 25;
+        stateTimer = 75;
         m_elevatorState = m_elevatorStates.StateZero;
         break;
       case StateZero:
@@ -229,7 +229,7 @@ public class Elevator extends SubsystemBase implements Loggable {
         m_talonRight.setVoltage(-1.5);
         if (stateTimer == 0) {
           if (Math.abs(this.getVelocityMetersPerSecond()) < 0.03) {
-            this.setPositionMeters(0.01);
+            this.setPositionMeters(0);
             this.resetPositionMeters(0);
             m_pidController.reset(0);
             m_talonLeft.setVoltage(0);
@@ -295,9 +295,10 @@ public class Elevator extends SubsystemBase implements Loggable {
         m_requestedState = null;
         break;
       case StateAutoWait:
-        m_pidController.reset(0);
         if (m_requestedState != null) {
           m_elevatorState = m_requestedState;
+          this.resetPositionMeters(0);
+          m_pidController.reset(0);
           stateTimer = 50;
         }
         m_requestedState = null;

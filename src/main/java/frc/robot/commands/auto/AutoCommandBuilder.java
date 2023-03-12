@@ -50,7 +50,7 @@ public class AutoCommandBuilder {
 
 
     return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
-        path.alongWith(new WaitCommand(3.2).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.2),
+        path.alongWith(new WaitCommand(3.5).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.5),
         new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
         new WaitCommand(0.25), path2.withTimeout(3.5));
         
@@ -62,7 +62,7 @@ public class AutoCommandBuilder {
         return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),getResetOdometryCommand(drivetrain, path), 
         path.withTimeout(4));
     }
-
+    
 
     
    public static Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope ) {
@@ -72,9 +72,9 @@ public class AutoCommandBuilder {
 
 
     return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
-        path.alongWith(new WaitCommand(3.2).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.2),
+        path.alongWith(new WaitCommand(3.5).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.5),
         new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
-        new WaitCommand(0.25), path2.withTimeout(3.5));
+        new WaitCommand(0.25), path2.withTimeout(4));
         
     }
 

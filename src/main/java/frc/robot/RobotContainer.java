@@ -162,7 +162,7 @@ public class RobotContainer {
             m_elevator, m_wrist));
 
     m_operator.b().onTrue(
-        new ConditionalCommand(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateInit)),
+        new ConditionalCommand(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)),
             new ConditionalCommand(
                 GamePieceHandlingCommands.liftFromIntakeCommand(m_elevator, m_wrist, m_gripper),
                 new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateGrip)),
@@ -180,14 +180,20 @@ public class RobotContainer {
               return IntakeArm.m_intakeArmState == m_intakeArmStates.StateDeployAndLock;
             }));
 
-    m_driver.leftTrigger().onTrue(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOn)))
-        .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
+    // m_driver.leftTrigger().onTrue(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOn)))
+    //     .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
+
+    m_driver.leftTrigger()
+      .whileTrue(GamePieceHandlingCommands.deployMagIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
+    m_elevator, m_wrist, m_gripper))
+      .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
+    m_elevator, m_wrist));
 
     // m_driver.y().whileTrue(new InstantCommand(() -> m_intake.requestState(Intake.m_intakeStates.StateOut)))
     //     .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
 
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
-    m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateInit)));
+    m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)));
 
     m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
 
