@@ -62,19 +62,6 @@ public class GamePieceHandlingCommands {
     return group;
   }
 
-    public static Command deployIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist, Gripper gripper){
-        ParallelCommandGroup group = new ParallelCommandGroup(
-            new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
-            new InstantCommand(()->telescope.requestState(m_telescopeStates.StatePickup)),
-            new InstantCommand(()->elevator.requestState(m_elevatorStates.StateLow)),
-            new InstantCommand(()->intakeArm.requestState(m_intakeArmStates.StateDeployed)),
-            new InstantCommand(()->intake.requestState(m_intakeStates.StateOn)),
-            new InstantCommand(()->magazine.requestState(m_magazineStates.StateOn)),
-            new InstantCommand(()->gripper.requestState(m_gripperStates.StateOpening)));
-        
-        return group;
-    }
-
     public static Command deployMagIntakeCommand(IntakeArm intakeArm, Intake intake, Magazine magazine, Telescope telescope, Elevator elevator, Wrist wrist, Gripper gripper){
         ParallelCommandGroup group = new ParallelCommandGroup(
             new InstantCommand(()->wrist.requestState(m_wristStates.StateDown)),
@@ -88,7 +75,7 @@ public class GamePieceHandlingCommands {
         return group;
     }
 
-    
+
   public static Command highConeSetpoint(Telescope telescope, Elevator elevator, Gripper gripper, Wrist wrist) {
     ParallelCommandGroup group = new ParallelCommandGroup(
         new InstantCommand(() -> wrist.requestState(m_wristStates.StateHigh)),

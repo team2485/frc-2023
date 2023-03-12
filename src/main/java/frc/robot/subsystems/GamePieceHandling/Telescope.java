@@ -261,7 +261,7 @@ public class Telescope extends SubsystemBase implements Loggable {
         }
         if (this.atSetpoint()) {
           if (firstTime) {
-            stateTimer = 25;
+            stateTimer = 15;
 
             firstTime = false;
           }

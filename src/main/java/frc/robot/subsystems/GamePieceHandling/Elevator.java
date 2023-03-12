@@ -299,7 +299,7 @@ public class Elevator extends SubsystemBase implements Loggable {
           m_elevatorState = m_requestedState;
           this.resetPositionMeters(0);
           m_pidController.reset(0);
-          stateTimer = 50;
+          stateTimer = 35;
         }
         m_requestedState = null;
         break;

@@ -101,7 +101,7 @@ public class AlignToTag extends CommandBase {
               camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
 
           var cameraPose = robotPose.transformBy(
-              new Transform2d(VisionConstants.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
+              new Transform2d(VisionConstants.kRobotToCamera.getTranslation().toTranslation2d(), new Rotation2d())
                   .inverse());
           Pose2d targetPose = cameraPose.transformBy(transform);
 
