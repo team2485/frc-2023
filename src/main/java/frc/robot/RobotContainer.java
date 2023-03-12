@@ -69,11 +69,11 @@ public class RobotContainer {
   public final IntakeServo m_servo = new IntakeServo();
 
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
-  
-  // public final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
-  // public final PoseEstimation m_poseEstimator = new PoseEstimation(m_camera, m_drivetrain);
-  // // public final Vision m_vision = new Vision(m_drivetrain, m_poseEstimator::getCurrentPose);
-  // public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain, m_poseEstimator::getCurrentPose);
+
+  // public final PoseEstimation m_poseEstimator = new PoseEstimation(this);
+  // // public final Vision m_vision = new Vision(this);
+  // public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain,
+  // m_poseEstimator::getCurrentPose);
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -88,15 +88,20 @@ public class RobotContainer {
     configureBindings();
     m_drivetrain.zeroGyro();
 
-    m_autoChooser.setDefaultOption("2PieceBlue", AutoCommandBuilder.twoPieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.setDefaultOption("2PieceBlue",
+        AutoCommandBuilder.twoPieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
-    m_autoChooser.addOption("1PieceClimb", AutoCommandBuilder.onePieceClimb(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope, m_intakeArm));
+    m_autoChooser.addOption("1PieceClimb",
+        AutoCommandBuilder.onePieceClimb(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope, m_intakeArm));
 
-    m_autoChooser.addOption("1PieceBlue", AutoCommandBuilder.onePieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.addOption("1PieceBlue",
+        AutoCommandBuilder.onePieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
-    m_autoChooser.addOption("2PieceRed", AutoCommandBuilder.twoPieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.addOption("2PieceRed",
+        AutoCommandBuilder.twoPieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
-    m_autoChooser.addOption("1PieceRed", AutoCommandBuilder.onePieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.addOption("1PieceRed",
+        AutoCommandBuilder.onePieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
   }
 
   /**
@@ -140,7 +145,6 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
     m_driver.y().whileTrue(m_align);
     m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
-
 
     // hypothetical state machine formatting (delete later)\][]
   }
@@ -189,8 +193,10 @@ public class RobotContainer {
       .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
     m_elevator, m_wrist));
 
-    // m_driver.y().whileTrue(new InstantCommand(() -> m_intake.requestState(Intake.m_intakeStates.StateOut)))
-    //     .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
+    // m_driver.y().whileTrue(new InstantCommand(() ->
+    // m_intake.requestState(Intake.m_intakeStates.StateOut)))
+    // .onFalse(new InstantCommand(() ->
+    // m_intake.requestState(m_intakeStates.StateOff)));
 
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)));
@@ -222,8 +228,10 @@ public class RobotContainer {
 
     // m_driver.a().toggleOnTrue(m_alignToTag);
 
-    // m_driver.a().toggleOnTrue(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateAlign)));
-    // m_driver.a().toggleOnFalse(new InstantCommand(() -> m_vision.requestState(m_visionStates.StateIdle)));
+    // m_driver.a().toggleOnTrue(new InstantCommand(() ->
+    // m_vision.requestState(m_visionStates.StateAlign)));
+    // m_driver.a().toggleOnFalse(new InstantCommand(() ->
+    // m_vision.requestState(m_visionStates.StateIdle)));
 
     // m_driver.leftPOV().onTrue(new InstantCommand(() ->
     // m_alignToTag.addOffset(-Vision.kOffsetToNextScoringStation)));

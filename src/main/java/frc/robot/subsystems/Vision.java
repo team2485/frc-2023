@@ -1,4 +1,4 @@
-  package frc.robot.subsystems;
+package frc.robot.subsystems;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -109,6 +109,7 @@ public class Vision extends SubsystemBase {
         var result = m_camera.getLatestResult();
 
         // make sure that we are not detecting tags on the other side of the field
+        // TODO: properly handle alliance checking with right fiducial ids
         if (alliance == Alliance.Blue && result.getBestTarget().getFiducialId() < 5
             || alliance == Alliance.Red && result.getBestTarget().getFiducialId() > 4)
           m_visionState = m_visionStates.StateFault; // TODO: actually handle error
@@ -125,9 +126,9 @@ public class Vision extends SubsystemBase {
               var transform = new Transform2d(camToTarget.getTranslation().toTranslation2d(),
                   camToTarget.getRotation().toRotation2d().minus(Rotation2d.fromDegrees(0)));
 
+              // TODO: check proper camera pose calculation
               var cameraPose = robotPose.transformBy(
-                  new Transform2d(VisionConstants.kCameraToRobot.getTranslation().toTranslation2d(), new Rotation2d())
-                      .inverse());
+                  new Transform2d(VisionConstants.kRobotToCamera.getTranslation().toTranslation2d(), new Rotation2d()));
               Pose2d targetPose = cameraPose.transformBy(transform);
 
               goalPose = targetPose.transformBy(new Transform2d(new Translation2d(1, offset),

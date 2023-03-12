@@ -1,7 +1,6 @@
 package frc.util;
 
 import java.io.IOException;
-import java.lang.StackWalker.Option;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -16,9 +15,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -27,14 +24,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Swerve;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drivetrain;
 
 public class PoseEstimation extends SubsystemBase {
-  private final PhotonCamera m_camera;
+  private final PhotonCamera m_camera = new PhotonCamera(VisionConstants.kCameraName);
   private final Drivetrain m_drivetrain;
   private final AprilTagFieldLayout aprilTagFieldLayout;
 
@@ -67,9 +64,9 @@ public class PoseEstimation extends SubsystemBase {
 
   private double previousPipelineTimestamp = 0;
 
-  public PoseEstimation(PhotonCamera camera, Drivetrain drivetrain) {
-    this.m_camera = camera;
-    this.m_drivetrain = drivetrain;
+  public PoseEstimation(RobotContainer robot) {
+    this.m_drivetrain = robot.m_drivetrain;
+
     AprilTagFieldLayout layout;
 
     try {
@@ -89,7 +86,8 @@ public class PoseEstimation extends SubsystemBase {
     m_poseEstimator = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, m_drivetrain.getYaw(),
         m_drivetrain.getModulePositionsInverted(), new Pose2d(), stateStdDevs, visionMeasurementStdDevs);
 
-    m_photonPoseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP, camera, VisionConstants.kCameraToRobot.inverse());
+    m_photonPoseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.AVERAGE_BEST_TARGETS, m_camera,
+        VisionConstants.kRobotToCamera);
     m_photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
     tab.addString("Pose", this::getFormattedPose).withPosition(0, 0).withSize(2, 0);
@@ -102,28 +100,33 @@ public class PoseEstimation extends SubsystemBase {
     // var result = m_camera.getLatestResult();
     // var resultTimestamp = result.getTimestampSeconds();
     // if (resultTimestamp != previousPipelineTimestamp && result.hasTargets()) {
-    //   previousPipelineTimestamp = resultTimestamp;
-    //   var target = result.getBestTarget();
-    //   var fiducialId = target.getFiducialId();
+    // previousPipelineTimestamp = resultTimestamp;
+    // var target = result.getBestTarget();
+    // var fiducialId = target.getFiducialId();
 
-    //   // get tab pose from field layout
-    //   Optional<Pose3d> tagPose = aprilTagFieldLayout == null ? Optional.empty()
-    //       : aprilTagFieldLayout.getTagPose(fiducialId);
-    //   if (target.getPoseAmbiguity() <= .2 && fiducialId >= 0 && tagPose.isPresent()) {
-    //     var targetPose = tagPose.get();
-    //     SmartDashboard.putNumber("tag id", fiducialId);
-    //     SmartDashboard.putString("tag pose", "x: " + aprilTagFieldLayout.getTagPose(fiducialId).get().getX() + " y: " + aprilTagFieldLayout.getTagPose(fiducialId).get().getY());
-    //     Transform3d camToTarget = target.getBestCameraToTarget();
-    //     // TODO: check inverse
-    //     Pose3d camPose = targetPose.transformBy(camToTarget.inverse());
+    // // get tab pose from field layout
+    // Optional<Pose3d> tagPose = aprilTagFieldLayout == null ? Optional.empty()
+    // : aprilTagFieldLayout.getTagPose(fiducialId);
+    // if (target.getPoseAmbiguity() <= .2 && fiducialId >= 0 &&
+    // tagPose.isPresent()) {
+    // var targetPose = tagPose.get();
+    // SmartDashboard.putNumber("tag id", fiducialId);
+    // SmartDashboard.putString("tag pose", "x: " +
+    // aprilTagFieldLayout.getTagPose(fiducialId).get().getX() + " y: " +
+    // aprilTagFieldLayout.getTagPose(fiducialId).get().getY());
+    // Transform3d camToTarget = target.getBestCameraToTarget();
+    // // TODO: check inverse
+    // Pose3d camPose = targetPose.transformBy(camToTarget.inverse());
 
-    //     var visionMeasurement = camPose.transformBy(VisionConstants.kCameraToRobot);
+    // var visionMeasurement = camPose.transformBy(VisionConstants.kCameraToRobot);
 
-    //     m_poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(), resultTimestamp);
-    //   }
+    // m_poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(),
+    // resultTimestamp);
+    // }
     // }
 
-    // m_poseEstimator.update(m_drivetrain.getYaw(), m_drivetrain.getModulePositionsInverted());
+    // m_poseEstimator.update(m_drivetrain.getYaw(),
+    // m_drivetrain.getModulePositionsInverted());
 
     // field2d.setRobotPose(getCurrentPose());
 
