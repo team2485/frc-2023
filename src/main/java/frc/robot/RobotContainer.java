@@ -14,6 +14,7 @@ import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.GamePieceStateMachine;
+import frc.robot.subsystems.PoseEstimation;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
@@ -27,13 +28,14 @@ import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
-import frc.robot.subsystems.Vision.m_visionStates;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.util.PoseEstimation;
 import io.github.oblarg.oblog.annotations.Log;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -70,10 +72,8 @@ public class RobotContainer {
 
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
-  // public final PoseEstimation m_poseEstimator = new PoseEstimation(this);
-  // // public final Vision m_vision = new Vision(this);
-  // public final AlignToTag m_alignToTag = new AlignToTag(m_camera, m_drivetrain,
-  // m_poseEstimator::getCurrentPose);
+  public final Vision m_vision = new Vision();
+  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain.getYaw(), m_drivetrain.getModulePositions());
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -84,6 +84,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_poseEstimator.addDashboardWidgets(Shuffleboard.getTab("Field"));
     // Configure the trigger bindings
     configureBindings();
     m_drivetrain.zeroGyro();
@@ -242,5 +243,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return m_autoChooser.getSelected();
+  }
+
+  public void onAllianceChanged(Alliance alliance) {
+    m_poseEstimator.setAlliance(alliance);
   }
 }

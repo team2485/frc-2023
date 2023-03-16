@@ -59,7 +59,7 @@ public class Magazine extends SubsystemBase implements Loggable {
   }
 
   public Magazine() {
-    m_magazineState = m_magazineStates.StateWait;
+    m_magazineState = m_magazineStates.StateFault;
 
     TalonFXConfiguration magazineTalonConfig = new TalonFXConfiguration();
     magazineTalonConfig.voltageCompSaturation = Constants.kNominalVoltage;

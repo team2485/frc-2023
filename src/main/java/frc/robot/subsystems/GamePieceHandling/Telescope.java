@@ -80,7 +80,7 @@ public class Telescope extends SubsystemBase implements Loggable {
     if (RobotState.isAutonomous()) {
       m_telescopeState = m_telescopeStates.StateAutoWait;
     } else {
-      m_telescopeState = m_telescopeStates.StateWait;
+      m_telescopeState = m_telescopeStates.StateFault;
     }
     // m_telescopeState = m_telescopeStates.StateFault;
 

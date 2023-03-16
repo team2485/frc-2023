@@ -55,7 +55,7 @@ public class IntakeArm extends SubsystemBase implements Loggable {
   public static m_intakeArmStates m_intakeArmState;
 
   public IntakeArm() {
-    m_intakeArmState = m_intakeArmStates.StateWait;
+    m_intakeArmState = m_intakeArmStates.StateFault;
     TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     talonConfig.voltageCompSaturation = Constants.kNominalVoltage;
     talonConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(

@@ -51,10 +51,11 @@ public class AlignToTag extends CommandBase {
   int[] redOmittedTags = new int[] {5, 6, 7, 8};
   int[] blueOmittedTags = new int[] {1, 2, 3, 4};
 
-  public AlignToTag(PhotonCamera camera, Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
-    this.m_camera = camera;
+  public AlignToTag(Drivetrain drivetrain, Supplier<Pose2d> poseProvider) {
     this.m_drivetrain = drivetrain;
     this.m_poseProvider = poseProvider;
+
+    m_camera = new PhotonCamera(VisionConstants.kCameraName);
 
     m_XController.setTolerance(.1);
     m_YController.setTolerance(.1);

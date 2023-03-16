@@ -7,17 +7,12 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.GamePieceHandling.Elevator;
-import frc.robot.subsystems.GamePieceHandling.Telescope;
-import frc.robot.subsystems.GamePieceHandling.Wrist;
-import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
-import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
-import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.CTREConfigs;
 import io.github.oblarg.oblog.Logger;
 
@@ -33,6 +28,8 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private final PowerDistribution m_powerDistributionHub = new PowerDistribution();
   public static CTREConfigs ctreConfigs; 
+
+  private Alliance alliance = Alliance.Invalid;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -59,6 +56,8 @@ public class Robot extends TimedRobot {
     ctreConfigs = new CTREConfigs();
     m_powerDistributionHub.setSwitchableChannel(true);
     Logger.configureLoggingAndConfig(m_robotContainer, false);
+
+    checkDriverStationUpdate();
   }
 
   /**
@@ -77,6 +76,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     Logger.updateEntries();
     NetworkTableInstance.getDefault().flush();
+
+    checkDriverStationUpdate();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -91,14 +92,14 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-  
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    checkDriverStationUpdate();
   }
 
   /** This function is called periodically during autonomous. */
@@ -114,6 +115,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    checkDriverStationUpdate();
   }
 
   /** This function is called periodically during operator control. */
@@ -137,4 +140,13 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  private void checkDriverStationUpdate() {
+    Alliance currentAlliance = DriverStation.getAlliance();
+
+    if (DriverStation.isDSAttached() && currentAlliance != alliance) {
+      m_robotContainer.onAllianceChanged(currentAlliance);
+      alliance = currentAlliance;
+    }
+  }
 }

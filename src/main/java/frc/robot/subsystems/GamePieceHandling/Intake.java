@@ -60,7 +60,7 @@ public class Intake extends SubsystemBase {
     m_spark.setInverted(true);
     // maybe add current limiting questionmark
 
-    m_intakeState = m_intakeStates.StateWait;
+    m_intakeState = m_intakeStates.StateFault;
 
     m_spark.setSmartCurrentLimit(kIntakeSmartCurrentLimitAmps);
     m_spark.setSecondaryCurrentLimit(kIntakeImmediateCurrentLimitAmps);

@@ -82,7 +82,7 @@ public class Elevator extends SubsystemBase implements Loggable {
     if (RobotState.isAutonomous()) {
       m_elevatorState = m_elevatorStates.StateAutoWait;
     } else {
-      m_elevatorState = m_elevatorStates.StateStart;
+      m_elevatorState = m_elevatorStates.StateFault;
     }
 
     // m_elevatorState = m_elevatorStates.StateFault;

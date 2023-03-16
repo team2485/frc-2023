@@ -67,7 +67,7 @@ public class Gripper extends SubsystemBase implements Loggable {
     if (RobotState.isAutonomous()) {
       m_gripperState = m_gripperStates.StateAutoWait;
     } else {
-      m_gripperState = m_gripperStates.StateOpening;
+      m_gripperState = m_gripperStates.StateFault;
     }
 
     m_spark.setSmartCurrentLimit(kGripperCurrentLimit);

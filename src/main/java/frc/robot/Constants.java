@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -451,6 +452,14 @@ public final class Constants {
     // TODO: ensure validity of measurements
     public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(.2225, .2065, .4635),
         new Rotation3d());
+
+    public static final double kFieldLengthMeters = 16.54175;
+    public static final double kFieldWidthMeters = 8.0137;
+
+    public static final Pose2d kFlippingPose = new Pose2d(
+      new Translation2d(kFieldLengthMeters, kFieldWidthMeters),
+      new Rotation2d(Math.PI)
+    );
 
     // public static final int kTagOfInterest = 1;
     // public static final Transform2d kTagToGoal = new Transform2d(new
