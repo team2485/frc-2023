@@ -8,6 +8,7 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AlignToPole;
 import frc.robot.commands.AutoBalance;
+import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
@@ -26,8 +27,14 @@ import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
+import frc.util.COTSFalconSwerveConstants.driveGearRatios;
 import io.github.oblarg.oblog.annotations.Log;
 
+import javax.management.InstanceNotFoundException;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -64,11 +71,12 @@ public class RobotContainer {
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
 
-  public final AlignToPole m_align = new AlignToPole(m_drivetrain);
-
   public final Vision m_vision = new Vision();
-  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain.getYaw(),
-      m_drivetrain.getModulePositions());
+  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain::getYaw,
+      m_drivetrain::getModulePositionsInverted);
+
+  public final DriveToPose m_poseAlign = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, new Pose2d(new Translation2d(2.3, 3.5), new Rotation2d(-180)), true);
+  public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -141,6 +149,8 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
     m_driver.y().whileTrue(m_align);
     m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
+
+    m_driver.a().onTrue(m_poseAlign);
   }
 
   private void configureGamePieceCommands() {

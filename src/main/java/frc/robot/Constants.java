@@ -457,23 +457,23 @@ public final class Constants {
 
     // TODO: tune!
     public static final TrapezoidProfile.Constraints kDefaultXYContraints = new TrapezoidProfile.Constraints(
-        Swerve.maxSpeed * 0.9,
+        Swerve.maxSpeed * 0.3,
         Swerve.maxAngularVelocity);
 
     public static final TrapezoidProfile.Constraints kDefaultOmegaConstraints = new TrapezoidProfile.Constraints(
-        Swerve.maxAngularVelocity * 0.8,
+        Swerve.maxAngularVelocity * 0.2,
         Swerve.maxAngularVelocity);
 
     // TODO: tune!
-    public static final double X_kP = 5.0;
+    public static final double X_kP = 1.0;
     public static final double X_kI = 0.0;
     public static final double X_kD = 0.0;
 
-    public static final double Y_kP = 5.0;
+    public static final double Y_kP = 1.0;
     public static final double Y_kI = 0.0;
     public static final double Y_kD = 0.0;
 
-    public static final double THETA_kP = 6.0;
+    public static final double THETA_kP = 1.5;
     public static final double THETA_kI = 0.02;
     public static final double THETA_kD = 0.0;
 

@@ -93,7 +93,7 @@ public class DriveToPose extends CommandBase {
       omegaSpeed = 0;
     }
 
-    m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), -omegaSpeed, true, true);
+    m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), omegaSpeed, true, true);
   }
 
   @Override

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -20,8 +22,8 @@ public class PoseEstimation extends SubsystemBase {
   private static final Vector<N3> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
   private static final Vector<N3> visionMeasurementStdDevs = VecBuilder.fill(1.5, 1.5, 1.5);
 
-  private final Rotation2d rotation;
-  private final SwerveModulePosition[] modulePosition;
+  private final Supplier<Rotation2d> rotation;
+  private final Supplier<SwerveModulePosition[]> modulePosition;
   private final SwerveDrivePoseEstimator poseEstimator;
   private final Field2d field2d = new Field2d();
   private final Vision photonEstimator = new Vision();
@@ -30,14 +32,14 @@ public class PoseEstimation extends SubsystemBase {
   private OriginPosition originPosition = OriginPosition.kBlueAllianceWallRightSide;
   private boolean sawTag = false;
 
-  public PoseEstimation(Rotation2d rotation, SwerveModulePosition[] modulePosition) {
+  public PoseEstimation(Supplier<Rotation2d> rotation, Supplier<SwerveModulePosition[]> modulePosition) {
     this.rotation = rotation;
     this.modulePosition = modulePosition;
 
     poseEstimator = new SwerveDrivePoseEstimator(
         Swerve.swerveKinematics,
-        rotation,
-        modulePosition,
+        rotation.get(),
+        modulePosition.get(),
         new Pose2d(), stateStdDevs, visionMeasurementStdDevs);
 
     photonNotifier.setName("PhotonRunnable");
@@ -69,13 +71,13 @@ public class PoseEstimation extends SubsystemBase {
 
     if (allianceChanged && sawTag) {
       var newPose = flipAlliance(getCurrentPose());
-      poseEstimator.resetPosition(rotation, modulePosition, newPose);
+      poseEstimator.resetPosition(rotation.get(), modulePosition.get(), newPose);
     }
   }
 
   @Override
   public void periodic() {
-    poseEstimator.update(rotation, modulePosition);
+    poseEstimator.update(rotation.get(), modulePosition.get());
 
     var visionPose = photonEstimator.grabLatestEstimatedPose();
     if (visionPose != null) {
@@ -106,7 +108,7 @@ public class PoseEstimation extends SubsystemBase {
   }
 
   public void setCurrentPose(Pose2d newPose) {
-    poseEstimator.resetPosition(rotation, modulePosition, newPose);
+    poseEstimator.resetPosition(rotation.get(), modulePosition.get(), newPose);
   }
 
   public void resetFieldPosition() {
