@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import frc.WarlordsLib.sendableRichness.SR_TrapezoidProfile;
 import frc.util.COTSFalconSwerveConstants;
 import frc.util.SwerveModuleConstants;
@@ -445,9 +446,36 @@ public final class Constants {
   public static final class VisionConstants {
     public static final String kCameraName = "photonvision";
 
+    // old constraints (might want to use again)
+
     public static final TrapezoidProfile.Constraints kXConstraints = new TrapezoidProfile.Constraints(1, 2);
     public static final TrapezoidProfile.Constraints kYConstraints = new TrapezoidProfile.Constraints(.5, 2);
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(3, 8);
+
+    public static final double kTranslationTolerance = 0.02;
+    public static final double kThetaTolerance = Units.degreesToRadians(2.0);
+
+    // TODO: tune!
+    public static final TrapezoidProfile.Constraints kDefaultXYContraints = new TrapezoidProfile.Constraints(
+        Swerve.maxSpeed * 0.9,
+        Swerve.maxAngularVelocity);
+
+    public static final TrapezoidProfile.Constraints kDefaultOmegaConstraints = new TrapezoidProfile.Constraints(
+        Swerve.maxAngularVelocity * 0.8,
+        Swerve.maxAngularVelocity);
+
+    // TODO: tune!
+    public static final double X_kP = 5.0;
+    public static final double X_kI = 0.0;
+    public static final double X_kD = 0.0;
+
+    public static final double Y_kP = 5.0;
+    public static final double Y_kI = 0.0;
+    public static final double Y_kD = 0.0;
+
+    public static final double THETA_kP = 6.0;
+    public static final double THETA_kI = 0.02;
+    public static final double THETA_kD = 0.0;
 
     // TODO: ensure validity of measurements
     public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(.2225, .2065, .4635),
@@ -457,9 +485,8 @@ public final class Constants {
     public static final double kFieldWidthMeters = 8.0137;
 
     public static final Pose2d kFlippingPose = new Pose2d(
-      new Translation2d(kFieldLengthMeters, kFieldWidthMeters),
-      new Rotation2d(Math.PI)
-    );
+        new Translation2d(kFieldLengthMeters, kFieldWidthMeters),
+        new Rotation2d(Math.PI));
 
     // public static final int kTagOfInterest = 1;
     // public static final Transform2d kTagToGoal = new Transform2d(new

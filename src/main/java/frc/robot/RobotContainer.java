@@ -6,9 +6,7 @@ package frc.robot;
 
 import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AlignToPole;
-import frc.robot.commands.AlignToTag;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
@@ -25,14 +23,10 @@ import frc.robot.subsystems.GamePieceHandling.Magazine;
 import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
-import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
-
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -73,7 +67,8 @@ public class RobotContainer {
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
   public final Vision m_vision = new Vision();
-  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain.getYaw(), m_drivetrain.getModulePositions());
+  public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain.getYaw(),
+      m_drivetrain.getModulePositions());
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
 
@@ -146,8 +141,6 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
     m_driver.y().whileTrue(m_align);
     m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
-
-    // hypothetical state machine formatting (delete later)\][]
   }
 
   private void configureGamePieceCommands() {
@@ -185,19 +178,11 @@ public class RobotContainer {
               return IntakeArm.m_intakeArmState == m_intakeArmStates.StateDeployAndLock;
             }));
 
-    // m_driver.leftTrigger().onTrue(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOn)))
-    //     .onFalse(new InstantCommand(() -> m_intake.requestState(m_intakeStates.StateOff)));
-
     m_driver.leftTrigger()
-      .whileTrue(GamePieceHandlingCommands.deployMagIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
-    m_elevator, m_wrist, m_gripper))
-      .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
-    m_elevator, m_wrist));
-
-    // m_driver.y().whileTrue(new InstantCommand(() ->
-    // m_intake.requestState(Intake.m_intakeStates.StateOut)))
-    // .onFalse(new InstantCommand(() ->
-    // m_intake.requestState(m_intakeStates.StateOff)));
+        .whileTrue(GamePieceHandlingCommands.deployMagIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
+            m_elevator, m_wrist, m_gripper))
+        .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
+            m_elevator, m_wrist));
 
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)));
@@ -225,19 +210,6 @@ public class RobotContainer {
   }
 
   private void configureVisionCommands() {
-    // TODO: update bindings for vision offsets
-
-    // m_driver.a().toggleOnTrue(m_alignToTag);
-
-    // m_driver.a().toggleOnTrue(new InstantCommand(() ->
-    // m_vision.requestState(m_visionStates.StateAlign)));
-    // m_driver.a().toggleOnFalse(new InstantCommand(() ->
-    // m_vision.requestState(m_visionStates.StateIdle)));
-
-    // m_driver.leftPOV().onTrue(new InstantCommand(() ->
-    // m_alignToTag.addOffset(-Vision.kOffsetToNextScoringStation)));
-    // m_driver.rightPOV().onTrue(new InstantCommand(() ->
-    // m_alignToTag.addOffset(Vision.kOffsetToNextScoringStation)));
   }
 
   public Command getAutonomousCommand() {
