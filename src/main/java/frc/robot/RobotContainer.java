@@ -75,7 +75,8 @@ public class RobotContainer {
   public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain::getYaw,
       m_drivetrain::getModulePositionsInverted);
 
-  public final DriveToPose m_poseAlign = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, new Pose2d(new Translation2d(2.3, 3.5), new Rotation2d(-180)), true);
+  public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, new Pose2d(new Translation2d(1.8, 2.98), new Rotation2d(180)), true);
+  public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, new Pose2d(new Translation2d(1.8, 4.215), new Rotation2d(180)), true);
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
   public GamePieceStateMachine m_stateMachine = new GamePieceStateMachine();
@@ -150,7 +151,8 @@ public class RobotContainer {
     m_driver.y().whileTrue(m_align);
     m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
 
-    m_driver.a().onTrue(m_poseAlign);
+    m_driver.leftPOV().whileTrue(m_poseAlignLeft);
+    m_driver.rightPOV().whileTrue(m_poseAlignRight);
   }
 
   private void configureGamePieceCommands() {

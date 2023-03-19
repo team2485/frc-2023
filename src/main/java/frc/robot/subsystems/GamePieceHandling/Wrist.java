@@ -84,7 +84,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     if(RobotState.isAutonomous()){
       m_wristState = m_wristStates.StateAutoWait;
     }else{
-      m_wristState = m_wristStates.StateFault;
+      m_wristState = m_wristStates.StateIdle;
     }
 
     // m_wristState = m_wristStates.StateFault;

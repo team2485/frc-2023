@@ -28,7 +28,8 @@ public class Vision implements Runnable {
             layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
 
             if (m_camera != null) {
-                photonPoseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP, m_camera, VisionConstants.kRobotToCamera);
+                photonPoseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP, m_camera,
+                        VisionConstants.kRobotToCamera);
             }
         } catch (IOException e) {
             DriverStation.reportError("Failed to load AprilTagFieldLayout", e.getStackTrace());
@@ -43,13 +44,14 @@ public class Vision implements Runnable {
         if (m_photonPoseEstimator != null && m_camera != null && !RobotState.isAutonomous()) {
             var photonResults = m_camera.getLatestResult();
 
-            if (photonResults.hasTargets() 
-                && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < 0.2)) {
+            if (photonResults.hasTargets()
+                    && (photonResults.targets.size() > 1 || photonResults.targets.get(0).getPoseAmbiguity() < 0.2)) {
                 m_photonPoseEstimator.update(photonResults).ifPresent(estimatedRobotPose -> {
                     var estimatedPose = estimatedRobotPose.estimatedPose;
 
                     if (estimatedPose.getX() > 0.0 && estimatedPose.getX() <= VisionConstants.kFieldLengthMeters
-                        && estimatedPose.getY() > 0.0 && estimatedPose.getY() <= VisionConstants.kFieldWidthMeters) {
+                            && estimatedPose.getY() > 0.0
+                            && estimatedPose.getY() <= VisionConstants.kFieldWidthMeters) {
                         m_atomicEstimatedRobotPose.set(estimatedRobotPose);
                     }
                 });

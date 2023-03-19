@@ -465,17 +465,17 @@ public final class Constants {
         Swerve.maxAngularVelocity);
 
     // TODO: tune!
-    public static final double X_kP = 1.0;
-    public static final double X_kI = 0.0;
+    public static final double X_kP = 1.25;
+    public static final double X_kI = 0.3;
     public static final double X_kD = 0.0;
 
-    public static final double Y_kP = 1.0;
-    public static final double Y_kI = 0.0;
-    public static final double Y_kD = 0.0;
+    public static final double Y_kP = 1.25;
+    public static final double Y_kI = 0.3;
+    public static final double Y_kD = 0.0;  
 
-    public static final double THETA_kP = 1.5;
-    public static final double THETA_kI = 0.02;
-    public static final double THETA_kD = 0.0;
+    public static final double THETA_kP = 0.2;
+    public static final double THETA_kI = 0.1;
+    public static final double THETA_kD = 0.25;
 
     // TODO: ensure validity of measurements
     public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(.2225, .2065, .4635),

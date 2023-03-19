@@ -100,7 +100,7 @@ public class PoseEstimation extends SubsystemBase {
 
   private String getFormattedPose() {
     var pose = getCurrentPose();
-    return String.format("(%.3f, %.3f) %.2f degrees", pose.getX(), pose.getY(), pose.getRotation().getDegrees());
+    return String.format("(%.3f, %.3f) %.2f degrees", pose.getX(), pose.getY(), pose.getRotation().getRadians());
   }
 
   public Pose2d getCurrentPose() {

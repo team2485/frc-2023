@@ -21,6 +21,7 @@ public class DriveToPose extends CommandBase {
   private final Supplier<Pose2d> m_poseProvider;
   private final Pose2d goalPose;
   private final boolean useAllianceColor;
+  private int negateOmega;
 
   public DriveToPose(
       Drivetrain drivetrain,
@@ -42,10 +43,11 @@ public class DriveToPose extends CommandBase {
     this.m_poseProvider = poseProvider;
     this.goalPose = goalPose;
     this.useAllianceColor = useAllianceColor;
+    negateOmega = 1;
 
-    m_xController = new ProfiledPIDController(VisionConstants.X_kD, VisionConstants.X_kI, VisionConstants.X_kP,
+    m_xController = new ProfiledPIDController(VisionConstants.X_kP, VisionConstants.X_kI, VisionConstants.X_kD,
         xyConstraints);
-    m_yController = new ProfiledPIDController(VisionConstants.Y_kD, VisionConstants.Y_kI, VisionConstants.Y_kP,
+    m_yController = new ProfiledPIDController(VisionConstants.Y_kP, VisionConstants.Y_kI, VisionConstants.Y_kD,
         xyConstraints);
     m_xController.setTolerance(VisionConstants.kTranslationTolerance);
     m_yController.setTolerance(VisionConstants.kTranslationTolerance);
@@ -64,14 +66,14 @@ public class DriveToPose extends CommandBase {
 
     if (useAllianceColor && DriverStation.getAlliance() == DriverStation.Alliance.Red) {
       Translation2d transformedTranslation = new Translation2d(pose.getX(),
-          VisionConstants.kFieldWidthMeters - pose.getY());
-      Rotation2d transformedHeading = pose.getRotation().times(-1);
+        pose.getY());
+      Rotation2d transformedHeading = pose.getRotation();
       pose = new Pose2d(transformedTranslation, transformedHeading);
     }
 
-    m_thetaController.setGoal(pose.getRotation().getRadians());
+    m_thetaController.setGoal(Math.abs(pose.getRotation().getRadians()));
     m_xController.setGoal(pose.getX());
-    m_yController.reset(pose.getY());
+    m_yController.setGoal(pose.getY());
   }
 
   @Override
@@ -88,12 +90,19 @@ public class DriveToPose extends CommandBase {
       ySpeed = 0;
     }
 
-    var omegaSpeed = m_thetaController.calculate(robotPose.getRotation().getRadians());
+    var omegaSpeed = m_thetaController.calculate(Math.abs(robotPose.getRotation().getRadians()));
+
+    if(robotPose.getRotation().getRadians()<0){
+        negateOmega = 1;
+    }else{
+        negateOmega = -1;
+    }
+    
     if (m_thetaController.atGoal()) {
       omegaSpeed = 0;
     }
 
-    m_drivetrain.drive(new Translation2d(xSpeed, ySpeed), omegaSpeed, true, true);
+    m_drivetrain.drive(new Translation2d(-xSpeed, -ySpeed), -omegaSpeed, true, true);
   }
 
   @Override
@@ -103,7 +112,7 @@ public class DriveToPose extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.drive(new Translation2d(), 0, false, false);
+    m_drivetrain.drive(new Translation2d(0,0), 0, false, false);
   }
 
   public boolean atGoal() {
