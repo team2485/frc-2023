@@ -8,13 +8,11 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AlignToPole;
 import frc.robot.commands.AutoBalance;
-import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
 import frc.robot.subsystems.GamePieceStateMachine;
 import frc.robot.subsystems.PoseEstimation;
-import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
 import frc.robot.subsystems.GamePieceHandling.Intake;
@@ -27,14 +25,8 @@ import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
-import frc.util.COTSFalconSwerveConstants.driveGearRatios;
 import io.github.oblarg.oblog.annotations.Log;
 
-import javax.management.InstanceNotFoundException;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -71,13 +63,18 @@ public class RobotContainer {
   public final Magazine m_magazine = new Magazine();
   public final IntakeServo m_servo = new IntakeServo();
 
-  public final Vision m_vision = new Vision();
   public final PoseEstimation m_poseEstimator = new PoseEstimation(m_drivetrain::getYaw,
       m_drivetrain::getModulePositionsInverted);
 
-  public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true);
-  public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true);
-  public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true);
+  public final AutoCommandBuilder autoBuilder = new AutoCommandBuilder(m_drivetrain, m_poseEstimator);
+
+  public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true);
+  public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true);
+  public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true);
+
+  // public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true);
+  // public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true);
+  // public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true);
   
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
@@ -105,7 +102,7 @@ public class RobotContainer {
         AutoCommandBuilder.onePieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
     m_autoChooser.addOption("2PieceRed",
-        AutoCommandBuilder.twoPieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+        autoBuilder.twoPieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
     m_autoChooser.addOption("1PieceRed",
         AutoCommandBuilder.onePieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));

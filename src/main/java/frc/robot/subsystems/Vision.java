@@ -41,7 +41,7 @@ public class Vision implements Runnable {
 
     @Override
     public void run() {
-        if (m_photonPoseEstimator != null && m_camera != null && !RobotState.isAutonomous()) {
+        if (m_photonPoseEstimator != null && m_camera != null) {
             var photonResults = m_camera.getLatestResult();
 
             if (photonResults.hasTargets()

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.WarlordsLib.motorcontrol.base.WPI_SparkMax;
 import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
@@ -232,7 +233,7 @@ public class Gripper extends SubsystemBase implements Loggable {
           m_spark.set(0);
         }
         if (stateTimer2 == 0) {
-          Elevator.requestState(m_elevatorStates.StateAutoInit);
+          Telescope.requestState(m_telescopeStates.StateInBetween);
           stateTimer2--;
         } else {
           stateTimer2--;

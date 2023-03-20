@@ -68,6 +68,7 @@ public class Telescope extends SubsystemBase implements Loggable {
     StateOutCone,
     StateIdle,
     StateAutoWait,
+    StateInBetween,
     StateAutoInit,
     StateAutoIn
   }
@@ -248,10 +249,24 @@ public class Telescope extends SubsystemBase implements Loggable {
           firstTime = true;
         m_requestedState = null;
         break;
-
       case StateAutoWait:
         if (m_requestedState != null)
           m_telescopeState = m_requestedState;
+          stateTimer = 15;
+        m_requestedState = null;
+        break;
+      case StateInBetween:
+        this.setPositionSetpointMeters(0.3);
+        if(stateTimer==0){
+          Elevator.requestState(m_elevatorStates.StateAutoInit);
+          stateTimer--;
+        }else{
+          stateTimer--;
+        }
+        this.runControlLoop();
+        if (m_requestedState != null)
+          m_telescopeState = m_requestedState;
+          firstTime = true;
         m_requestedState = null;
         break;
       case StateAutoInit:

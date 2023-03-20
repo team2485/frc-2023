@@ -290,7 +290,7 @@ public class Elevator extends SubsystemBase implements Loggable {
 
         if (m_requestedState != null){
           m_elevatorState = m_requestedState;
-          stateTimer = 50;
+          stateTimer = 10;
         }
         m_requestedState = null;
         break;

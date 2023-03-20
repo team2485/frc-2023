@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import static frc.robot.Constants.VisionConstants.*;
 import frc.robot.subsystems.drive.Drivetrain;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
 public class DriveToPose extends CommandBase {
   private final ProfiledPIDController m_xController;
@@ -58,11 +56,7 @@ public class DriveToPose extends CommandBase {
     this.useAllianceColor = useAllianceColor;
     this.middle = middle;
     
-    if(RobotState.isAutonomous()){
-      invertForAuto = -1;
-    }else{
-      invertForAuto = 1;
-    }
+  
 
     negateOmega = 1;
     invertForAuto = 1;
@@ -116,7 +110,11 @@ public class DriveToPose extends CommandBase {
 
   @Override
   public void execute() {
-    System.out.println(invertForAuto);
+    if(RobotState.isAutonomous()){
+      invertForAuto = -1;
+    }else{
+      invertForAuto = 1;
+    }
     var robotPose = m_poseProvider.get();
 
     var xSpeed = m_xController.calculate(robotPose.getX());
