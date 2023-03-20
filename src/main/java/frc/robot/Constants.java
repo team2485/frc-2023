@@ -453,7 +453,7 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kOmegaConstraints = new TrapezoidProfile.Constraints(3, 8);
 
     public static final double kTranslationTolerance = 0.02;
-    public static final double kThetaTolerance = Units.degreesToRadians(2.0);
+    public static final double kThetaTolerance = Units.degreesToRadians(0);
 
     // TODO: tune!
     public static final TrapezoidProfile.Constraints kDefaultXYContraints = new TrapezoidProfile.Constraints(
@@ -473,9 +473,9 @@ public final class Constants {
     public static final double Y_kI = 0.3;
     public static final double Y_kD = 0.0;  
 
-    public static final double THETA_kP = 0.2;
-    public static final double THETA_kI = 0.1;
-    public static final double THETA_kD = 0.25;
+    public static final double THETA_kP = 1.5;
+    public static final double THETA_kI = 0.5;
+    public static final double THETA_kD = 0.15;
 
     // TODO: ensure validity of measurements
     public static final Transform3d kRobotToCamera = new Transform3d(new Translation3d(.2225, .2065, .4635),
@@ -493,6 +493,12 @@ public final class Constants {
     // Translation2d(1, 0),
     // Rotation2d.fromDegrees(180.0));
 
-    public static final double kOffsetToNextScoringStation = 0.39158333333164;
+
+    public static final double kOffsetToNextScoringStation = 0.6;
+
+    public static final double kTopTagYPos = kFieldWidthMeters - 4.42;
+    public static final double kMiddleTagYPos = kFieldWidthMeters - 2.75;
+    public static final double kBottomTagYPos = kFieldWidthMeters - 1.07;
+
   }
 }

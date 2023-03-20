@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoBalance;
+import frc.robot.commands.DriveToPose;
+import frc.robot.subsystems.PoseEstimation;
 import frc.robot.subsystems.GamePieceHandling.Elevator;
 import frc.robot.subsystems.GamePieceHandling.Gripper;
 import frc.robot.subsystems.GamePieceHandling.Intake;
@@ -47,7 +49,7 @@ public class AutoCommandBuilder {
     WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
 
 
-    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
+    return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path),
         path.alongWith(new WaitCommand(3.5).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.75),
         new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
         new WaitCommand(0.5), path2.withTimeout(3.75));
@@ -68,11 +70,13 @@ public class AutoCommandBuilder {
     WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");
     WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Red2PiecePt2");
 
+    PoseEstimation m_poseEstimator = new PoseEstimation(drivetrain::getYaw, drivetrain::getModulePositionsInverted);
+    DriveToPose align = new DriveToPose(drivetrain, m_poseEstimator::getCurrentPose, false, false, true);
 
     return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3), getResetOdometryCommand(drivetrain, path), 
         path.alongWith(new WaitCommand(3.5).andThen(new InstantCommand(()->Gripper.requestState(m_gripperStates.StateAutoGrip)))).withTimeout(3.5),
         new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, true, true)),
-        new WaitCommand(0.5), path2.withTimeout(4));
+        new WaitCommand(0.5), path2.withTimeout(3), align.withTimeout(2), new InstantCommand(drivetrain::autoGyro));
         
     }
 

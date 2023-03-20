@@ -123,7 +123,7 @@ public class Wrist extends SubsystemBase implements Loggable {
   public static void requestState(m_wristStates state) {
     m_requestedState = state;
   }
-
+  
   @Log(name = "enabled")
   public boolean isEnabled(){
     return RobotState.isEnabled();

@@ -4,13 +4,15 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.VisionConstants;
+import static frc.robot.Constants.VisionConstants.*;
 import frc.robot.subsystems.drive.Drivetrain;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
 public class DriveToPose extends CommandBase {
   private final ProfiledPIDController m_xController;
@@ -19,65 +21,102 @@ public class DriveToPose extends CommandBase {
 
   private final Drivetrain m_drivetrain;
   private final Supplier<Pose2d> m_poseProvider;
-  private final Pose2d goalPose;
+  private boolean left;
+  private boolean middle;
   private final boolean useAllianceColor;
+
+  private int invertForAuto;
   private int negateOmega;
+  private double kDistanceFromTagToPole = kOffsetToNextScoringStation;
+  private double fieldHeight;
+  private double offset;
+  private double zero;
+  private double y;
+
 
   public DriveToPose(
       Drivetrain drivetrain,
       Supplier<Pose2d> poseProvider,
-      Pose2d goalPose,
+      boolean left,
+      boolean middle,
       boolean useAllianceColor) {
-    this(drivetrain, poseProvider, goalPose, VisionConstants.kDefaultXYContraints,
-        VisionConstants.kDefaultOmegaConstraints, useAllianceColor);
+    this(drivetrain, poseProvider, left, middle, kDefaultXYContraints,
+        kDefaultOmegaConstraints, useAllianceColor);
   }
 
   public DriveToPose(
       Drivetrain drivetrain,
       Supplier<Pose2d> poseProvider,
-      Pose2d goalPose,
+      boolean left,
+      boolean middle,
       TrapezoidProfile.Constraints xyConstraints,
       TrapezoidProfile.Constraints omegaConstraints,
       boolean useAllianceColor) {
     this.m_drivetrain = drivetrain;
     this.m_poseProvider = poseProvider;
-    this.goalPose = goalPose;
+    this.left = left;
     this.useAllianceColor = useAllianceColor;
-    negateOmega = 1;
+    this.middle = middle;
+    
+    if(RobotState.isAutonomous()){
+      invertForAuto = -1;
+    }else{
+      invertForAuto = 1;
+    }
 
-    m_xController = new ProfiledPIDController(VisionConstants.X_kP, VisionConstants.X_kI, VisionConstants.X_kD,
+    negateOmega = 1;
+    invertForAuto = 1;
+
+    m_xController = new ProfiledPIDController( X_kP,  X_kI,  X_kD,
         xyConstraints);
-    m_yController = new ProfiledPIDController(VisionConstants.Y_kP, VisionConstants.Y_kI, VisionConstants.Y_kD,
+    m_yController = new ProfiledPIDController( Y_kP,  Y_kI,  Y_kD,
         xyConstraints);
-    m_xController.setTolerance(VisionConstants.kTranslationTolerance);
-    m_yController.setTolerance(VisionConstants.kTranslationTolerance);
-    m_thetaController = new ProfiledPIDController(VisionConstants.THETA_kP, VisionConstants.THETA_kI,
-        VisionConstants.THETA_kD, omegaConstraints);
+    m_xController.setTolerance( kTranslationTolerance);
+    m_yController.setTolerance( kTranslationTolerance);
+    m_thetaController = new ProfiledPIDController( THETA_kP,  THETA_kI,
+         THETA_kD, omegaConstraints);
     m_thetaController.enableContinuousInput(-Math.PI, Math.PI);
-    m_thetaController.setTolerance(VisionConstants.kThetaTolerance);
+    m_thetaController.setTolerance( kThetaTolerance);
 
     addRequirements(drivetrain);
   }
 
   @Override
-  public void initialize() {
+  public void initialize(){
     resetPIDControllers();
-    var pose = goalPose;
+    var robotPose = m_poseProvider.get();
+    zero = middle ? 0:1;
+    offset = left?kDistanceFromTagToPole:-kDistanceFromTagToPole;
 
     if (useAllianceColor && DriverStation.getAlliance() == DriverStation.Alliance.Red) {
-      Translation2d transformedTranslation = new Translation2d(pose.getX(),
-        pose.getY());
-      Rotation2d transformedHeading = pose.getRotation();
-      pose = new Pose2d(transformedTranslation, transformedHeading);
+      //eliminate offset if we go for middle (cube section)
+      fieldHeight = 0;
+      if(robotPose.getY()<4.4){
+        y = kTopTagYPos + offset*zero;
+      }else if(robotPose.getY()>4.4 && robotPose.getY()<6.07){
+        y = kMiddleTagYPos + offset*zero;
+      }else{
+        y = kBottomTagYPos + offset*zero;
+      }
+    }else{
+      fieldHeight = kFieldWidthMeters;  
+      if(robotPose.getY()>fieldHeight - 4.4){
+        y = kTopTagYPos - offset*zero;
+      }else if(robotPose.getY()<fieldHeight - 4.4 && robotPose.getY()>fieldHeight - 6.07){
+        y = kMiddleTagYPos - offset*zero;
+      }else{
+        y = kBottomTagYPos - offset*zero;
+      }
     }
 
-    m_thetaController.setGoal(Math.abs(pose.getRotation().getRadians()));
-    m_xController.setGoal(pose.getX());
-    m_yController.setGoal(pose.getY());
+    m_thetaController.setGoal(Math.PI);
+    m_xController.setGoal(1.85);
+    m_yController.setGoal(Math.abs(fieldHeight-y));
   }
 
   @Override
   public void execute() {
+    System.out.println(invertForAuto);
     var robotPose = m_poseProvider.get();
 
     var xSpeed = m_xController.calculate(robotPose.getX());
@@ -102,7 +141,7 @@ public class DriveToPose extends CommandBase {
       omegaSpeed = 0;
     }
 
-    m_drivetrain.drive(new Translation2d(-xSpeed, -ySpeed), -omegaSpeed, true, true);
+    m_drivetrain.drive(new Translation2d(-xSpeed*invertForAuto, -ySpeed*invertForAuto), negateOmega*omegaSpeed, true, true);
   }
 
   @Override
@@ -112,7 +151,7 @@ public class DriveToPose extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    m_drivetrain.drive(new Translation2d(0,0), 0, false, false);
+    m_drivetrain.drive(new Translation2d(0,0), 0, true, true);
   }
 
   public boolean atGoal() {
