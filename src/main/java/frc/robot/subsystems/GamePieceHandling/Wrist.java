@@ -69,6 +69,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     StateMiddle,
     StateTop,
     StateHigh,
+    StateVeryTop,
     StateIdle,
     StateAutoWait,
     StateAutoInit,
@@ -238,6 +239,10 @@ public class Wrist extends SubsystemBase implements Loggable {
         this.setAngleRadians(2.5);
         m_wristState = m_wristStates.StateIdle;
         break;
+      case StateVeryTop:
+        this.setAngleRadians(Math.PI);
+        m_wristState = m_wristStates.StateIdle;
+        break;
       case StateIdle:
         this.runControlLoop();
         if (m_requestedState != null) m_wristState = m_requestedState;
@@ -268,7 +273,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         this.runControlLoop();
         if (m_requestedState != null){
           m_wristState = m_requestedState;
-         stateTimer = 150;
+         stateTimer = 200;
         }
          m_requestedState = null;
         break;

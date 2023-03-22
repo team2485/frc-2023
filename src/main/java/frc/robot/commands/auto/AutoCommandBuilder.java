@@ -2,6 +2,8 @@ package frc.robot.commands.auto;
 
 import static frc.robot.commands.auto.PathCommandBuilder.*;
 
+import javax.management.InstanceAlreadyExistsException;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,99 +27,107 @@ import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 
 public class AutoCommandBuilder {
-    private final Drivetrain m_drivetrain;
-    private final PoseEstimation m_poseEstimator;
+        private Drivetrain m_drivetrain;
+        private final PoseEstimation m_poseEstimator;
 
-    public AutoCommandBuilder(Drivetrain drivetrain, PoseEstimation poseEstimator) {
-        this.m_drivetrain = drivetrain;
-        this.m_poseEstimator = poseEstimator;
-    }
+        public AutoCommandBuilder(Drivetrain drivetrain, PoseEstimation poseEstimator) {
+                this.m_drivetrain = drivetrain;
+                this.m_poseEstimator = poseEstimator;
+        }
 
-    public static Command onePieceClimb(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
-            Telescope telescope, IntakeArm intakeArm) {
-        WL_SwerveControllerCommand path = getPathSlowCommand(drivetrain, "Middle1PieceClimb");
+        public static Command onePieceClimb(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+                        Telescope telescope, IntakeArm intakeArm) {
+                WL_SwerveControllerCommand path = getPathSlowCommand(drivetrain, "Middle1PieceClimb");
 
-        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                new InstantCommand(() -> intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)),
-                new WaitCommand(0.5),
-                getResetOdometryCommand(drivetrain, path),
-                path.withTimeout(2),
-                new AutoBalance(drivetrain));
-    }
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                                // new InstantCommand(() -> intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)),
+                                // new WaitCommand(0.5),
+                                getResetOdometryCommand(drivetrain, path),
+                                path.alongWith(new WaitCommand(1.5).andThen(new InstantCommand(()->Wrist.requestState(m_wristStates.StateVeryTop)))).withTimeout(4.5),
+                                new AutoBalance(drivetrain));
+        }
 
-    public static Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
-            Telescope telescope) {
+        public static Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+                        Telescope telescope) {
 
-        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
-        WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
+                WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
 
-        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                getResetOdometryCommand(drivetrain, path),
-                path.alongWith(new WaitCommand(3.5)
-                        .andThen(new InstantCommand(() -> Gripper.requestState(m_gripperStates.StateAutoGrip))))
-                        .withTimeout(3.75),
-                new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                new WaitCommand(0.5), path2.withTimeout(3.75));
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                                getResetOdometryCommand(drivetrain, path),
+                                path.alongWith(new WaitCommand(3.5)
+                                                .andThen(new InstantCommand(() -> Gripper
+                                                                .requestState(m_gripperStates.StateAutoGrip))))
+                                                .withTimeout(3.75),
+                                new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
+                                new WaitCommand(0.5), path2.withTimeout(3.75));
 
-    }
+        }
 
-    public static Command onePieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
-            Telescope telescope) {
-        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue1Piece");
+        public static Command onePieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+                        Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue1Piece");
 
-        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                getResetOdometryCommand(drivetrain, path),
-                path.withTimeout(4));
-    }
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                                getResetOdometryCommand(drivetrain, path),
+                                path.withTimeout(4));
+        }
 
-    public Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
-            Telescope telescope) {
+        public Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+                        Telescope telescope) {
 
-        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");
-        WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Red2PiecePt2");
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");
+                WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Red2PiecePt2");
 
-        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                getResetOdometryCommand(drivetrain, path),
-                path.alongWith(new WaitCommand(3.5)
-                        .andThen(new InstantCommand(() -> Gripper.requestState(m_gripperStates.StateAutoGrip))))
-                        .withTimeout(3.5),
-                new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                new WaitCommand(0.5), path2.withTimeout(3), driveToPose(false, false, true));
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                                getResetOdometryCommand(drivetrain, path),
+                                path.alongWith(new WaitCommand(3.5)
+                                                .andThen(new InstantCommand(() -> Gripper
+                                                                .requestState(m_gripperStates.StateAutoGrip))))
+                                                .withTimeout(3.5),
+                                new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
+                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(false, false, true, true));
 
-    }
+        }
 
-    public static Command onePieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
-            Telescope telescope) {
-        WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red1Piece");
+        public static Command onePieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+                        Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red1Piece");
 
-        return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                getResetOdometryCommand(drivetrain, path),
-                path.withTimeout(4));
-    }
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                                getResetOdometryCommand(drivetrain, path),
+                                path.withTimeout(4));
+        }
 
-    public Command driveToPose(boolean left, boolean middle, boolean useAllianceColor) {
-        return new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, left, middle, useAllianceColor);
-    }
+        public Command driveToPose(boolean left, boolean middle, boolean useAllianceColor, boolean inAuto) {
+                return new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, left, middle, useAllianceColor, inAuto);
+        }
 
-    public Command driveToPose(boolean left, boolean middle, TrapezoidProfile.Constraints xyConstraints,
-            TrapezoidProfile.Constraints omegConstraints, boolean useAllianceColor) {
-        return new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, left, middle, xyConstraints,
-                omegConstraints, useAllianceColor);
-    }
+        public Command driveToPose(boolean left, boolean middle, boolean inAuto, TrapezoidProfile.Constraints xyConstraints,
+                        TrapezoidProfile.Constraints omegConstraints, boolean useAllianceColor) {
+                return new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, left, middle, inAuto, xyConstraints,
+                                omegConstraints, useAllianceColor);
+        }
 
-    public static Command autoInit(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
-        return new InstantCommand(() -> Elevator.m_elevatorState = m_elevatorStates.StateAutoWait)
-                .andThen(new InstantCommand(() -> Telescope.m_telescopeState = m_telescopeStates.StateAutoWait),
-                        new InstantCommand(() -> Wrist.m_wristState = m_wristStates.StateAutoWait),
-                        new InstantCommand(() -> Gripper.m_gripperState = m_gripperStates.StateAutoWait),
-                        new InstantCommand(() -> Intake.m_intakeState = m_intakeStates.StateAutoInit));
-    }
+        public static Command autoInit(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                return new InstantCommand(() -> Elevator.m_elevatorState = m_elevatorStates.StateAutoWait)
+                                .andThen(new InstantCommand(
+                                                () -> Telescope.m_telescopeState = m_telescopeStates.StateAutoWait),
+                                                new InstantCommand(
+                                                                () -> Wrist.m_wristState = m_wristStates.StateAutoWait),
+                                                new InstantCommand(
+                                                                () -> Gripper.m_gripperState = m_gripperStates.StateAutoWait),
+                                                new InstantCommand(
+                                                                () -> Intake.m_intakeState = m_intakeStates.StateAutoInit));
+        }
 
-    public static Command test(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
-        return new InstantCommand(() -> Elevator.m_elevatorState = m_elevatorStates.StateFault)
-                .andThen(new InstantCommand(() -> Telescope.m_telescopeState = m_telescopeStates.StateFault),
-                        new InstantCommand(() -> Wrist.m_wristState = m_wristStates.StateFault),
-                        new InstantCommand(() -> Gripper.m_gripperState = m_gripperStates.StateFault));
-    }
+        public static Command test(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                return new InstantCommand(() -> Elevator.m_elevatorState = m_elevatorStates.StateFault)
+                                .andThen(new InstantCommand(
+                                                () -> Telescope.m_telescopeState = m_telescopeStates.StateFault),
+                                                new InstantCommand(() -> Wrist.m_wristState = m_wristStates.StateFault),
+                                                new InstantCommand(
+                                                                () -> Gripper.m_gripperState = m_gripperStates.StateFault));
+        }
 
 }

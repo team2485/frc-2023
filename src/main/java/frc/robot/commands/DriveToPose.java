@@ -21,6 +21,7 @@ public class DriveToPose extends CommandBase {
   private final Supplier<Pose2d> m_poseProvider;
   private boolean left;
   private boolean middle;
+  private boolean isAuto;
   private final boolean useAllianceColor;
 
   private int invertForAuto;
@@ -37,8 +38,9 @@ public class DriveToPose extends CommandBase {
       Supplier<Pose2d> poseProvider,
       boolean left,
       boolean middle,
-      boolean useAllianceColor) {
-    this(drivetrain, poseProvider, left, middle, kDefaultXYContraints,
+      boolean useAllianceColor,
+      boolean isAuto) {
+    this(drivetrain, poseProvider, left, middle, isAuto, kDefaultXYContraints,
         kDefaultOmegaConstraints, useAllianceColor);
   }
 
@@ -47,6 +49,7 @@ public class DriveToPose extends CommandBase {
       Supplier<Pose2d> poseProvider,
       boolean left,
       boolean middle,
+      boolean isAuto,
       TrapezoidProfile.Constraints xyConstraints,
       TrapezoidProfile.Constraints omegaConstraints,
       boolean useAllianceColor) {
@@ -55,7 +58,7 @@ public class DriveToPose extends CommandBase {
     this.left = left;
     this.useAllianceColor = useAllianceColor;
     this.middle = middle;
-    
+    this.isAuto = isAuto;
   
 
     negateOmega = 1;
@@ -104,7 +107,11 @@ public class DriveToPose extends CommandBase {
     }
 
     m_thetaController.setGoal(Math.PI);
-    m_xController.setGoal(1.85);
+    if(isAuto){
+      m_xController.setGoal(1.725);
+    }else{
+      m_xController.setGoal(1.8);
+    }
     m_yController.setGoal(Math.abs(fieldHeight-y));
   }
 

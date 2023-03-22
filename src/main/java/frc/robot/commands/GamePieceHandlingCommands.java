@@ -98,7 +98,7 @@ public class GamePieceHandlingCommands {
     ParallelCommandGroup group = new ParallelCommandGroup(
         new InstantCommand(() -> wrist.requestState(m_wristStates.StateMiddle)),
         new InstantCommand(() -> telescope.requestState(m_telescopeStates.StateMiddleCone)),
-        new InstantCommand(() -> elevator.requestState(m_elevatorStates.StateTopCone)));
+        new InstantCommand(() -> elevator.requestState(m_elevatorStates.StateSubstation)));
 
     return group;
   }

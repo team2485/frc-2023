@@ -68,9 +68,11 @@ public class RobotContainer {
 
   public final AutoCommandBuilder autoBuilder = new AutoCommandBuilder(m_drivetrain, m_poseEstimator);
 
-  public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true);
-  public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true);
-  public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true);
+  public final AutoBalance balance = new AutoBalance(m_drivetrain);
+
+  public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true, false);
+  public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true, false);
+  public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true, false);
 
   // public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true);
   // public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true);
@@ -147,8 +149,8 @@ public class RobotContainer {
             }));
 
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
+    m_driver.b().whileTrue(balance);
     m_driver.y().whileTrue(m_align);
-    m_driver.b().whileTrue(new AutoBalance(m_drivetrain));
 
     m_driver.leftPOV().whileTrue(m_poseAlignLeft);
     m_driver.rightPOV().whileTrue(m_poseAlignRight);

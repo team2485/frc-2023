@@ -90,7 +90,7 @@ public class Drivetrain extends SubsystemBase implements Loggable{
 
     @Log(name="pitch")
     public double getPitch(){
-        return gyro.getPitch();
+        return gyro.getRoll() + 4;
     }
 
     public void resetOdometry(Pose2d pose) {

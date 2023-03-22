@@ -193,8 +193,8 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
-    public static final double kSlowerSpeedMetersPerSecond = 2.5;
-    public static final double kSlowerAccelerationMetersPerSecondSquared = 2;
+    public static final double kSlowerSpeedMetersPerSecond = 3;
+    public static final double kSlowerAccelerationMetersPerSecondSquared = 3;
 
     public static final double kMaxAngularSpeedRadiansPerSecond = 2 * Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = 2 * Math.PI;
@@ -494,7 +494,7 @@ public final class Constants {
     // Rotation2d.fromDegrees(180.0));
 
 
-    public static final double kOffsetToNextScoringStation = 0.6;
+    public static final double kOffsetToNextScoringStation = 0.61;
 
     public static final double kTopTagYPos = kFieldWidthMeters - 4.42;
     public static final double kMiddleTagYPos = kFieldWidthMeters - 2.75;

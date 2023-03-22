@@ -64,6 +64,7 @@ public class Elevator extends SubsystemBase implements Loggable {
     StateTopCube,
     StateMiddleCone,
     StateTopCone,
+    StateSubstation,
     StateIdle,
     StateAutoWait,
     StateAutoInit,
@@ -281,6 +282,10 @@ public class Elevator extends SubsystemBase implements Loggable {
         // setpointOvershot = true;
         // this.setPositionMeters(0.87+kElevatorOvershootAmountMeters);
         this.setPositionMeters(0.86);
+        m_elevatorState = m_elevatorStates.StateIdle;
+        break;
+      case StateSubstation:
+        this.setPositionMeters(0.84);
         m_elevatorState = m_elevatorStates.StateIdle;
         break;
       case StateIdle:
