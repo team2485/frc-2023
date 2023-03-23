@@ -64,7 +64,7 @@ public class Wrist extends SubsystemBase implements Loggable {
     StateWait,
     StateInit,
     StateZero,
-    StateDown,
+      StateDown,
     StateBottom,
     StateMiddle,
     StateTop,

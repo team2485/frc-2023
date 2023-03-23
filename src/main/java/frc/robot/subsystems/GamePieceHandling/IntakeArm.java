@@ -5,6 +5,10 @@
 package frc.robot.subsystems.GamePieceHandling;
 
 import frc.robot.Constants.IntakeArmConstants;
+import frc.robot.subsystems.GamePieceHandling.Elevator.m_elevatorStates;
+import frc.robot.subsystems.GamePieceHandling.Intake.m_intakeStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
+import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.WarlordsLib.sendableRichness.SR_ProfiledPIDController;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -17,6 +21,8 @@ import frc.robot.Constants;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 import static frc.robot.Constants.IntakeArmConstants.*;
+
+import javax.swing.text.DefaultStyledDocument.ElementSpec;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotState;
@@ -49,7 +55,11 @@ public class IntakeArm extends SubsystemBase implements Loggable {
     // StateMiddle,
     StateDeployed,
     StateDeployAndLock,
-    StateIdle
+    StateIdle,
+    StateAutoWait,
+    AutoStateDeployed,
+    AutoStateRetracted,
+    AutoStateOuttake
   }
 
   public static m_intakeArmStates m_intakeArmState;
@@ -141,9 +151,9 @@ public class IntakeArm extends SubsystemBase implements Loggable {
     m_talonRight.set(ControlMode.PercentOutput, feedbackOutputVoltage);
   }
 
-  private m_intakeArmStates requestedState;
+  private static m_intakeArmStates requestedState;
 
-  public void requestState(m_intakeArmStates state) {
+  public static void requestState(m_intakeArmStates state) {
     requestedState = state;
   }
 
@@ -215,8 +225,64 @@ public class IntakeArm extends SubsystemBase implements Loggable {
         if (requestedState != null) {
           m_intakeArmState = requestedState;
           requestedState = null;
+          stateTimer = 100;
         }
         break;
+      case StateAutoWait:
+        if(stateTimer==0){
+          m_intakeArmState = m_intakeArmStates.AutoStateDeployed;
+          stateTimer2 = 100;
+        }else{
+          stateTimer--;
+        }
+        break;
+      case AutoStateDeployed:
+        this.setPositionRadians(kIntakeArmDeployedPositionRadians);
+        Elevator.requestState(m_elevatorStates.StateLow);
+        Telescope.requestState(m_telescopeStates.StatePickup);
+        Wrist.requestState(m_wristStates.StateDown);
+        Intake.requestState(m_intakeStates.StateOn);
+        if(stateTimer2==0){
+           m_intakeArmState = m_intakeArmStates.AutoStateRetracted;
+           stateTimer2--;
+        }else{
+          stateTimer2--;
+        }
+        this.runControlLoop();
+        if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
+        }
+        break;
+      case AutoStateRetracted:
+        this.setPositionRadians(kIntakeArmRetractedPositionRadians);
+        Intake.requestState(m_intakeStates.StateOff);
+        this.runControlLoop();
+        if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
+          Intake.requestState(m_intakeStates.StateOut);
+          stateTimer=100;
+        }
+        break;
+      case AutoStateOuttake:
+         this.setPositionRadians(kIntakeArmDeployedPositionRadians);
+         this.runControlLoop();
+
+         if(stateTimer==0){
+          Intake.requestState(m_intakeStates.StateOff);
+          stateTimer2=25;
+          m_intakeArmState = m_intakeArmStates.StateRetracted;
+          stateTimer--;
+         }else{
+          stateTimer--;
+         }
+         if (requestedState != null) {
+          m_intakeArmState = requestedState;
+          requestedState = null;
+        }
+        break;
+
     }
   }
 }

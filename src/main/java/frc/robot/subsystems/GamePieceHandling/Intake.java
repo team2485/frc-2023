@@ -110,9 +110,9 @@ public class Intake extends SubsystemBase {
     m_lastOutputVoltage = outputVoltage;
   }
 
-  private m_intakeStates m_requestedState;
+  private static m_intakeStates m_requestedState;
 
-  public void requestState(m_intakeStates state) {
+  public static void requestState(m_intakeStates state) {
     m_requestedState = state;
   }
 

@@ -94,7 +94,7 @@ public class IDManager {
 
   public <T> T select(T... values) {
     try {
-      System.out.println("id: " + m_acquiredId);
+      //System.out.println("id: " + m_acquiredId);
       return values[m_acquiredId];
     } catch (ArrayIndexOutOfBoundsException e) {
       DriverStation.reportWarning("ID index out of bounds, defaulting", true);

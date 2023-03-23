@@ -188,7 +188,7 @@ public class Gripper extends SubsystemBase implements Loggable {
         break;
       case StateGrip:
         this.updateCurrentHeldPiece();
-        if(this.getGripperPosition()<1.7){
+        if(this.getGripperPosition()<1.8){
           if(currentPieceType==m_pieceType.Cone){
             m_spark.set(0.75);
           }else{
@@ -223,7 +223,7 @@ public class Gripper extends SubsystemBase implements Loggable {
       case StateAutoInit:
       this.updateCurrentHeldPiece();
 
-        if(this.getGripperPosition()<1.7){
+        if(this.getGripperPosition()<1.8){
           if(currentPieceType==m_pieceType.Cone){
             m_spark.set(0.75);
           }else{
@@ -244,7 +244,7 @@ public class Gripper extends SubsystemBase implements Loggable {
       case StateAutoGrip:
         this.updateCurrentHeldPiece();
 
-        if(this.getGripperPosition()<1.7){
+        if(this.getGripperPosition()<1.8){
           if(currentPieceType==m_pieceType.Cone){
             m_spark.set(0.75);
           }else{
