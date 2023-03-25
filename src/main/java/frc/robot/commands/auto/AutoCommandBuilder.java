@@ -5,6 +5,7 @@ import static frc.robot.commands.auto.PathCommandBuilder.*;
 import java.lang.constant.DirectMethodHandleDesc;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.swing.plaf.metal.MetalIconFactory.TreeLeafIcon;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -39,17 +40,21 @@ public class AutoCommandBuilder {
 
         public static Command onePieceClimb(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope, IntakeArm intakeArm) {
-                WL_SwerveControllerCommand path = getPathSlowCommand(drivetrain, "Middle1PieceClimb");
+                WL_SwerveControllerCommand path1 = getPathSlowCommand(drivetrain, "Middle1PieceClimbPt1");
+                WL_SwerveControllerCommand path2 = getPathSlowCommand(drivetrain, "Middle1PieceClimbPt2");
+
 
                 return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
                                 // new InstantCommand(() -> intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)),
                                 // new WaitCommand(0.5),
-                                getResetOdometryCommand(drivetrain, path),
-                                path.alongWith(new WaitCommand(1.5).andThen(new InstantCommand(()->Wrist.requestState(m_wristStates.StateVeryTop)))).withTimeout(4.5),
-                                new AutoBalance(drivetrain).withTimeout(6), new InstantCommand(drivetrain::autoGyro));
+                                getResetOdometryCommand(drivetrain, path1),
+                                path1.alongWith(new WaitCommand(1.5).andThen(new InstantCommand(()->Wrist.requestState(m_wristStates.StateVeryTop)))).withTimeout(3.75), 
+                                new InstantCommand(()->drivetrain.drive(new Translation2d(0,0), 0, false, false)),new WaitCommand(1),
+                                path2.withTimeout(1.5),
+                                new AutoBalance(drivetrain).withTimeout(8.5), new InstantCommand(drivetrain::autoGyro));
         }
 
-        public static Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+        public Command twoPieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
 
                 WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
@@ -60,26 +65,26 @@ public class AutoCommandBuilder {
                                 path.alongWith(new WaitCommand(3.5)
                                                 .andThen(new InstantCommand(() -> Gripper
                                                                 .requestState(m_gripperStates.StateAutoGrip))))
-                                                .withTimeout(3.75),
+                                                .withTimeout(3.5),
                                 new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                                new WaitCommand(0.5), path2.withTimeout(3.75), new InstantCommand(drivetrain::autoGyro));
+                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
 
         }
 
-        public static Command onePieceBlue(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+        public static Command twoPieceBlueBottom(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
-                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue1Piece");
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PieceBottom");
 
                 return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
                 getResetOdometryCommand(drivetrain, path), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.StateAutoWait)),
-                path.withTimeout(6), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.AutoStateOuttake)), new InstantCommand(drivetrain::zeroGyro));
+                path.withTimeout(6.75), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.AutoStateOuttake)), new InstantCommand(drivetrain::zeroGyro));
         }
-        
+                
 
         public Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
 
-                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PiecePt1");   
                 WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Red2PiecePt2");
 
                 return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
@@ -87,19 +92,19 @@ public class AutoCommandBuilder {
                                 path.alongWith(new WaitCommand(3.5)
                                                 .andThen(new InstantCommand(() -> Gripper
                                                                 .requestState(m_gripperStates.StateAutoGrip))))
-                                                .withTimeout(3.5),
+                                                .withTimeout(3.5),      
                                 new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(3), new InstantCommand(drivetrain::autoGyro));
+                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
 
         }
 
-        public static Command onePieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
+        public static Command twoPieceRedBottom(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
-                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red1Piece");
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Red2PieceBottom");
 
                 return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
                                 getResetOdometryCommand(drivetrain, path), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.StateAutoWait)),
-                                path.withTimeout(6), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.AutoStateOuttake)), new InstantCommand(drivetrain::zeroGyro));
+                                path.withTimeout(6.75), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.AutoStateOuttake)), new InstantCommand(drivetrain::zeroGyro));
         }
 
         public Command driveToPose(boolean left, boolean middle, boolean useAllianceColor, boolean inAuto) {

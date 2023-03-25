@@ -95,19 +95,19 @@ public class RobotContainer {
     m_drivetrain.zeroGyro();
 
     m_autoChooser.setDefaultOption("2PieceBlue",
-        AutoCommandBuilder.twoPieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+        autoBuilder.twoPieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
     m_autoChooser.addOption("1PieceClimb",
         AutoCommandBuilder.onePieceClimb(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope, m_intakeArm));
 
-    m_autoChooser.addOption("1PieceBlue",
-        AutoCommandBuilder.onePieceBlue(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.addOption("2PieceBlueBottom",
+        AutoCommandBuilder.twoPieceBlueBottom(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
     m_autoChooser.addOption("2PieceRed",
         autoBuilder.twoPieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
 
-    m_autoChooser.addOption("1PieceRed",
-        AutoCommandBuilder.onePieceRed(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
+    m_autoChooser.addOption("2PieceRedBottom",
+        AutoCommandBuilder.twoPieceRedBottom(m_drivetrain, m_elevator, m_gripper, m_wrist, m_telescope));
   }
 
   /**
