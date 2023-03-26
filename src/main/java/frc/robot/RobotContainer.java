@@ -154,7 +154,7 @@ public class RobotContainer {
     m_driver.y().whileTrue(m_align);
     
     m_driver.start().and(m_driver.back()).onTrue(new InstantCommand(()->Telescope.requestState(m_telescopeStates.StateInit)));
-    m_driver.a().onTrue(new InstantCommand(m_elevator::resetPID));
+    // m_driver.a().onTrue(new InstantCommand(m_elevator::resetPID));
 
     m_driver.leftPOV().whileTrue(m_poseAlignLeft);
     m_driver.rightPOV().whileTrue(m_poseAlignRight);
