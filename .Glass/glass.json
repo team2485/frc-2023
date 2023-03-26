@@ -14,9 +14,6 @@
         "Gripper": {
           "open": true
         },
-        "RobotContainer": {
-          "open": true
-        },
         "Telescope": {
           "open": true
         },
@@ -34,6 +31,7 @@
     },
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Field/Field": "Field2d",
       "/Shuffleboard/RobotContainer/Auto Chooser": "String Chooser",
       "/Shuffleboard/Vision/Field": "Field2d"
     }
@@ -341,6 +339,24 @@
                 1.0
               ],
               "id": "NT:/Shuffleboard/Gripper/output current"
+            }
+          ]
+        }
+      ]
+    },
+    "Plot <8>": {
+      "plots": [
+        {
+          "height": 600,
+          "series": [
+            {
+              "color": [
+                0.2980392277240753,
+                0.44705885648727417,
+                0.6901960968971252,
+                1.0
+              ],
+              "id": "NT:/Shuffleboard/Telescope/current"
             }
           ]
         }

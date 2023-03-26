@@ -204,7 +204,7 @@ public class Telescope extends SubsystemBase implements Loggable {
         break;
       case StateZero:
         m_spark.setVoltage(-1.5);
-        if (this.getCurrent() > 40) {
+        if (this.getCurrent() > 25) {
           currentTimer--;
           if (currentTimer <= 0) {
             // calling the zero 0.05 to avoid running into the random position drops

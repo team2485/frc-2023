@@ -16,6 +16,10 @@ import frc.WarlordsLib.sendableRichness.SR_SimpleMotorFeedforward;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
+/*
+ * NOT USED IN FINAL ROBOT
+ */
+
 public class Magazine extends SubsystemBase implements Loggable {
 
   private WPI_TalonFX m_talon = new WPI_TalonFX(kMagazineTalonPort);

@@ -23,6 +23,7 @@ import frc.robot.subsystems.GamePieceHandling.Telescope;
 import frc.robot.subsystems.GamePieceHandling.Wrist;
 import frc.robot.subsystems.GamePieceHandling.Gripper.m_gripperStates;
 import frc.robot.subsystems.GamePieceHandling.IntakeArm.m_intakeArmStates;
+import frc.robot.subsystems.GamePieceHandling.Telescope.m_telescopeStates;
 import frc.robot.subsystems.GamePieceHandling.Wrist.m_wristStates;
 import frc.robot.subsystems.drive.Drivetrain;
 import io.github.oblarg.oblog.annotations.Log;
@@ -151,6 +152,9 @@ public class RobotContainer {
     m_driver.x().onTrue(new InstantCommand(() -> m_drivetrain.zeroGyro()));
     m_driver.b().whileTrue(balance);
     m_driver.y().whileTrue(m_align);
+    
+    m_driver.start().and(m_driver.back()).onTrue(new InstantCommand(()->Telescope.requestState(m_telescopeStates.StateInit)));
+    m_driver.a().onTrue(new InstantCommand(m_elevator::resetPID));
 
     m_driver.leftPOV().whileTrue(m_poseAlignLeft);
     m_driver.rightPOV().whileTrue(m_poseAlignRight);
@@ -203,6 +207,7 @@ public class RobotContainer {
 
     m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
 
+    
     m_operator.leftPOV().onTrue(
         new ConditionalCommand(GamePieceHandlingCommands.midCubeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),
             GamePieceHandlingCommands.midConeSetpoint(m_telescope, m_elevator, m_gripper, m_wrist),

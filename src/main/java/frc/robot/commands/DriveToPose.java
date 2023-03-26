@@ -108,7 +108,7 @@ public class DriveToPose extends CommandBase {
 
     m_thetaController.setGoal(Math.PI);
     if(isAuto){
-      m_xController.setGoal(1.725);
+      m_xController.setGoal(1.73);
     }else{
       m_xController.setGoal(1.8);
     }

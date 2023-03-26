@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase implements Loggable {
 
   public Elevator() {
 
-    m_pidController.setIntegratorRange(-6, 6);
+    m_pidController.setIntegratorRange(-4, 4);
 
     if (RobotState.isAutonomous()) {
       m_elevatorState = m_elevatorStates.StateAutoWait;
@@ -157,6 +157,10 @@ public class Elevator extends SubsystemBase implements Loggable {
   @Log(name = "output current")
   public double getStatorCurrent() {
     return m_talonLeft.getStatorCurrent();
+  }
+
+  public void resetPID(){
+    m_pidController.reset(0);
   }
 
   @Log(name = "output current 2")
