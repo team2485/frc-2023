@@ -223,23 +223,23 @@ public class Telescope extends SubsystemBase implements Loggable {
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIn:
-        this.setPositionSetpointMeters(0.15);
+        this.setPositionSetpointMeters(0.08);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCube:
-        this.setPositionSetpointMeters(0.55);
+        this.setPositionSetpointMeters(0.25);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCube:
-        this.setPositionSetpointMeters(0.95);
+        this.setPositionSetpointMeters(0.28);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateMiddleCone:
-        this.setPositionSetpointMeters(0.55);
+        this.setPositionSetpointMeters(0.25);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateOutCone:
-        this.setPositionSetpointMeters(0.98);
+        this.setPositionSetpointMeters(0.28);
         m_telescopeState = m_telescopeStates.StateIdle;
         break;
       case StateIdle:
@@ -256,7 +256,7 @@ public class Telescope extends SubsystemBase implements Loggable {
         m_requestedState = null;
         break;
       case StateInBetween:
-        this.setPositionSetpointMeters(0.3);
+        this.setPositionSetpointMeters(0.22);
         if(stateTimer==0){
           Elevator.requestState(m_elevatorStates.StateAutoInit);
           stateTimer--;
