@@ -218,7 +218,7 @@ public class Elevator extends SubsystemBase implements Loggable {
       case StateFault:
         break;
       case StateStart:
-        this.setPositionMeters(0.25);
+        this.setPositionMeters(0.3);
         m_elevatorState = m_elevatorStates.StateIdle;
         break;
       case StateWait:
