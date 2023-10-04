@@ -142,6 +142,7 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {}
 
   private void checkDriverStationUpdate() {
+    // must check current alliance for accurate vision positioning on game field
     Alliance currentAlliance = DriverStation.getAlliance();
 
     if (DriverStation.isDSAttached() && currentAlliance != alliance) {
