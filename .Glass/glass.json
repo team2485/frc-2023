@@ -347,7 +347,7 @@
     "Plot <8>": {
       "plots": [
         {
-          "height": 600,
+          "height": 0,
           "series": [
             {
               "color": [
