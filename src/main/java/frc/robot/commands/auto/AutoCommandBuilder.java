@@ -60,25 +60,14 @@ public class AutoCommandBuilder {
                 WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
                 WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
 
-                return test(elevator, gripper, wrist, telescope).andThen(new WaitCommand(2.5),
+                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
                                 getResetOdometryCommand(drivetrain, path),
                                 path.alongWith(new WaitCommand(3.5)
-                                        .andThen(new InstantCommand(() -> Gripper
-                                                        .requestState(m_gripperStates.StateAutoGrip))))
-                                                        .withTimeout(3.5),
+                                                .andThen(new InstantCommand(() -> Gripper
+                                                                .requestState(m_gripperStates.StateAutoGrip))))
+                                                .withTimeout(3.5),
                                 new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2), new InstantCommand(drivetrain::autoGyro));
-                                
-
-
-               // return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
-                              //  getResetOdometryCommand(drivetrain, path),
-                              //  path.alongWith(new WaitCommand(3.5)
-                                              //  .andThen(new InstantCommand(() -> Gripper
-                                                               // .requestState(m_gripperStates.StateAutoGrip))))
-                                               // .withTimeout(3.5),
-                               // new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                               // new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2), new InstantCommand(drivetrain::autoGyro));
+                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
 
         }
 
@@ -96,15 +85,46 @@ public class AutoCommandBuilder {
         //C1A, C1B, C1C, U1A, U1B, U1C, C2A, C2B, C2C, C3A, C3B, C3C, U2A, U2B, U2C, C4A, C4B, C4C, C5A, C5B, C5C, U3A, U3B, U3C, C6A, C6B, C6C
 
 
-        /*public static Command C1A(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
-                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "C1A");
+        public Command C1A(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "C1A1");
 
                 return teleopInit(elevator, gripper, wrist, telescope).andThen( new WaitCommand(4.3),
-                        getResetOdometryCommand(drivetrain, path), 
+                        getResetOdometryCommand(drivetrain, path),
+                        path.alongWith(new WaitCommand(3.2)
+                                        .andThen(new InstantCommand(() -> Elevator
+                                                .requestState(m_elevatorStates.StateBottom))))
+                                .withTimeout(3.5),
                         new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)), 
-                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(2.5));
+                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, false), new InstantCommand(drivetrain::autoGyro));
 
-        }      */          
+
+        }         
+        public Command C1B(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "C1A1");
+
+                return teleopInit(elevator, gripper, wrist, telescope).andThen( new WaitCommand(4.3),
+                        getResetOdometryCommand(drivetrain, path),
+                        path.alongWith(new WaitCommand(3.2)
+                                        .andThen(new InstantCommand(() -> Elevator
+                                                .requestState(m_elevatorStates.StateMiddleCone))))
+                                .withTimeout(3.5),
+                        new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)), 
+                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, false), new InstantCommand(drivetrain::autoGyro));
+
+        }     
+        public Command C1C(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "C1A1");
+
+                return teleopInit(elevator, gripper, wrist, telescope).andThen( new WaitCommand(4.3),
+                        getResetOdometryCommand(drivetrain, path),
+                        path.alongWith(new WaitCommand(3.2)
+                                        .andThen(new InstantCommand(() -> Elevator
+                                                .requestState(m_elevatorStates.StateTopCone))))
+                                .withTimeout(3.5),
+                        new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)), 
+                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, false), new InstantCommand(drivetrain::autoGyro));
+
+        }         
 
         public Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
