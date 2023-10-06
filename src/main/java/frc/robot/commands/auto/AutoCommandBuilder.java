@@ -60,14 +60,25 @@ public class AutoCommandBuilder {
                 WL_SwerveControllerCommand path = getPathCommand(drivetrain, "Blue2PiecePt1");
                 WL_SwerveControllerCommand path2 = getPathCommand(drivetrain, "Blue2PiecePt2");
 
-                return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                return test(elevator, gripper, wrist, telescope).andThen(new WaitCommand(2.5),
                                 getResetOdometryCommand(drivetrain, path),
                                 path.alongWith(new WaitCommand(3.5)
-                                                .andThen(new InstantCommand(() -> Gripper
-                                                                .requestState(m_gripperStates.StateAutoGrip))))
-                                                .withTimeout(3.5),
+                                        .andThen(new InstantCommand(() -> Gripper
+                                                        .requestState(m_gripperStates.StateAutoGrip))))
+                                                        .withTimeout(3.5),
                                 new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
-                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
+                                new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2), new InstantCommand(drivetrain::autoGyro));
+                                
+
+
+               // return autoInit(elevator, gripper, wrist, telescope).andThen(new WaitCommand(4.3),
+                              //  getResetOdometryCommand(drivetrain, path),
+                              //  path.alongWith(new WaitCommand(3.5)
+                                              //  .andThen(new InstantCommand(() -> Gripper
+                                                               // .requestState(m_gripperStates.StateAutoGrip))))
+                                               // .withTimeout(3.5),
+                               // new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)),
+                               // new WaitCommand(0.5), path2.withTimeout(2.75), driveToPose(true, false, true, true).withTimeout(2), new InstantCommand(drivetrain::autoGyro));
 
         }
 

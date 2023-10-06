@@ -241,8 +241,8 @@ public final class Constants {
 
     public static final double kElevatorFreeSpeedMetersPerSecond = kFalconFreeSpeedRotationsPerSecond
         / kElevatorGearRatio * kSprocketCircumference;
-    public static final double kElevatorMaxSpeedMetersPerSecond = kElevatorFreeSpeedMetersPerSecond * 0.9;
-    public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 1.5;
+    public static final double kElevatorMaxSpeedMetersPerSecond = kElevatorFreeSpeedMetersPerSecond * 0.75;
+    public static final double kElevatorMaxAccelerationMetersPerSecondSquared = 1;
 
     // velocity loop constants
     public static final double kSElevatorVolts = 0.095783;
