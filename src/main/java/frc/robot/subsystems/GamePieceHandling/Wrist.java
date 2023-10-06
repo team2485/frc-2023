@@ -224,7 +224,7 @@ public class Wrist extends SubsystemBase implements Loggable {
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateBottom:
-        this.setAngleRadians(1.65);
+        this.setAngleRadians(1.66);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateMiddle:

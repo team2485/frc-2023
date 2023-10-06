@@ -102,7 +102,7 @@ public class AutoCommandBuilder {
                 return teleopInit(elevator, gripper, wrist, telescope).andThen( new WaitCommand(4.3),
                         getResetOdometryCommand(drivetrain, path), 
                         new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)), 
-                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
+                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(2.5));
 
         }                
 
