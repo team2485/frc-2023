@@ -41,8 +41,8 @@ public class AlignToPole extends CommandBase implements Loggable{
   @Override
   public void execute() {
 
-    double offset = 14;
-    double kp = -0.0375;
+    double offset = 10;
+    double kp = .1;
     offset = NetworkTableInstance.getDefault().getTable("photonvision").getSubTable("photonvision").getEntry("targetYaw").getDouble(0)-offset;
     m_drive.drive(new Translation2d(0, kp*offset), 0, true, true);
 }
@@ -52,7 +52,7 @@ public class AlignToPole extends CommandBase implements Loggable{
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_drive.drive(new Translation2d(0,0),0,true,true);
+    m_drive.drive(new Translation2d(0,0), 0,true,true);
   }
 
   // Returns true when the command should end.

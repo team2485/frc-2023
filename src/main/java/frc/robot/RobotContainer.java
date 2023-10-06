@@ -8,6 +8,7 @@ import frc.WarlordsLib.WL_CommandXboxController;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.AlignToPole;
 import frc.robot.commands.AutoBalance;
+import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveWithController;
 import frc.robot.commands.GamePieceHandlingCommands;
 import frc.robot.commands.auto.AutoCommandBuilder;
@@ -71,13 +72,13 @@ public class RobotContainer {
 
   public final AutoBalance balance = new AutoBalance(m_drivetrain);
 
-  public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true, false);
-  public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true, false);
-  public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true, false);
+  //public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true, false);
+  //public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true, false);
+  //public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true, false);
 
-  // public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true);
-  // public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true);
-  // public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true);
+  public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true, false);
+  public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true, false);
+  public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true, false);
   
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 
@@ -160,6 +161,7 @@ public class RobotContainer {
     m_driver.leftPOV().whileTrue(m_poseAlignLeft);
     m_driver.rightPOV().whileTrue(m_poseAlignRight);
     m_driver.upperPOV().whileTrue(m_poseAlignMiddle);
+    m_driver.lowerPOV().whileTrue(m_poseAlignLeft);
   }
 
   private void configureGamePieceCommands() {
@@ -202,7 +204,6 @@ public class RobotContainer {
             m_elevator, m_wrist, m_gripper))
         .onFalse(GamePieceHandlingCommands.retractIntakeCommand(m_intakeArm, m_intake, m_magazine, m_telescope,
             m_elevator, m_wrist));
-
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)));
 
