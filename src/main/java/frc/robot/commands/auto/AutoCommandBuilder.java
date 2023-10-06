@@ -90,7 +90,21 @@ public class AutoCommandBuilder {
                 getResetOdometryCommand(drivetrain, path), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.StateAutoWait)),
                 path.withTimeout(6.75), new InstantCommand(()->IntakeArm.requestState(m_intakeArmStates.AutoStateOuttake)), new InstantCommand(drivetrain::zeroGyro));
         }
-                
+        
+        //anticipatory collision detection paths
+
+        //C1A, C1B, C1C, U1A, U1B, U1C, C2A, C2B, C2C, C3A, C3B, C3C, U2A, U2B, U2C, C4A, C4B, C4C, C5A, C5B, C5C, U3A, U3B, U3C, C6A, C6B, C6C
+
+
+        public static Command C1A(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                WL_SwerveControllerCommand path = getPathCommand(drivetrain, "C1A");
+
+                return teleopInit(elevator, gripper, wrist, telescope).andThen( new WaitCommand(4.3),
+                        getResetOdometryCommand(drivetrain, path), 
+                        new InstantCommand(() -> drivetrain.drive(new Translation2d(0, 0), 0, true, true)), 
+                        new WaitCommand(0.5), path.withTimeout(2.75), driveToPose(false, false, true, true).withTimeout(2.5), new InstantCommand(drivetrain::autoGyro));
+
+        }                
 
         public Command twoPieceRed(Drivetrain drivetrain, Elevator elevator, Gripper gripper, Wrist wrist,
                         Telescope telescope) {
@@ -138,6 +152,20 @@ public class AutoCommandBuilder {
                                                                 () -> Gripper.m_gripperState = m_gripperStates.StateAutoWait),
                                                 new InstantCommand(
                                                                 () -> Intake.m_intakeState = m_intakeStates.StateAutoInit));
+        }
+
+        public static Command teleopInit(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
+                return new InstantCommand(() -> Elevator.m_elevatorState = m_elevatorStates.StateFault)
+                        .andThen(new InstantCommand(
+                                () -> Telescope.m_telescopeState = m_telescopeStates.StateFault),
+                                new InstantCommand(
+                                        () -> Wrist.m_wristState = m_wristStates.StateFault),
+                                new InstantCommand(
+                                        () -> Gripper.m_gripperState = m_gripperStates.StateFault),
+                                new InstantCommand(
+                                        () -> Intake.m_intakeState = m_intakeStates.StateFault));
+
+                                                       
         }
 
         public static Command test(Elevator elevator, Gripper gripper, Wrist wrist, Telescope telescope) {
