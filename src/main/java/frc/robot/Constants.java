@@ -310,7 +310,7 @@ public final class Constants {
 
     public static final double kGripperControllerPositionTolerance = 0;
     public static final double kGripperOpenPositionSetpoint = 0;
-    public static final int kGripperCurrentLimit = 45;
+    public static final int kGripperCurrentLimit = 40;
     public static final double kGripperStoppedVelocityTolerance = 0;
     public static final double kPieceDetectionTolerance = 0.175;
     public static final double kCubeEncoderDistance = 1.1;
