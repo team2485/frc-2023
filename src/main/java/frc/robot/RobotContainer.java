@@ -72,13 +72,13 @@ public class RobotContainer {
 
   public final AutoBalance balance = new AutoBalance(m_drivetrain);
 
-  //public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true, false);
-  //public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true, false);
-  //public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true, false);
+  public final Command m_poseAlignRight = autoBuilder.driveToPose(false, false, true, false);
+  public final Command m_poseAlignLeft = autoBuilder.driveToPose(true, false, true, false);
+  public final Command m_poseAlignMiddle = autoBuilder.driveToPose(true, true, true, false);
 
-  public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true, false);
-  public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true, false);
-  public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true, false);
+  // public final DriveToPose m_poseAlignRight = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, false, false, true, false);
+  // public final DriveToPose m_poseAlignLeft = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, false, true, false);
+  // public final DriveToPose m_poseAlignMiddle = new DriveToPose(m_drivetrain, m_poseEstimator::getCurrentPose, true, true, true, false);
   
   public final AlignToPole m_align = new AlignToPole(m_drivetrain);
 

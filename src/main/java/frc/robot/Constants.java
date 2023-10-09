@@ -306,11 +306,11 @@ public final class Constants {
     public static final int kGripperSparkPort = 17;
 
     public static final double kGripperOpenPosMeters = 0;
-    public static final double kGripperClosedPosMeters = 3;
+    public static final double kGripperClosedPosMeters = 3.2;
 
     public static final double kGripperControllerPositionTolerance = 0;
     public static final double kGripperOpenPositionSetpoint = 0;
-    public static final int kGripperCurrentLimit = 40;
+    public static final int kGripperCurrentLimit = 45;
     public static final double kGripperStoppedVelocityTolerance = 0;
     public static final double kPieceDetectionTolerance = 0.175;
     public static final double kCubeEncoderDistance = 1.1;
@@ -473,8 +473,8 @@ public final class Constants {
     public static final double Y_kI = 0.3;
     public static final double Y_kD = 0.0;  
 
-    public static final double THETA_kP = 1.5;
-    public static final double THETA_kI = 0.5;
+    public static final double THETA_kP = 4;
+    public static final double THETA_kI = 0.3;
     public static final double THETA_kD = 0.15;
 
     // TODO: ensure validity of measurements

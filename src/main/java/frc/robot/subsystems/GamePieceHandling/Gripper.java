@@ -190,9 +190,9 @@ public class Gripper extends SubsystemBase implements Loggable {
         this.updateCurrentHeldPiece();
         if(this.getGripperPosition()<1.8){
           if(currentPieceType==m_pieceType.Cone){
-            m_spark.set(0.75);
+            m_spark.set(0.8);
           }else{
-            m_spark.set(0.4);
+            m_spark.set(0.5);
           }
         }else{
           m_spark.set(0);
