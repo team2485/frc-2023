@@ -207,7 +207,7 @@ public class RobotContainer {
     m_operator.a().onTrue(GamePieceHandlingCommands.travelSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
     m_operator.x().onTrue(new InstantCommand(() -> m_gripper.requestState(m_gripperStates.StateOpening)));
 
-    m_operator.rightTrigger().and(m_operator.lowerPOV()).onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
+    m_operator.lowerPOV().onTrue(GamePieceHandlingCommands.lowSetpoint(m_telescope, m_elevator, m_gripper, m_wrist));
 
     
     m_operator.leftPOV().onTrue(

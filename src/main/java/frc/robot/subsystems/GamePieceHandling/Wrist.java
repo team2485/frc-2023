@@ -228,11 +228,11 @@ public class Wrist extends SubsystemBase implements Loggable {
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateMiddle:
-        this.setAngleRadians(1.8);
+        this.setAngleRadians(1.2);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateTop:
-        this.setAngleRadians(2.2);
+        this.setAngleRadians(2.0);
         m_wristState = m_wristStates.StateIdle;
         break;
       case StateHigh:
@@ -278,7 +278,7 @@ public class Wrist extends SubsystemBase implements Loggable {
          m_requestedState = null;
         break;
       case StateAutoHigh:
-        this.setAngleRadians(2.5);
+        this.setAngleRadians(2.2);
         this.runControlLoop();
         if(stateTimer==0){
           Elevator.requestState(m_elevatorStates.StateAutoHigh);

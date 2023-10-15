@@ -270,7 +270,7 @@ public final class Constants {
     public static final double kWristRadiansPerPulse = kWristRadiansPerMotorRev / kFalconSensorUnitsPerRotation;
 
     public static final double kWristBottomPositionRadians = 0; // from horizontal
-    public static final double kWristTopPositionRadians = 4.4;
+    public static final double kWristTopPositionRadians = 3.8;
 
     public static final double kIndexerSupplyCurrentLimitAmps = 25;
     public static final double kIndexerSupplyCurrentThresholdAmps = 30;
@@ -296,8 +296,8 @@ public final class Constants {
         kWristMaxSpeedRadiansPerSecond, kWristMaxAccelerationRadiansPerSecondSquared);
     // Wrist PID constants
     public static final double kPWrist = 3;
-    public static final double kIWrist = 4;
-    public static final double kDWrist = 0.25;
+    public static final double kIWrist = 2;
+    public static final double kDWrist = 0;
     public static final double kWristControllerPositionTolerance = 0;
 
   }

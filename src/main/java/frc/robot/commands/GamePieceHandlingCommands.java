@@ -96,7 +96,7 @@ public class GamePieceHandlingCommands {
 
   public static Command doubleSubstationSetpoint(Telescope telescope, Elevator elevator, Wrist wrist) {
     ParallelCommandGroup group = new ParallelCommandGroup(
-        new InstantCommand(() -> wrist.requestState(m_wristStates.StateMiddle)),
+        new InstantCommand(() -> wrist.requestState(m_wristStates.StateTop)),
         new InstantCommand(() -> telescope.requestState(m_telescopeStates.StateMiddleCone)),
         new InstantCommand(() -> elevator.requestState(m_elevatorStates.StateSubstation)));
 
@@ -120,7 +120,7 @@ public class GamePieceHandlingCommands {
   public static Command deployAndLockIntakeCommand(IntakeArm intakeArm, Telescope telescope, Elevator elevator,
       Wrist wrist) {
     ParallelCommandGroup group = new ParallelCommandGroup(
-        new InstantCommand(() -> wrist.requestState(m_wristStates.StateDown)),
+        new InstantCommand(() -> wrist.requestState(m_wristStates.StateFault)),
         new InstantCommand(() -> telescope.requestState(m_telescopeStates.StatePickup)),
         new InstantCommand(() -> elevator.requestState(m_elevatorStates.StateLow)),
         new InstantCommand(() -> intakeArm.requestState(m_intakeArmStates.StateDeployAndLock)));
